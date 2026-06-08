@@ -23,10 +23,6 @@ class DatabaseSeeder extends Seeder
             'name' => 'Admin User',
             'email' => 'admin@example.com',
             'phone' => '1234567890',
-            'address' => '123 Admin St',
-            'post_code' => '12345',
-            'city' => 'Admin City',
-            'country' => 'Adminland',
             'password' => bcrypt('password'),
         ]);
 
@@ -34,10 +30,6 @@ class DatabaseSeeder extends Seeder
             'name' => 'Volunteer User',
             'email' => 'volunteer@example.com',
             'phone' => '0987654321',
-            'address' => '456 Volunteer Ave',
-            'post_code' => '54321',
-            'city' => 'Volunteer City',
-            'country' => 'Volunteerland',
             'password' => bcrypt('password'),
         ]);
 
@@ -45,10 +37,6 @@ class DatabaseSeeder extends Seeder
             'name' => 'Professional User',
             'email' => 'professional@example.com',
             'phone' => '1122334455',
-            'address' => '789 Professional Rd',
-            'post_code' => '67890',
-            'city' => 'Professional City',
-            'country' => 'Professionland',
             'password' => bcrypt('password'),
         ]);
 
