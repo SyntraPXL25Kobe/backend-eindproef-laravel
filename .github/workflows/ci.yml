@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches-ignore:
+    branches:
       - main
   pull_request:
     branches:
@@ -24,7 +24,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: "8.4"
+          php-version: '8.4'
           coverage: none
 
       - name: Cache Composer dependencies
@@ -44,8 +44,8 @@ jobs:
         if: github.event_name == 'push'
         uses: stefanzweifel/git-auto-commit-action@v7
         with:
-          commit_message: "fix: php code style (pint)"
-          commit_options: "--no-verify"
+          commit_message: 'fix: php code style (pint)'
+          commit_options: '--no-verify'
 
   generate:
     name: Generate Wayfinder
@@ -58,7 +58,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: "8.4"
+          php-version: '8.4'
           coverage: none
 
       - name: Cache Composer dependencies
@@ -104,7 +104,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v6
         with:
-          node-version: "lts/*"
+          node-version: 'lts/*'
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
@@ -124,8 +124,8 @@ jobs:
         if: github.event_name == 'push'
         uses: stefanzweifel/git-auto-commit-action@v7
         with:
-          commit_message: "fix: frontend code style (prettier/eslint)"
-          commit_options: "--no-verify"
+          commit_message: 'fix: frontend code style (prettier/eslint)'
+          commit_options: '--no-verify'
 
   typecheck:
     name: TypeScript Typecheck
@@ -146,7 +146,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v6
         with:
-          node-version: "lts/*"
+          node-version: 'lts/*'
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
