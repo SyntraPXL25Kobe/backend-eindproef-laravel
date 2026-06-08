@@ -14,14 +14,10 @@ class PermissionsSeeder extends Seeder
      */
     public function run(): void
     {
-        app()[PermissionRegistrar::class]->forgetCachedPermissions();
+        app(PermissionRegistrar::class)->forgetCachedPermissions();
 
         $permissions = [
-            'profile.manage-own',
-            'planning.view-own',
-            'shifts.view-open',
-
-            'users.view-any',
+            // User and access management
             'users.view',
             'users.create',
             'users.update',
@@ -29,127 +25,97 @@ class PermissionsSeeder extends Seeder
             'roles.manage',
             'permissions.manage',
 
-            'events.view-any',
+            // Event planning domain
+            'events.view',
+            'events.create',
+            'events.update',
+            'events.delete',
+            'events.publish',
+            'zones.manage',
+            'shifts.manage',
+            'open_shifts.view',
+
+            // Applications and assignments
+            'shift_applications.create',
+            'shift_applications.cancel',
+            'shift_applications.view',
+            'shift_applications.approve',
+            'shift_applications.reject',
+            'assignments.manage',
+
+            // Event day operations
+            'checkins.manage',
+            'no_shows.manage',
+            'replacements.manage',
+
+            // Personal volunteer scope
+            'profile.manage_own',
+            'skills.manage_own',
+            'planning.view_own',
+            'status.view_own',
+
+            // Communication and reporting
+            'notifications.view_own',
+            'notifications.manage',
+            'reports.view_event',
+            'reports.view_global',
+        ];
+
+        foreach ($permissions as $permissionName) {
+            Permission::firstOrCreate([
+                'name' => $permissionName,
+                'guard_name' => 'web',
+            ]);
+        }
+
+        $volunteerRole = Role::firstOrCreate([
+            'name' => 'volunteer',
+            'guard_name' => 'web',
+        ]);
+
+        $professionalRole = Role::firstOrCreate([
+            'name' => 'professional',
+            'guard_name' => 'web',
+        ]);
+
+        $adminRole = Role::firstOrCreate([
+            'name' => 'admin',
+            'guard_name' => 'web',
+        ]);
+
+        $volunteerRole->syncPermissions([
+            'open_shifts.view',
+            'shift_applications.create',
+            'shift_applications.cancel',
+            'profile.manage_own',
+            'skills.manage_own',
+            'planning.view_own',
+            'status.view_own',
+            'notifications.view_own',
+        ]);
+
+        $professionalRole->syncPermissions([
             'events.view',
             'events.create',
             'events.update',
             'events.publish',
-            'events.unpublish',
-            'events.delete',
+            'zones.manage',
+            'shifts.manage',
+            'open_shifts.view',
+            'shift_applications.view',
+            'shift_applications.approve',
+            'shift_applications.reject',
+            'assignments.manage',
+            'checkins.manage',
+            'no_shows.manage',
+            'replacements.manage',
+            'notifications.manage',
+            'reports.view_event',
+        ]);
 
-            'zones.view-any',
-            'zones.view',
-            'zones.create',
-            'zones.update',
-            'zones.delete',
+        $adminRole->syncPermissions(Permission::all());
 
-            'shifts.view-any',
-            'shifts.view',
-            'shifts.create',
-            'shifts.update',
-            'shifts.delete',
-
-            'skills.view-any',
-            'skills.create',
-            'skills.update',
-            'skills.delete',
-            'skills.manage-own',
-
-            'applications.view-any',
-            'applications.create',
-            'applications.cancel-own',
-            'applications.approve',
-            'applications.reject',
-
-            'assignments.view-any',
-            'assignments.create',
-            'assignments.update',
-            'assignments.delete',
-
-            'checkins.view-any',
-            'checkins.register',
-            'checkins.update',
-
-            'no-shows.view-any',
-            'no-shows.mark',
-            'no-shows.replace',
-
-            'notifications.send',
-            'reports.view-event',
-            'reports.view-global',
-        ];
-
-        foreach ($permissions as $permission) {
-            Permission::findOrCreate($permission, 'web');
-        }
-
-        $rolePermissions = [
-            'admin' => $permissions,
-            'coordinator' => [
-                'profile.manage-own',
-                'planning.view-own',
-                'shifts.view-open',
-
-                'events.view-any',
-                'events.view',
-                'events.create',
-                'events.update',
-                'events.publish',
-                'events.unpublish',
-
-                'zones.view-any',
-                'zones.view',
-                'zones.create',
-                'zones.update',
-                'zones.delete',
-
-                'shifts.view-any',
-                'shifts.view',
-                'shifts.create',
-                'shifts.update',
-                'shifts.delete',
-
-                'skills.view-any',
-
-                'applications.view-any',
-                'applications.approve',
-                'applications.reject',
-
-                'assignments.view-any',
-                'assignments.create',
-                'assignments.update',
-                'assignments.delete',
-
-                'checkins.view-any',
-                'checkins.register',
-                'checkins.update',
-
-                'no-shows.view-any',
-                'no-shows.mark',
-                'no-shows.replace',
-
-                'notifications.send',
-                'reports.view-event',
-            ],
-            'volunteer' => [
-                'profile.manage-own',
-                'planning.view-own',
-                'shifts.view-open',
-
-                'events.view',
-                'zones.view',
-                'shifts.view',
-                'skills.manage-own',
-
-                'applications.create',
-                'applications.cancel-own',
-            ],
-        ];
-
-        foreach ($rolePermissions as $roleName => $permissionsForRole) {
-            $role = Role::findOrCreate($roleName, 'web');
-            $role->syncPermissions($permissionsForRole);
-        }
+        app(PermissionRegistrar::class)->forgetCachedPermissions();
 
     }
 }
