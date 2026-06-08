@@ -15,11 +15,33 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        $this->call([
+            PermissionsSeeder::class,
         ]);
+
+        $admin = User::query()->updateOrCreate([
+            'email' => 'admin@example.com',
+        ], [
+            'name' => 'Admin User',
+            'password' => 'password',
+        ]);
+
+        $coordinator = User::query()->updateOrCreate([
+            'email' => 'coordinator@example.com',
+        ], [
+            'name' => 'Coordinator User',
+            'password' => 'password',
+        ]);
+
+        $volunteer = User::query()->updateOrCreate([
+            'email' => 'volunteer@example.com',
+        ], [
+            'name' => 'Volunteer User',
+            'password' => 'password',
+        ]);
+
+        $admin->syncRoles(['admin']);
+        $coordinator->syncRoles(['coordinator']);
+        $volunteer->syncRoles(['volunteer']);
     }
 }
