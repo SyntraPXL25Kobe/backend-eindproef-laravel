@@ -9,113 +9,67 @@ use Spatie\Permission\PermissionRegistrar;
 
 class PermissionsSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        app(PermissionRegistrar::class)->forgetCachedPermissions();
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
+        // Create permissions
         $permissions = [
-            // User and access management
-            'users.view',
-            'users.create',
-            'users.update',
-            'users.delete',
-            'roles.manage',
-            'permissions.manage',
-
-            // Event planning domain
-            'events.view',
-            'events.create',
-            'events.update',
-            'events.delete',
-            'events.publish',
-            'zones.manage',
-            'shifts.manage',
-            'open_shifts.view',
-
-            // Applications and assignments
-            'shift_applications.create',
-            'shift_applications.cancel',
-            'shift_applications.view',
-            'shift_applications.approve',
-            'shift_applications.reject',
-            'assignments.manage',
-
-            // Event day operations
-            'checkins.manage',
-            'no_shows.manage',
-            'replacements.manage',
-
-            // Personal volunteer scope
-            'profile.manage_own',
-            'skills.manage_own',
-            'planning.view_own',
-            'status.view_own',
-
-            // Communication and reporting
-            'notifications.view_own',
-            'notifications.manage',
-            'reports.view_event',
-            'reports.view_global',
+            'view open shifts',
+            'apply for shift',
+            'cancel application',
+            'manage own profile',
+            'view own schedule',
+            'create events',
+            'edit events',
+            'delete events',
+            'manage zones',
+            'manage shifts',
+            'review applications',
+            'manage check-ins',
+            'mark no-shows',
+            'trigger replacements',
+            'view event reports',
+            'manage users',
+            'manage roles',
+            'view global reports',
+            'impersonate users',
         ];
 
-        foreach ($permissions as $permissionName) {
-            Permission::firstOrCreate([
-                'name' => $permissionName,
-                'guard_name' => 'web',
-            ]);
+        foreach ($permissions as $permission) {
+            Permission::firstOrCreate(['name' => $permission, 'guard_name' => 'web']);
         }
 
-        $volunteerRole = Role::firstOrCreate([
-            'name' => 'volunteer',
-            'guard_name' => 'web',
-        ]);
+        // Create roles and assign permissions
+        Role::firstOrCreate(['name' => 'volunteer', 'guard_name' => 'web'])
+            ->syncPermissions([
+                'view open shifts',
+                'apply for shift',
+                'cancel application',
+                'manage own profile',
+                'view own schedule',
+            ]);
 
-        $professionalRole = Role::firstOrCreate([
-            'name' => 'professional',
-            'guard_name' => 'web',
-        ]);
+        Role::firstOrCreate(['name' => 'coordinator', 'guard_name' => 'web'])
+            ->syncPermissions([
+                'view open shifts',
+                'apply for shift',
+                'cancel application',
+                'manage own profile',
+                'view own schedule',
+                'create events',
+                'edit events',
+                'delete events',
+                'manage zones',
+                'manage shifts',
+                'review applications',
+                'manage check-ins',
+                'mark no-shows',
+                'trigger replacements',
+                'view event reports',
+            ]);
 
-        $adminRole = Role::firstOrCreate([
-            'name' => 'admin',
-            'guard_name' => 'web',
-        ]);
-
-        $volunteerRole->syncPermissions([
-            'open_shifts.view',
-            'shift_applications.create',
-            'shift_applications.cancel',
-            'profile.manage_own',
-            'skills.manage_own',
-            'planning.view_own',
-            'status.view_own',
-            'notifications.view_own',
-        ]);
-
-        $professionalRole->syncPermissions([
-            'events.view',
-            'events.create',
-            'events.update',
-            'events.publish',
-            'zones.manage',
-            'shifts.manage',
-            'open_shifts.view',
-            'shift_applications.view',
-            'shift_applications.approve',
-            'shift_applications.reject',
-            'assignments.manage',
-            'checkins.manage',
-            'no_shows.manage',
-            'replacements.manage',
-            'notifications.manage',
-            'reports.view_event',
-        ]);
-
-        $adminRole->syncPermissions(Permission::all());
-
-        app(PermissionRegistrar::class)->forgetCachedPermissions();
-
+        Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web'])
+            ->syncPermissions(Permission::pluck('name'));
     }
 }
