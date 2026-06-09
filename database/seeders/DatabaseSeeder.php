@@ -33,15 +33,15 @@ class DatabaseSeeder extends Seeder
             'password' => bcrypt('password'),
         ]);
 
-        $professionalUser = User::factory()->create([
-            'name' => 'Professional User',
-            'email' => 'professional@example.com',
+        $coordinatorUser = User::factory()->create([
+            'name' => 'Coordinator User',
+            'email' => 'coordinator@example.com',
             'phone' => '1122334455',
             'password' => bcrypt('password'),
         ]);
 
         $adminUser->assignRole('admin');
         $volunteerUser->assignRole('volunteer');
-        $professionalUser->assignRole('professional');
+        $coordinatorUser->assignRole('coordinator');
     }
 }
