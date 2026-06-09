@@ -1,9 +1,6 @@
 name: CI
 
 on:
-  push:
-    branches:
-      - main
   pull_request:
     branches:
       - main
@@ -41,7 +38,7 @@ jobs:
         run: composer lint
 
       - name: Commit PHP fixes
-        if: github.event_name == 'push'
+        if: github.event_name == 'pull_request'
         uses: stefanzweifel/git-auto-commit-action@v7
         with:
           commit_message: 'fix: php code style (pint)'
@@ -121,7 +118,7 @@ jobs:
         run: pnpm run lint
 
       - name: Commit frontend fixes
-        if: github.event_name == 'push'
+        if: github.event_name == 'pull_request'
         uses: stefanzweifel/git-auto-commit-action@v7
         with:
           commit_message: 'fix: frontend code style (prettier/eslint)'
