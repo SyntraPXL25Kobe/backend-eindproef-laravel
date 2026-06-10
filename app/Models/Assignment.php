@@ -1,0 +1,36 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Model;
+
+#[Fillable([
+    'application_id',
+    'shift_id',
+    'user_id',
+    'confirmed_at',
+    'check_in_at',
+    'check_out_at',
+    'no_show',
+    'no_show_reason',
+    'no_show_marked_by',
+])]
+class Assignment extends Model
+{
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'confirmed_at' => 'datetime',
+            'check_in_at' => 'datetime',
+            'check_out_at' => 'datetime',
+            'no_show' => 'boolean',
+
+        ];
+    }
+}
