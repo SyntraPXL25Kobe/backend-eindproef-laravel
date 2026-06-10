@@ -20,7 +20,7 @@ return new class extends Migration
             $table->rememberToken();
             $table->string('phone');
             $table->string('address')->nullable();
-            $table->string('post_code')->nullable();
+            $table->string('postal_code')->nullable();
             $table->string('city')->nullable();
             $table->string('country')->nullable();
             $table->boolean('is_active')->default(true);
