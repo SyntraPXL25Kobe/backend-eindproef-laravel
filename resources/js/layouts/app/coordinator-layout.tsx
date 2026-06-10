@@ -4,7 +4,7 @@ import { AppShell } from '@/components/app-shell';
 import { AppSidebarHeader } from '@/components/app-sidebar-header';
 import type { AppLayoutProps } from '@/types';
 
-export default function AppProfessionalLayout({
+export default function AppCoordinatorLayout({
     children,
     breadcrumbs = [],
 }: AppLayoutProps) {
