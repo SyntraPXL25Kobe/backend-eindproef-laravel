@@ -18,6 +18,11 @@ trait ProfileValidationRules
         return [
             'name' => $this->nameRules(),
             'email' => $this->emailRules($userId),
+            'phone' => ['required', 'string', 'max:255', 'regex:/^\+?[0-9\s\-]+$/'],
+            'address' => ['nullable', 'string', 'max:255'],
+            'postal_code' => ['nullable', 'string', 'max:20'],
+            'city' => ['nullable', 'string', 'max:255'],
+            'country' => ['nullable', 'string', 'max:255'],
         ];
     }
 
