@@ -5,6 +5,10 @@ namespace App\Models;
 use App\EventStatus;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 
 #[Fillable([
     'coordinator_profile_id',
@@ -32,5 +36,28 @@ class Event extends Model
             'status' => EventStatus::class,
 
         ];
+    }
+
+    public function coordinatorProfile(): BelongsTo
+    {
+        return $this->belongsTo(CoordinatorProfile::class);
+    }
+
+    public function coordinator(): HasOneThrough
+    {
+        return $this->hasOneThrough(User::class, CoordinatorProfile::class);
+    }
+
+    public function zones(): HasMany
+    {
+        return $this->hasMany(Zone::class);
+    }
+
+    public function shifts(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            Shift::class,
+            Zone::class,
+        );
     }
 }

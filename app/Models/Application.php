@@ -5,6 +5,8 @@ namespace App\Models;
 use App\ApplicationStatus;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 #[Fillable([
     'shift_id',
@@ -28,5 +30,25 @@ class Application extends Model
             'reviewed_at' => 'datetime',
 
         ];
+    }
+
+    public function shift(): BelongsTo
+    {
+        return $this->belongsTo(Shift::class);
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function reviewer(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'reviewed_by');
+    }
+
+    public function assignment(): HasOne
+    {
+        return $this->hasOne(Assignment::class);
     }
 }
