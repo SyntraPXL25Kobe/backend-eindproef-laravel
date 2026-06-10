@@ -27,6 +27,8 @@ return new class extends Migration
                 ->nullOnDelete();
             $table->enum('status', ['open', 'full', 'closed', 'cancelled'])->default('open');
             $table->timestamps();
+
+            $table->index(['status', 'starts_at']);
         });
     }
 

@@ -27,6 +27,9 @@ return new class extends Migration
             $table->enum('coordinator_registration_status', ['none', 'pending', 'approved', 'rejected'])->default('none');
             $table->text('coordinator_rejected_reason')->nullable();
             $table->timestamps();
+
+            $table->index('coordinator_registration_status');
+
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {

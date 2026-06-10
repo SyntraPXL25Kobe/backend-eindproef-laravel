@@ -28,7 +28,8 @@ return new class extends Migration
             $table->timestamp('reviewed_at')->nullable();
             $table->timestamps();
 
-            $table->unique(['shift_id', 'user_id'], 'applications_shift_user_unique');
+            $table->unique(['shift_id', 'user_id']);
+            $table->index('status');
         });
     }
 

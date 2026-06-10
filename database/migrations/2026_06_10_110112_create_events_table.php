@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('events', function (Blueprint $table) {
             $table->id();
             $table->foreignId('coordinator_profile_id')
-                ->constrained('coordinator_profiles')
+                ->constrained()
                 ->cascadeOnDelete();
             $table->string('title');
             $table->text('description')->nullable();
@@ -26,6 +26,8 @@ return new class extends Migration
             $table->string('cover_image_url', 255)->nullable();
             $table->timestamps();
             $table->softDeletes();
+
+            $table->index(['status', 'start_date', 'end_date']);
         });
     }
 
