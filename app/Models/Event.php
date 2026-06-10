@@ -18,7 +18,7 @@ use Illuminate\Database\Eloquent\Relations\HasOneThrough;
     'start_date',
     'end_date',
     'status',
-    'max_volunteers',
+    'max_crew_members',
     'cover_image_url',
 ])]
 class Event extends Model

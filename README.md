@@ -17,7 +17,7 @@ Deze applicatie lost dat op door:
 ## Functionaliteiten
 
 - Authenticatie en rolgebaseerde toegang
-- Rollenbeheer met admin, coordinator en volunteer
+- Rollenbeheer met admin, coordinator en crew
 - Eventbeheer
 - Zonebeheer per event
 - Shiftbeheer met capaciteit en skills
@@ -49,7 +49,7 @@ Deze applicatie lost dat op door:
 - Check-ins opvolgen
 - No-shows markeren en vervanging activeren
 
-### Volunteer
+### Crew member
 
 - Eigen profiel beheren
 - Skills toevoegen

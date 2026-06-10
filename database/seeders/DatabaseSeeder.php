@@ -37,10 +37,10 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        $volunteerUser = User::updateOrCreate(
-            ['email' => 'volunteer@example.com'],
+        $crewUser = User::updateOrCreate(
+            ['email' => 'crew@example.com'],
             [
-                'name' => 'Volunteer User',
+                'name' => 'Crew User',
                 'phone' => '0987654321',
                 'password' => Hash::make('password'),
                 'email_verified_at' => now(),
@@ -61,7 +61,7 @@ class DatabaseSeeder extends Seeder
         );
 
         $adminUser->syncRoles(['admin']);
-        $volunteerUser->syncRoles(['volunteer']);
+        $crewUser->syncRoles(['crew']);
         $coordinatorUser->syncRoles(['coordinator']);
 
         $coordinatorProfile = CoordinatorProfile::updateOrCreate(
@@ -83,7 +83,7 @@ class DatabaseSeeder extends Seeder
                 'start_date' => now()->addDays(14)->toDateString(),
                 'end_date' => now()->addDays(16)->toDateString(),
                 'status' => 'published',
-                'max_volunteers' => 80,
+                'max_crew_members' => 80,
             ]
         );
 
@@ -124,7 +124,7 @@ class DatabaseSeeder extends Seeder
         );
 
         $approvedApplication = Application::updateOrCreate(
-            ['shift_id' => $morningShift->id, 'user_id' => $volunteerUser->id],
+            ['shift_id' => $morningShift->id, 'user_id' => $crewUser->id],
             [
                 'status' => 'approved',
                 'motivation' => 'Ik help graag mee met onthaal en bezoekersbegeleiding.',
@@ -134,7 +134,7 @@ class DatabaseSeeder extends Seeder
         );
 
         Application::updateOrCreate(
-            ['shift_id' => $eveningShift->id, 'user_id' => $volunteerUser->id],
+            ['shift_id' => $eveningShift->id, 'user_id' => $crewUser->id],
             [
                 'status' => 'pending',
                 'motivation' => 'Beschikbaar in de avond en ervaring achter de bar.',
@@ -145,7 +145,7 @@ class DatabaseSeeder extends Seeder
             ['application_id' => $approvedApplication->id],
             [
                 'shift_id' => $morningShift->id,
-                'user_id' => $volunteerUser->id,
+                'user_id' => $crewUser->id,
                 'confirmed_at' => now(),
                 'no_show' => false,
             ]
