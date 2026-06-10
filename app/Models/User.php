@@ -12,8 +12,25 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 
-#[Fillable(['name', 'email', 'password', 'phone', 'address', 'post_code', 'city', 'country', 'is_active', 'coordinator_registration_status', 'coordinator_rejected_reason'])]
-#[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
+#[Fillable([
+    'name',
+    'email',
+    'password',
+    'phone',
+    'address',
+    'post_code',
+    'city',
+    'country',
+    'is_active',
+    'coordinator_registration_status',
+    'coordinator_rejected_reason',
+])]
+#[Hidden([
+    'password',
+    'two_factor_secret',
+    'two_factor_recovery_codes',
+    'remember_token',
+])]
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
