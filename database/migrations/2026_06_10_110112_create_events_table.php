@@ -22,7 +22,7 @@ return new class extends Migration
             $table->date('start_date');
             $table->date('end_date');
             $table->enum('status', ['draft', 'published', 'archived'])->default('draft');
-            $table->integer('max_volunteers')->nullable();
+            $table->integer('max_crew_members')->nullable();
             $table->string('cover_image_url', 255)->nullable();
             $table->timestamps();
             $table->softDeletes();

@@ -41,7 +41,7 @@ class PermissionsSeeder extends Seeder
         }
 
         // Create roles and assign permissions
-        Role::firstOrCreate(['name' => 'volunteer', 'guard_name' => 'web'])
+        Role::firstOrCreate(['name' => 'crew', 'guard_name' => 'web'])
             ->syncPermissions([
                 'view open shifts',
                 'apply for shift',
