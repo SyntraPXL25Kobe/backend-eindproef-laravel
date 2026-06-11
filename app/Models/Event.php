@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 #[Fillable([
     'coordinator_profile_id',
@@ -23,6 +24,8 @@ use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 ])]
 class Event extends Model
 {
+    use SoftDeletes;
+
     /**
      * Get the attributes that should be cast.
      *
@@ -58,6 +61,8 @@ class Event extends Model
         return $this->hasManyThrough(
             Shift::class,
             Zone::class,
+            'event_id',
+            'zone_id'
         );
     }
 }
