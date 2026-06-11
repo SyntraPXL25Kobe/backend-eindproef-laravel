@@ -7,6 +7,7 @@ use App\Models\Assignment;
 use App\Models\CoordinatorProfile;
 use App\Models\Event;
 use App\Models\Shift;
+use App\Models\Skill;
 use App\Models\User;
 use App\Models\Zone;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -130,6 +131,13 @@ class DatabaseSeeder extends Seeder
                 'motivation' => 'Ik help graag mee met onthaal en bezoekersbegeleiding.',
                 'reviewed_by' => $coordinatorUser->id,
                 'reviewed_at' => now(),
+            ]
+        );
+
+        $skills = Skill::updateOrCreate(
+            ['name' => 'Barervaring'],
+            [
+                'description' => 'Ervaring met werken in een bar of café.',
             ]
         );
 
