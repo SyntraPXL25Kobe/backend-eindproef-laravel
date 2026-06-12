@@ -9,7 +9,9 @@ Route::middleware(['auth'])->prefix('app')->group(function () {
     Route::redirect('settings', '/app/settings/profile');
 
     Route::get('settings/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::get('settings/skills', [ProfileController::class, 'editSkills'])->name('skills.edit');
     Route::patch('settings/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::patch('settings/skills', [ProfileController::class, 'updateSkills'])->name('skills.update');
 });
 
 Route::middleware(['auth', 'verified'])->prefix('app')->group(function () {

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Settings;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Settings\ProfileDeleteRequest;
+use App\Http\Requests\Settings\ProfileSkillsUpdateRequest;
 use App\Http\Requests\Settings\ProfileUpdateRequest;
 use App\Models\Skill;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -23,8 +24,17 @@ class ProfileController extends Controller
         return Inertia::render('settings/profile', [
             'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
             'status' => $request->session()->get('status'),
+        ]);
+    }
+
+    /**
+     * Show the user's skills settings page.
+     */
+    public function editSkills(Request $request): Response
+    {
+        return Inertia::render('settings/skills', [
             'availableSkills' => Skill::all(),
-            'userSkills' => $request->user()->skills()->pluck('skills.id'),
+            'userSkills' => $request->user()->skills()->pluck('skills.id')->values(),
         ]);
     }
 
@@ -44,6 +54,18 @@ class ProfileController extends Controller
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Profile updated.']);
 
         return to_route('profile.edit');
+    }
+
+    /**
+     * Update the user's selected skills.
+     */
+    public function updateSkills(ProfileSkillsUpdateRequest $request): RedirectResponse
+    {
+        $request->user()->skills()->sync($request->validated('skills', []));
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Skills updated.']);
+
+        return to_route('skills.edit');
     }
 
     /**
