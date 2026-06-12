@@ -13,6 +13,7 @@ import type { Auth } from '@/types';
 
 type PageProps = {
     auth: Auth;
+    mustAddAddress?: boolean;
 };
 
 export default function Profile({
@@ -22,7 +23,7 @@ export default function Profile({
     mustVerifyEmail: boolean;
     status?: string;
 }) {
-    const { auth } = usePage<PageProps>().props;
+    const { auth, mustAddAddress } = usePage<PageProps>().props;
 
     return (
         <>
@@ -31,12 +32,6 @@ export default function Profile({
             <h1 className="sr-only">Profile settings</h1>
 
             <div className="space-y-6">
-                <Heading
-                    variant="small"
-                    title="Profile"
-                    description="Update your name and email address"
-                />
-
                 <Form
                     {...ProfileController.update.form()}
                     options={{
@@ -46,8 +41,14 @@ export default function Profile({
                 >
                     {({ processing, errors }) => (
                         <>
+                            <Heading
+                                variant="small"
+                                title="Profile"
+                                description="Update your name and email address"
+                            />
+
                             <div className="grid gap-2">
-                                <Label htmlFor="name">Name</Label>
+                                <Label htmlFor="name">Full Name</Label>
 
                                 <Input
                                     id="name"
@@ -85,6 +86,26 @@ export default function Profile({
                                 />
                             </div>
 
+                            <div className="grid gap-2">
+                                <Label htmlFor="phone">Phone</Label>
+
+                                <Input
+                                    id="phone"
+                                    type="tel"
+                                    className="mt-1 block w-full"
+                                    defaultValue={auth.user.phone}
+                                    name="phone"
+                                    required
+                                    autoComplete="tel"
+                                    placeholder="Phone number"
+                                />
+
+                                <InputError
+                                    className="mt-2"
+                                    message={errors.phone}
+                                />
+                            </div>
+
                             {mustVerifyEmail &&
                                 auth.user.email_verified_at === null && (
                                     <div>
@@ -110,6 +131,73 @@ export default function Profile({
                                     </div>
                                 )}
 
+                            <Heading
+                                variant="small"
+                                title="Address"
+                                description="Update your address information"
+                            />
+
+                            <div className="grid gap-2">
+                                <Label htmlFor="address">Address</Label>
+
+                                <Input
+                                    id="address"
+                                    className="mt-1 block w-full"
+                                    defaultValue={auth.user.address || ''}
+                                    name="address"
+                                    autoComplete="address"
+                                    placeholder="Address"
+                                />
+                                <InputError
+                                    className="mt-2"
+                                    message={errors.address}
+                                />
+                            </div>
+                            <div className="grid gap-4 md:grid-cols-2">
+                                <div className="grid gap-2">
+                                    <Label htmlFor="city">City</Label>
+
+                                    <Input
+                                        id="city"
+                                        className="mt-1 block w-full"
+                                        defaultValue={auth.user.city || ''}
+                                        name="city"
+                                        autoComplete="address-level2"
+                                        placeholder="City"
+                                    />
+                                    <InputError
+                                        className="mt-2"
+                                        message={errors.city}
+                                    />
+                                </div>
+
+                                <div className="grid gap-2">
+                                    <Label htmlFor="postal_code">
+                                        Postal Code
+                                    </Label>
+
+                                    <Input
+                                        id="postal_code"
+                                        className="mt-1 block w-full"
+                                        defaultValue={
+                                            auth.user.postal_code || ''
+                                        }
+                                        name="postal_code"
+                                        autoComplete="postal-code"
+                                        placeholder="Postal Code"
+                                    />
+                                    <InputError
+                                        className="mt-2"
+                                        message={errors.postal_code}
+                                    />
+                                </div>
+
+                                {mustAddAddress && (
+                                    <p className="text-sm text-red-600">
+                                        Please add your address information.
+                                    </p>
+                                )}
+                            </div>
                             <div className="flex items-center gap-4">
                                 <Button
                                     disabled={processing}

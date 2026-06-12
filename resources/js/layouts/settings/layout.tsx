@@ -8,6 +8,7 @@ import { cn, toUrl } from '@/lib/utils';
 import { edit as editAppearance } from '@/routes/appearance';
 import { edit } from '@/routes/profile';
 import { edit as editSecurity } from '@/routes/security';
+import { edit as editSkills } from '@/routes/skills';
 import type { NavItem } from '@/types';
 
 const sidebarNavItems: NavItem[] = [
@@ -17,10 +18,16 @@ const sidebarNavItems: NavItem[] = [
         icon: null,
     },
     {
+        title: 'Skills',
+        href: editSkills(),
+        icon: null,
+    },
+    {
         title: 'Security',
         href: editSecurity(),
         icon: null,
     },
+
     {
         title: 'Appearance',
         href: editAppearance(),

@@ -22,7 +22,7 @@ use Spatie\Permission\Traits\HasRoles;
     'password',
     'phone',
     'address',
-    'post_code',
+    'postal_code',
     'city',
     'country',
     'is_active',
@@ -101,5 +101,13 @@ class User extends Authenticatable
     public function isRejectedCoordinator(): bool
     {
         return $this->coordinator_registration_status === CoordinatorRegistrationStatus::Rejected;
+    }
+
+    public function hasAddress(): bool
+    {
+        return filled($this->address)
+            && filled($this->postal_code)
+            && filled($this->city)
+            && filled($this->country);
     }
 }
