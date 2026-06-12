@@ -18,15 +18,16 @@ const sidebarNavItems: NavItem[] = [
         icon: null,
     },
     {
-        title: 'Security',
-        href: editSecurity(),
-        icon: null,
-    },
-    {
         title: 'Skills',
         href: editSkills(),
         icon: null,
     },
+    {
+        title: 'Security',
+        href: editSecurity(),
+        icon: null,
+    },
+
     {
         title: 'Appearance',
         href: editAppearance(),
