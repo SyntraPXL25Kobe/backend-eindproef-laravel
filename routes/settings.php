@@ -5,7 +5,7 @@ use App\Http\Controllers\Settings\SecurityController;
 use Illuminate\Auth\Middleware\RequirePassword;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['auth'])->prefix('app')->group(function () {
+Route::middleware(['auth', 'verified'])->prefix('app')->group(function () {
     Route::redirect('settings', '/app/settings/profile');
 
     Route::get('settings/profile', [ProfileController::class, 'edit'])->name('profile.edit');

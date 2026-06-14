@@ -12,10 +12,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'organisation_name',
     'vat_number',
     'address',
-    'post_code',
+    'postal_code',
     'city',
     'country',
-    'website_url',
+    'website',
 ])]
 class CoordinatorProfile extends Model
 {
