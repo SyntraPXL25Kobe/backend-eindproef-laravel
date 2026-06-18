@@ -380,15 +380,12 @@ export default function ShowPublicEvent({
                                                             shift.application &&
                                                             !shift.can_cancel && (
                                                                 <span className="text-sm text-muted-foreground">
-                                                                    Je status
-                                                                    voor deze
-                                                                    shift is{' '}
-                                                                    {
-                                                                        shift
-                                                                            .application
-                                                                            .status
-                                                                    }
-                                                                    .
+                                                                    {shift
+                                                                        .application
+                                                                        .status ===
+                                                                    'rejected'
+                                                                        ? 'Je application voor deze shift werd afgewezen. Opnieuw applyen voor dezelfde shift is niet mogelijk.'
+                                                                        : `Je status voor deze shift is ${shift.application.status}.`}
                                                                 </span>
                                                             )}
                                                     </CardFooter>
