@@ -13,16 +13,10 @@ class RedirectAdminToFilament
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $user = $request->user();
-
-        if (! $user || ! $user->hasRole('admin')) {
-            return $next($request);
+        if ($request->user()?->hasRole('admin') && ! $request->is('admin*')) {
+            return redirect('/admin');
         }
 
-        if ($request->is('admin') || $request->is('admin/*')) {
-            return $next($request);
-        }
-
-        return redirect('/admin');
+        return $next($request);
     }
 }
