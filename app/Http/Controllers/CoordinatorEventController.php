@@ -8,6 +8,8 @@ use App\Http\Requests\CoordinatorEvents\PublishCoordinatorEventRequest;
 use App\Http\Requests\CoordinatorEvents\StoreCoordinatorEventRequest;
 use App\Http\Requests\CoordinatorEvents\UpdateCoordinatorEventRequest;
 use App\Models\Event;
+use App\Models\Skill;
+use App\ShiftStatus;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -15,6 +17,12 @@ use Inertia\Response;
 
 class CoordinatorEventController extends Controller
 {
+    private const EVENT_START_DATE_COLUMN = 'start_date';
+
+    private const SKILL_NAME_COLUMN = 'name';
+
+    private const SHIFT_STARTS_AT_COLUMN = 'starts_at';
+
     public function index(Request $request): Response
     {
         $this->authorize('create', Event::class);
@@ -22,7 +30,7 @@ class CoordinatorEventController extends Controller
         $events = $request->user()
             ->coordinatorProfile
             ->events()
-            ->latest('start_date')
+            ->latest(self::EVENT_START_DATE_COLUMN)
             ->get()
             ->map(fn (Event $event) => $this->eventListItem($event));
 
@@ -62,9 +70,23 @@ class CoordinatorEventController extends Controller
     {
         $this->authorize('update', $event);
 
+        $event->load(['zones.shifts.requiredSkill']);
+
         return Inertia::render('app/events/edit', [
             'event' => $this->eventDetail($event->fresh()),
             'visibilityOptions' => $this->visibilityOptions(),
+            'skillOptions' => Skill::query()
+                ->orderBy(self::SKILL_NAME_COLUMN)
+                ->get()
+                ->map(fn (Skill $skill) => [
+                    'value' => $skill->id,
+                    'label' => $skill->name,
+                ])->values(),
+            'shiftStatusOptions' => collect(ShiftStatus::cases())
+                ->map(fn (ShiftStatus $status) => [
+                    'value' => $status->value,
+                    'label' => ucfirst($status->value),
+                ])->values(),
         ]);
     }
 
@@ -130,6 +152,25 @@ class CoordinatorEventController extends Controller
             'description' => $event->description,
             'max_crew_members' => $event->max_crew_members,
             'cover_image_url' => $event->cover_image_url,
+            'zones' => $event->zones->map(fn ($zone) => [
+                'id' => $zone->id,
+                'name' => $zone->name,
+                'description' => $zone->description,
+                'shifts' => $zone->shifts
+                    ->sortBy(self::SHIFT_STARTS_AT_COLUMN)
+                    ->values()
+                    ->map(fn ($shift) => [
+                        'id' => $shift->id,
+                        'title' => $shift->title,
+                        'description' => $shift->description,
+                        'starts_at' => $shift->starts_at?->format('Y-m-d\TH:i'),
+                        'ends_at' => $shift->ends_at?->format('Y-m-d\TH:i'),
+                        'capacity' => $shift->capacity,
+                        'status' => $shift->status->value,
+                        'required_skill_id' => $shift->required_skill_id,
+                        'required_skill_name' => $shift->requiredSkill?->name,
+                    ]),
+            ])->values(),
         ];
     }
 

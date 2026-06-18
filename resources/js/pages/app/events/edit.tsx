@@ -1,4 +1,5 @@
 import { Head, Link, useForm } from '@inertiajs/react';
+import CoordinatorEventStructureManager from '@/components/coordinator-event-structure-manager';
 import { useClipboard } from '@/hooks/use-clipboard';
 import CoordinatorEventForm, {
     type CoordinatorEventFormData,
@@ -33,6 +34,27 @@ type EventDetail = {
     cover_image_url: string | null;
     public_url: string | null;
     invite_url: string | null;
+    zones: Array<{
+        id: number;
+        name: string;
+        description: string | null;
+        shifts: Array<{
+            id: number;
+            title: string;
+            description: string | null;
+            starts_at: string | null;
+            ends_at: string | null;
+            capacity: number;
+            status: string;
+            required_skill_id: number | null;
+            required_skill_name: string | null;
+        }>;
+    }>;
+};
+
+type SkillOption = {
+    value: number;
+    label: string;
 };
 
 const statusLabels: Record<string, string> = {
@@ -44,9 +66,13 @@ const statusLabels: Record<string, string> = {
 export default function EditCoordinatorEvent({
     event,
     visibilityOptions,
+    skillOptions,
+    shiftStatusOptions,
 }: {
     event: EventDetail;
     visibilityOptions: VisibilityOption[];
+    skillOptions: SkillOption[];
+    shiftStatusOptions: VisibilityOption[];
 }) {
     const [copiedText, copy] = useClipboard();
     const form = useForm<CoordinatorEventFormData>({
@@ -175,6 +201,13 @@ export default function EditCoordinatorEvent({
                         )}
                     </div>
                 </div>
+
+                <CoordinatorEventStructureManager
+                    eventId={event.id}
+                    zones={event.zones}
+                    skillOptions={skillOptions}
+                    shiftStatusOptions={shiftStatusOptions}
+                />
             </div>
         </>
     );

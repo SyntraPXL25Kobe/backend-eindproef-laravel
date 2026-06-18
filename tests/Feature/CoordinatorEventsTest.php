@@ -2,7 +2,10 @@
 
 use App\Models\CoordinatorProfile;
 use App\Models\Event;
+use App\Models\Shift;
+use App\Models\Skill;
 use App\Models\User;
+use App\Models\Zone;
 use Database\Seeders\PermissionsSeeder;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 
@@ -106,4 +109,68 @@ it('publishes an event with an invite-only link', function () {
     $this->get(route('events.invite.show', ['token' => $event->invite_token]))
         ->assertOk()
         ->assertSee('Crew Night Shift');
+});
+
+it('allows a coordinator to manage zones and shifts on an event', function () {
+    $user = coordinatorUser();
+    $skill = Skill::query()->create([
+        'name' => 'Barervaring',
+    ]);
+
+    $event = Event::query()->create([
+        'coordinator_profile_id' => $user->coordinatorProfile->id,
+        'title' => 'Stadsfeest',
+        'location' => 'Mechelen',
+        'start_date' => '2026-07-20',
+        'end_date' => '2026-07-21',
+        'status' => 'draft',
+        'publication_visibility' => 'public',
+    ]);
+
+    $this->actingAs($user)
+        ->post(route('coordinator.events.zones.store', ['event' => $event->id]), [
+            'name' => 'Barzone',
+            'description' => 'Drankverkoop en voorraad.',
+        ])
+        ->assertRedirect(route('coordinator.events.edit', ['event' => $event->id]));
+
+    $zone = Zone::query()->firstOrFail();
+
+    $this->actingAs($user)
+        ->patch(route('coordinator.zones.update', ['zone' => $zone->id]), [
+            'name' => 'Hoofdbar',
+            'description' => 'Grote centrale bar.',
+        ])
+        ->assertRedirect(route('coordinator.events.edit', ['event' => $event->id]));
+
+    $this->actingAs($user)
+        ->post(route('coordinator.shifts.store', ['zone' => $zone->id]), [
+            'title' => 'Bar avond',
+            'description' => 'Drankjes serveren.',
+            'starts_at' => '2026-07-20 17:00:00',
+            'ends_at' => '2026-07-20 23:00:00',
+            'capacity' => 6,
+            'required_skill_id' => $skill->id,
+            'status' => 'open',
+        ])
+        ->assertRedirect(route('coordinator.events.edit', ['event' => $event->id]));
+
+    $shift = Shift::query()->firstOrFail();
+
+    $this->actingAs($user)
+        ->patch(route('coordinator.shifts.update', ['shift' => $shift->id]), [
+            'title' => 'Bar late shift',
+            'description' => 'Afsluiten en aanvullen.',
+            'starts_at' => '2026-07-20 18:00:00',
+            'ends_at' => '2026-07-21 00:00:00',
+            'capacity' => 4,
+            'required_skill_id' => null,
+            'status' => 'closed',
+        ])
+        ->assertRedirect(route('coordinator.events.edit', ['event' => $event->id]));
+
+    expect($zone->fresh()->name)->toBe('Hoofdbar');
+    expect($shift->fresh()->title)->toBe('Bar late shift');
+    expect($shift->fresh()->status->value)->toBe('closed');
+    expect($shift->fresh()->required_skill_id)->toBeNull();
 });
