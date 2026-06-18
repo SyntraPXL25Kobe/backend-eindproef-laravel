@@ -140,3 +140,25 @@ it('allows a crew member to re-apply after cancelling an application', function 
     expect($application->fresh()->motivation)->toBe('Ik ben toch opnieuw beschikbaar.');
     expect($application->fresh()->reviewed_at)->toBeNull();
 });
+
+it('does not allow a crew member to re-apply after a rejected application', function () {
+    $user = crewUser();
+    [, $welcomeShift] = publishedEventWithZonesAndShifts();
+
+    $application = Application::query()->create([
+        'shift_id' => $welcomeShift->id,
+        USER_ID_COLUMN => $user->id,
+        'status' => 'rejected',
+        'reviewed_at' => now(),
+    ]);
+
+    $this->actingAs($user)
+        ->post(route('shift-applications.store', ['shift' => $welcomeShift->id]), [
+            'motivation' => 'Ik wil toch nog meedoen.',
+        ])
+        ->assertForbidden();
+
+    expect(Application::query()->count())->toBe(1);
+    expect($application->fresh()->status)->toBe(ApplicationStatus::Rejected);
+    expect($application->fresh()->motivation)->toBeNull();
+});

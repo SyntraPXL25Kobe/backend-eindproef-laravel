@@ -25,6 +25,7 @@ class ApplicationPolicy
                 ->whereIn('status', [
                     ApplicationStatus::Pending->value,
                     ApplicationStatus::Approved->value,
+                    ApplicationStatus::Rejected->value,
                 ])
                 ->exists();
     }
