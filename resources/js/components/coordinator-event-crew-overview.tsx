@@ -1,3 +1,4 @@
+import { useMemo, useState } from 'react';
 import Heading from '@/components/heading';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -7,6 +8,7 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 
 type CrewShift = {
     application_id: number;
@@ -48,11 +50,36 @@ function formatDateTime(value: string | null): string {
 }
 
 export default function CoordinatorEventCrewOverview({ crewMembers }: Props) {
+    const [search, setSearch] = useState('');
+
+    const filtered = useMemo(() => {
+        const q = search.trim().toLowerCase();
+        if (!q) return crewMembers;
+
+        return crewMembers.filter(
+            (crewMember) =>
+                crewMember.name.toLowerCase().includes(q) ||
+                crewMember.email.toLowerCase().includes(q) ||
+                crewMember.shifts.some(
+                    (shift) =>
+                        shift.title.toLowerCase().includes(q) ||
+                        shift.zone_name.toLowerCase().includes(q),
+                ),
+        );
+    }, [crewMembers, search]);
+
     return (
         <section className="space-y-4">
             <Heading
                 title="Crew members & shifts"
                 description="Overzicht van crewleden met hun goedgekeurde shifts voor dit event."
+            />
+
+            <Input
+                placeholder="Zoek op naam, e-mail, shift of zone…"
+                value={search}
+                onChange={(e) => setSearch(e.currentTarget.value)}
+                className="max-w-sm"
             />
 
             {crewMembers.length === 0 ? (
@@ -61,9 +88,15 @@ export default function CoordinatorEventCrewOverview({ crewMembers }: Props) {
                         Er zijn nog geen goedgekeurde crewleden voor dit event.
                     </CardContent>
                 </Card>
+            ) : filtered.length === 0 ? (
+                <Card className="border-dashed">
+                    <CardContent className="py-8 text-sm text-muted-foreground">
+                        Geen resultaten voor &ldquo;{search}&rdquo;.
+                    </CardContent>
+                </Card>
             ) : (
                 <div className="grid gap-4 md:grid-cols-2">
-                    {crewMembers.map((crewMember) => (
+                    {filtered.map((crewMember) => (
                         <Card
                             key={crewMember.id}
                             className="h-full border-border/70 bg-card/95"
