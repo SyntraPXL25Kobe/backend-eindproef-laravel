@@ -1,5 +1,6 @@
 import { Head, Link, useForm } from '@inertiajs/react';
 import CoordinatorEventStructureManager from '@/components/coordinator-event-structure-manager';
+import CoordinatorEventApplicationsManager from '@/components/coordinator-event-applications-manager';
 import { useClipboard } from '@/hooks/use-clipboard';
 import CoordinatorEventForm, {
     type CoordinatorEventFormData,
@@ -63,6 +64,31 @@ type ShiftStatusOption = {
     label: string;
 };
 
+type PendingApplication = {
+    id: number;
+    status: string;
+    motivation: string | null;
+    created_at: string | null;
+    user: {
+        id: number;
+        name: string;
+        email: string;
+        phone: string | null;
+    };
+    zone: {
+        id: number;
+        name: string;
+    };
+    shift: {
+        id: number;
+        title: string;
+        starts_at: string | null;
+        ends_at: string | null;
+        capacity: number;
+        approved_count: number;
+    };
+};
+
 const statusLabels: Record<string, string> = {
     draft: 'Concept',
     published: 'Gepubliceerd',
@@ -71,11 +97,13 @@ const statusLabels: Record<string, string> = {
 
 export default function EditCoordinatorEvent({
     event,
+    pendingApplications,
     visibilityOptions,
     skillOptions,
     shiftStatusOptions,
 }: {
     event: EventDetail;
+    pendingApplications: PendingApplication[];
     visibilityOptions: VisibilityOption[];
     skillOptions: SkillOption[];
     shiftStatusOptions: ShiftStatusOption[];
@@ -108,6 +136,9 @@ export default function EditCoordinatorEvent({
                         <TabsTrigger value="publish">Publiceren</TabsTrigger>
                         <TabsTrigger value="structure">
                             Zones & shifts
+                        </TabsTrigger>
+                        <TabsTrigger value="applications">
+                            Aanvragen
                         </TabsTrigger>
                     </TabsList>
 
@@ -224,6 +255,12 @@ export default function EditCoordinatorEvent({
                             zones={event.zones}
                             skillOptions={skillOptions}
                             shiftStatusOptions={shiftStatusOptions}
+                        />
+                    </TabsContent>
+
+                    <TabsContent value="applications" className="space-y-4">
+                        <CoordinatorEventApplicationsManager
+                            applications={pendingApplications}
                         />
                     </TabsContent>
                 </Tabs>

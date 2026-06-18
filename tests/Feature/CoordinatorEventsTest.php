@@ -1,5 +1,8 @@
 <?php
 
+use App\ApplicationStatus;
+use App\Models\Application;
+use App\Models\Assignment;
 use App\Models\CoordinatorProfile;
 use App\Models\Event;
 use App\Models\Shift;
@@ -8,6 +11,8 @@ use App\Models\User;
 use App\Models\Zone;
 use Database\Seeders\PermissionsSeeder;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
+
+const APPLICATION_ID_COLUMN = 'application_id';
 
 beforeEach(function () {
     $this->seed(PermissionsSeeder::class);
@@ -173,4 +178,103 @@ it('allows a coordinator to manage zones and shifts on an event', function () {
     expect($shift->fresh()->title)->toBe('Bar late shift');
     expect($shift->fresh()->status->value)->toBe('closed');
     expect($shift->fresh()->required_skill_id)->toBeNull();
+});
+
+it('allows a coordinator to approve a pending application for own event', function () {
+    $coordinator = coordinatorUser();
+    $crew = User::factory()->create();
+    $crew->syncRoles(['crew']);
+
+    $event = Event::query()->create([
+        'coordinator_profile_id' => $coordinator->coordinatorProfile->id,
+        'title' => 'Nachtmarathon',
+        'location' => 'Leuven',
+        'start_date' => '2026-08-20',
+        'end_date' => '2026-08-21',
+        'status' => 'draft',
+        'publication_visibility' => 'public',
+    ]);
+
+    $zone = Zone::query()->create([
+        'event_id' => $event->id,
+        'name' => 'Inkom',
+    ]);
+
+    $shift = Shift::query()->create([
+        'zone_id' => $zone->id,
+        'title' => 'Late check-in',
+        'starts_at' => '2026-08-20 18:00:00',
+        'ends_at' => '2026-08-20 22:00:00',
+        'capacity' => 2,
+        'status' => 'open',
+    ]);
+
+    $application = Application::query()->create([
+        'shift_id' => $shift->id,
+        'user_id' => $crew->id,
+        'status' => 'pending',
+        'motivation' => 'Ik ben beschikbaar voor de avondshift.',
+    ]);
+
+    $this->actingAs($coordinator)
+        ->patch(route('coordinator.applications.review', ['application' => $application->id]), [
+            'status' => 'approved',
+        ])
+        ->assertRedirect();
+
+    expect($application->fresh()->status)->toBe(ApplicationStatus::Approved);
+    expect($application->fresh()->reviewed_by)->toBe($coordinator->id);
+    expect($application->fresh()->reviewed_at)->not->toBeNull();
+
+    $assignment = Assignment::query()->where(APPLICATION_ID_COLUMN, $application->id)->first();
+    expect($assignment)->not->toBeNull();
+    expect($assignment?->shift_id)->toBe($shift->id);
+    expect($assignment?->user_id)->toBe($crew->id);
+    expect($assignment?->confirmed_at)->not->toBeNull();
+});
+
+it('does not allow a coordinator to review applications on another coordinators event', function () {
+    $eventOwner = coordinatorUser();
+    $otherCoordinator = coordinatorUser();
+    $crew = User::factory()->create();
+    $crew->syncRoles(['crew']);
+
+    $event = Event::query()->create([
+        'coordinator_profile_id' => $eventOwner->coordinatorProfile->id,
+        'title' => 'Crewdag',
+        'location' => 'Brugge',
+        'start_date' => '2026-09-01',
+        'end_date' => '2026-09-02',
+        'status' => 'draft',
+        'publication_visibility' => 'public',
+    ]);
+
+    $zone = Zone::query()->create([
+        'event_id' => $event->id,
+        'name' => 'Backstage',
+    ]);
+
+    $shift = Shift::query()->create([
+        'zone_id' => $zone->id,
+        'title' => 'Crew briefing',
+        'starts_at' => '2026-09-01 10:00:00',
+        'ends_at' => '2026-09-01 14:00:00',
+        'capacity' => 3,
+        'status' => 'open',
+    ]);
+
+    $application = Application::query()->create([
+        'shift_id' => $shift->id,
+        'user_id' => $crew->id,
+        'status' => 'pending',
+    ]);
+
+    $this->actingAs($otherCoordinator)
+        ->patch(route('coordinator.applications.review', ['application' => $application->id]), [
+            'status' => 'rejected',
+        ])
+        ->assertForbidden();
+
+    expect($application->fresh()->status)->toBe(ApplicationStatus::Pending);
+    expect(Assignment::query()->where(APPLICATION_ID_COLUMN, $application->id)->exists())->toBeFalse();
 });

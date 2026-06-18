@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\EventStatus;
 use App\EventVisibility;
+use App\ApplicationStatus;
 use App\Http\Requests\CoordinatorEvents\PublishCoordinatorEventRequest;
 use App\Http\Requests\CoordinatorEvents\StoreCoordinatorEventRequest;
 use App\Http\Requests\CoordinatorEvents\UpdateCoordinatorEventRequest;
+use App\Models\Application;
 use App\Models\Event;
 use App\Models\Skill;
 use App\ShiftStatus;
@@ -19,7 +21,13 @@ class CoordinatorEventController extends Controller
 {
     private const EVENT_START_DATE_COLUMN = 'start_date';
 
+    private const EVENT_ID_COLUMN = 'event_id';
+
     private const SKILL_NAME_COLUMN = 'name';
+
+    private const STATUS_COLUMN = 'status';
+
+    private const SHIFT_ID_COLUMN = 'shift_id';
 
     private const SHIFT_STARTS_AT_COLUMN = 'starts_at';
 
@@ -74,6 +82,7 @@ class CoordinatorEventController extends Controller
 
         return Inertia::render('app/events/edit', [
             'event' => $this->eventDetail($event->fresh()),
+            'pendingApplications' => $this->pendingApplications($event),
             'visibilityOptions' => $this->visibilityOptions(),
             'skillOptions' => Skill::query()
                 ->orderBy(self::SKILL_NAME_COLUMN)
@@ -191,5 +200,56 @@ class CoordinatorEventController extends Controller
                 'description' => 'Alleen crew members met de unieke uitnodigingslink krijgen toegang.',
             ],
         ];
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function pendingApplications(Event $event): array
+    {
+        $applications = Application::query()
+            ->where(self::STATUS_COLUMN, ApplicationStatus::Pending->value)
+            ->whereHas('shift.zone', fn ($query) => $query->where(self::EVENT_ID_COLUMN, $event->id))
+            ->with([
+                'user:id,name,email,phone',
+                'shift.zone:id,event_id,name',
+            ])
+            ->latest()
+            ->get();
+
+        $approvedCountsByShift = Application::query()
+            ->where(self::STATUS_COLUMN, ApplicationStatus::Approved->value)
+            ->whereIn(self::SHIFT_ID_COLUMN, $applications->pluck(self::SHIFT_ID_COLUMN)->unique()->values())
+            ->selectRaw('shift_id, COUNT(*) as aggregate')
+            ->groupBy(self::SHIFT_ID_COLUMN)
+            ->pluck('aggregate', self::SHIFT_ID_COLUMN);
+
+        return $applications
+            ->map(fn (Application $application) => [
+                'id' => $application->id,
+                'status' => $application->status->value,
+                'motivation' => $application->motivation,
+                'created_at' => $application->created_at?->toIso8601String(),
+                'user' => [
+                    'id' => $application->user->id,
+                    'name' => $application->user->name,
+                    'email' => $application->user->email,
+                    'phone' => $application->user->phone,
+                ],
+                'zone' => [
+                    'id' => $application->shift->zone->id,
+                    'name' => $application->shift->zone->name,
+                ],
+                'shift' => [
+                    'id' => $application->shift->id,
+                    'title' => $application->shift->title,
+                    'starts_at' => $application->shift->starts_at?->toIso8601String(),
+                    'ends_at' => $application->shift->ends_at?->toIso8601String(),
+                    'capacity' => $application->shift->capacity,
+                    'approved_count' => (int) ($approvedCountsByShift[$application->shift_id] ?? 0),
+                ],
+            ])
+            ->values()
+            ->all();
     }
 }

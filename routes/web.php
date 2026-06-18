@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CoordinatorEventController;
+use App\Http\Controllers\CoordinatorApplicationReviewController;
 use App\Http\Controllers\CoordinatorShiftController;
 use App\Http\Controllers\CoordinatorZoneController;
 use App\Http\Controllers\DashboardController;
@@ -23,6 +24,8 @@ Route::middleware(['auth', 'verified'])->prefix('app')->group(function () {
         ->name('shift-applications.store');
     Route::delete('/applications/{application}', [ShiftApplicationController::class, 'destroy'])
         ->name('shift-applications.destroy');
+    Route::patch('/applications/{application}/review', [CoordinatorApplicationReviewController::class, 'update'])
+        ->name('coordinator.applications.review');
 
     Route::prefix('events')
         ->name('coordinator.events.')
