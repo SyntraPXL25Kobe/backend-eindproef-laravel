@@ -11,13 +11,21 @@ use App\ShiftStatus;
 
 class ApplicationPolicy
 {
+    private const SHIFT_ID_COLUMN = 'shift_id';
+
+    private const USER_ID_COLUMN = 'user_id';
+
     public function store(User $user, Shift $shift): bool
     {
         return $user->can(Permission::ApplyForShift->value)
             && $shift->status === ShiftStatus::Open
             && ! Application::query()
-                ->where('shift_id', $shift->id)
-                ->where('user_id', $user->id)
+                ->where(self::SHIFT_ID_COLUMN, $shift->id)
+                ->where(self::USER_ID_COLUMN, $user->id)
+                ->whereIn('status', [
+                    ApplicationStatus::Pending->value,
+                    ApplicationStatus::Approved->value,
+                ])
                 ->exists();
     }
 

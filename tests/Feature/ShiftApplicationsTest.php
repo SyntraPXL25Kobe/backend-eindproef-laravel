@@ -117,3 +117,26 @@ it('allows a crew member to cancel a pending application', function () {
 
     expect($application->fresh()->status)->toBe(ApplicationStatus::Cancelled);
 });
+
+it('allows a crew member to re-apply after cancelling an application', function () {
+    $user = crewUser();
+    [, $welcomeShift] = publishedEventWithZonesAndShifts();
+
+    $application = Application::query()->create([
+        'shift_id' => $welcomeShift->id,
+        USER_ID_COLUMN => $user->id,
+        'status' => 'cancelled',
+        'reviewed_at' => now(),
+    ]);
+
+    $this->actingAs($user)
+        ->post(route('shift-applications.store', ['shift' => $welcomeShift->id]), [
+            'motivation' => 'Ik ben toch opnieuw beschikbaar.',
+        ])
+        ->assertRedirect();
+
+    expect(Application::query()->count())->toBe(1);
+    expect($application->fresh()->status)->toBe(ApplicationStatus::Pending);
+    expect($application->fresh()->motivation)->toBe('Ik ben toch opnieuw beschikbaar.');
+    expect($application->fresh()->reviewed_at)->toBeNull();
+});

@@ -19,10 +19,13 @@ class ShiftApplicationController extends Controller
             'motivation' => ['nullable', 'string'],
         ]);
 
-        $request->user()->applications()->create([
+        $request->user()->applications()->updateOrCreate([
             'shift_id' => $shift->id,
+        ], [
             'status' => ApplicationStatus::Pending,
             'motivation' => $request->string('motivation')->toString() ?: null,
+            'reviewed_by' => null,
+            'reviewed_at' => null,
         ]);
 
         Inertia::flash('toast', [
