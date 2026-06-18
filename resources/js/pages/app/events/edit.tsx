@@ -2,7 +2,7 @@ import { Head, Link, useForm } from '@inertiajs/react';
 import CoordinatorEventApplicationsManager from '@/components/coordinator-event-applications-manager';
 import CoordinatorEventCrewOverview from '@/components/coordinator-event-crew-overview';
 import CoordinatorEventForm from '@/components/coordinator-event-form';
-import type {CoordinatorEventFormData} from '@/components/coordinator-event-form';
+import type { CoordinatorEventFormData } from '@/components/coordinator-event-form';
 import CoordinatorEventStructureManager from '@/components/coordinator-event-structure-manager';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';

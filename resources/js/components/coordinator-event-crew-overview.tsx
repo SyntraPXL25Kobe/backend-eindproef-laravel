@@ -56,8 +56,8 @@ export default function CoordinatorEventCrewOverview({ crewMembers }: Props) {
         const q = search.trim().toLowerCase();
 
         if (!q) {
-return crewMembers;
-}
+            return crewMembers;
+        }
 
         return crewMembers.filter(
             (crewMember) =>
