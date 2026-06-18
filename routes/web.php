@@ -1,8 +1,9 @@
 <?php
 
-use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\CoordinatorEventController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PublicEventController;
+use App\Http\Controllers\ShiftApplicationController;
 use Illuminate\Support\Facades\Route;
 
 Route::inertia('/', 'welcome')->name('home');
@@ -15,6 +16,11 @@ Route::get('/events/{event}', [PublicEventController::class, 'show'])
 
 Route::middleware(['auth', 'verified'])->prefix('app')->group(function () {
     Route::get('/', DashboardController::class)->name('dashboard');
+
+    Route::post('/shifts/{shift}/applications', [ShiftApplicationController::class, 'store'])
+        ->name('shift-applications.store');
+    Route::delete('/applications/{application}', [ShiftApplicationController::class, 'destroy'])
+        ->name('shift-applications.destroy');
 
     Route::prefix('events')
         ->name('coordinator.events.')

@@ -18,10 +18,6 @@ class ApplicationPolicy
             && ! Application::query()
                 ->where('shift_id', $shift->id)
                 ->where('user_id', $user->id)
-                ->whereIn('status', [
-                    ApplicationStatus::Pending->value,
-                    ApplicationStatus::Approved->value,
-                ])
                 ->exists();
     }
 
