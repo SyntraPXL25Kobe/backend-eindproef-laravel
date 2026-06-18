@@ -11,6 +11,16 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
+import InputError from '@/components/input-error';
+import { Label } from '@/components/ui/label';
 
 type ShiftApplication = {
     id: number;
@@ -67,6 +77,9 @@ export default function ShowPublicEvent({
 }) {
     const { auth } = usePage<PageProps>().props;
     const [activeShiftId, setActiveShiftId] = useState<number | null>(null);
+    const [applyShift, setApplyShift] = useState<Shift | null>(null);
+    const [motivation, setMotivation] = useState('');
+    const [motivationError, setMotivationError] = useState<string | null>(null);
 
     const formatDateTime = (value: string | null) => {
         if (!value) {
@@ -79,13 +92,41 @@ export default function ShowPublicEvent({
         }).format(new Date(value));
     };
 
-    const applyForShift = (shiftId: number) => {
-        setActiveShiftId(shiftId);
+    const openApplyDialog = (shift: Shift) => {
+        setApplyShift(shift);
+        setMotivation('');
+        setMotivationError(null);
+    };
+
+    const closeApplyDialog = () => {
+        setApplyShift(null);
+        setMotivation('');
+        setMotivationError(null);
+    };
+
+    const applyForShift = () => {
+        if (!applyShift) {
+            return;
+        }
+
+        setActiveShiftId(applyShift.id);
+        setMotivationError(null);
+
         router.post(
-            `/app/shifts/${shiftId}/applications`,
-            {},
+            `/app/shifts/${applyShift.id}/applications`,
+            {
+                motivation: motivation.trim() || null,
+            },
             {
                 preserveScroll: true,
+                onError: (errors) => {
+                    setMotivationError(
+                        typeof errors.motivation === 'string'
+                            ? errors.motivation
+                            : null,
+                    );
+                },
+                onSuccess: () => closeApplyDialog(),
                 onFinish: () => setActiveShiftId(null),
             },
         );
@@ -323,8 +364,8 @@ export default function ShowPublicEvent({
                                                                         shift.id
                                                                     }
                                                                     onClick={() =>
-                                                                        applyForShift(
-                                                                            shift.id,
+                                                                        openApplyDialog(
+                                                                            shift,
                                                                         )
                                                                     }
                                                                 >
@@ -399,6 +440,66 @@ export default function ShowPublicEvent({
                     </section>
                 </div>
             </div>
+
+            <Dialog
+                open={Boolean(applyShift)}
+                onOpenChange={(open) => {
+                    if (!open) {
+                        closeApplyDialog();
+                    }
+                }}
+            >
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Apply voor deze shift</DialogTitle>
+                        <DialogDescription>
+                            {applyShift
+                                ? `Voeg optioneel een motivatie toe voor ${applyShift.title}.`
+                                : 'Voeg optioneel een motivatie toe.'}
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    <div className="grid gap-2">
+                        <Label htmlFor="motivation">
+                            Motivatie (optioneel)
+                        </Label>
+                        <textarea
+                            id="motivation"
+                            value={motivation}
+                            onChange={(event) =>
+                                setMotivation(event.currentTarget.value)
+                            }
+                            placeholder="Waarom pas jij goed bij deze shift?"
+                            className="min-h-28 rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px]"
+                        />
+                        <InputError message={motivationError ?? undefined} />
+                    </div>
+
+                    <DialogFooter>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={closeApplyDialog}
+                            disabled={
+                                !!applyShift && activeShiftId === applyShift.id
+                            }
+                        >
+                            Annuleren
+                        </Button>
+                        <Button
+                            type="button"
+                            onClick={applyForShift}
+                            disabled={
+                                !applyShift || activeShiftId === applyShift.id
+                            }
+                        >
+                            {applyShift && activeShiftId === applyShift.id
+                                ? 'Verwerken...'
+                                : 'Verstuur aanvraag'}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </>
     );
 }
