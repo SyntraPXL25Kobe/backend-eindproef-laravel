@@ -1,7 +1,6 @@
 import { Head, useForm } from '@inertiajs/react';
-import CoordinatorEventForm, {
-    type CoordinatorEventFormData,
-} from '@/components/coordinator-event-form';
+import CoordinatorEventForm from '@/components/coordinator-event-form';
+import type {CoordinatorEventFormData} from '@/components/coordinator-event-form';
 
 type VisibilityOption = {
     value: string;

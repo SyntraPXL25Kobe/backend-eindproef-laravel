@@ -54,7 +54,10 @@ export default function CoordinatorEventCrewOverview({ crewMembers }: Props) {
 
     const filtered = useMemo(() => {
         const q = search.trim().toLowerCase();
-        if (!q) return crewMembers;
+
+        if (!q) {
+return crewMembers;
+}
 
         return crewMembers.filter(
             (crewMember) =>

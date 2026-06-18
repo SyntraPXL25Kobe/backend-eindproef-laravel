@@ -1,11 +1,9 @@
 import { Head, Link, useForm } from '@inertiajs/react';
-import CoordinatorEventStructureManager from '@/components/coordinator-event-structure-manager';
 import CoordinatorEventApplicationsManager from '@/components/coordinator-event-applications-manager';
 import CoordinatorEventCrewOverview from '@/components/coordinator-event-crew-overview';
-import { useClipboard } from '@/hooks/use-clipboard';
-import CoordinatorEventForm, {
-    type CoordinatorEventFormData,
-} from '@/components/coordinator-event-form';
+import CoordinatorEventForm from '@/components/coordinator-event-form';
+import type {CoordinatorEventFormData} from '@/components/coordinator-event-form';
+import CoordinatorEventStructureManager from '@/components/coordinator-event-structure-manager';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -17,6 +15,7 @@ import {
     CardTitle,
 } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useClipboard } from '@/hooks/use-clipboard';
 
 type VisibilityOption = {
     value: string;
