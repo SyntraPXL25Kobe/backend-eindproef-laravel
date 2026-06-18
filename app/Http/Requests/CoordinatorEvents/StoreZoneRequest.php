@@ -3,6 +3,7 @@
 namespace App\Http\Requests\CoordinatorEvents;
 
 use App\Models\Event;
+use App\Models\Zone;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreZoneRequest extends FormRequest
@@ -11,7 +12,7 @@ class StoreZoneRequest extends FormRequest
     {
         $event = $this->route('event');
 
-        return $event instanceof Event && ($this->user()?->can('create', [\App\Models\Zone::class, $event]) ?? false);
+        return $event instanceof Event && ($this->user()?->can('create', [Zone::class, $event]) ?? false);
     }
 
     public function rules(): array
