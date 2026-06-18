@@ -6,7 +6,6 @@ import {
     Card,
     CardContent,
     CardDescription,
-    CardFooter,
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
@@ -75,12 +74,10 @@ const emptyShiftData = (status = 'open'): ShiftFormData => ({
 });
 
 function ZoneEditor({
-    eventId,
     zone,
     skillOptions,
     shiftStatusOptions,
 }: {
-    eventId: number;
     zone: ZoneDetail;
     skillOptions: SkillOption[];
     shiftStatusOptions: ShiftStatusOption[];
