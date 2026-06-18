@@ -29,6 +29,8 @@ class CoordinatorEventController extends Controller
 
     private const SHIFT_ID_COLUMN = 'shift_id';
 
+    private const USER_ID_COLUMN = 'user_id';
+
     private const SHIFT_STARTS_AT_COLUMN = 'starts_at';
 
     public function index(Request $request): Response
@@ -82,7 +84,8 @@ class CoordinatorEventController extends Controller
 
         return Inertia::render('app/events/edit', [
             'event' => $this->eventDetail($event->fresh()),
-            'pendingApplications' => $this->pendingApplications($event),
+            'applications' => $this->applications($event),
+            'crewMembers' => $this->crewMembers($event),
             'visibilityOptions' => $this->visibilityOptions(),
             'skillOptions' => Skill::query()
                 ->orderBy(self::SKILL_NAME_COLUMN)
@@ -205,10 +208,14 @@ class CoordinatorEventController extends Controller
     /**
      * @return array<int, array<string, mixed>>
      */
-    private function pendingApplications(Event $event): array
+    private function applications(Event $event): array
     {
         $applications = Application::query()
-            ->where(self::STATUS_COLUMN, ApplicationStatus::Pending->value)
+            ->whereIn(self::STATUS_COLUMN, [
+                ApplicationStatus::Pending->value,
+                ApplicationStatus::Approved->value,
+                ApplicationStatus::Rejected->value,
+            ])
             ->whereHas('shift.zone', fn ($query) => $query->where(self::EVENT_ID_COLUMN, $event->id))
             ->with([
                 'user:id,name,email,phone',
@@ -230,6 +237,7 @@ class CoordinatorEventController extends Controller
                 'status' => $application->status->value,
                 'motivation' => $application->motivation,
                 'created_at' => $application->created_at?->toIso8601String(),
+                'reviewed_at' => $application->reviewed_at?->toIso8601String(),
                 'user' => [
                     'id' => $application->user->id,
                     'name' => $application->user->name,
@@ -249,6 +257,51 @@ class CoordinatorEventController extends Controller
                     'approved_count' => (int) ($approvedCountsByShift[$application->shift_id] ?? 0),
                 ],
             ])
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function crewMembers(Event $event): array
+    {
+        $approvedApplications = Application::query()
+            ->where(self::STATUS_COLUMN, ApplicationStatus::Approved->value)
+            ->whereHas('shift.zone', fn ($query) => $query->where(self::EVENT_ID_COLUMN, $event->id))
+            ->with([
+                'user:id,name,email,phone',
+                'shift.zone:id,event_id,name',
+            ])
+            ->get();
+
+        return $approvedApplications
+            ->groupBy(self::USER_ID_COLUMN)
+            ->map(function ($userApplications) {
+                $user = $userApplications->first()->user;
+
+                $shifts = $userApplications
+                    ->sortBy(fn (Application $application) => $application->shift->starts_at?->getTimestamp() ?? 0)
+                    ->values()
+                    ->map(fn (Application $application) => [
+                        'application_id' => $application->id,
+                        'shift_id' => $application->shift->id,
+                        'title' => $application->shift->title,
+                        'zone_name' => $application->shift->zone->name,
+                        'starts_at' => $application->shift->starts_at?->toIso8601String(),
+                        'ends_at' => $application->shift->ends_at?->toIso8601String(),
+                    ]);
+
+                return [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'phone' => $user->phone,
+                    'approved_shifts_count' => $shifts->count(),
+                    'shifts' => $shifts,
+                ];
+            })
+            ->sortBy(fn (array $crewMember) => $crewMember['name'])
             ->values()
             ->all();
     }

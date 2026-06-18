@@ -18,6 +18,15 @@ class CoordinatorApplicationReviewController extends Controller
 
     private const STATUS_COLUMN = 'status';
 
+    /**
+     * @var array<int, string>
+     */
+    private const REVIEWABLE_STATUSES = [
+        ApplicationStatus::Pending->value,
+        ApplicationStatus::Approved->value,
+        ApplicationStatus::Rejected->value,
+    ];
+
     public function update(Request $request, Application $application): RedirectResponse
     {
         $this->authorize('review', $application);
@@ -29,16 +38,20 @@ class CoordinatorApplicationReviewController extends Controller
             ])],
         ]);
 
-        if ($application->status !== ApplicationStatus::Pending) {
+        if (! in_array($application->status->value, self::REVIEWABLE_STATUSES, true)) {
             Inertia::flash('toast', [
                 'type' => 'error',
-                'message' => 'Alleen pending aanvragen kunnen behandeld worden.',
+                'message' => 'Deze aanvraag kan niet meer aangepast worden.',
             ]);
 
             return back();
         }
 
-        if ($validated['status'] === ApplicationStatus::Approved->value && $this->shiftCapacityReached($application)) {
+        if (
+            $validated['status'] === ApplicationStatus::Approved->value
+            && $application->status !== ApplicationStatus::Approved
+            && $this->shiftCapacityReached($application)
+        ) {
             Inertia::flash('toast', [
                 'type' => 'error',
                 'message' => 'Deze shift heeft al het maximum aantal goedgekeurde crewleden bereikt.',

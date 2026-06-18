@@ -1,6 +1,7 @@
 import { Head, Link, useForm } from '@inertiajs/react';
 import CoordinatorEventStructureManager from '@/components/coordinator-event-structure-manager';
 import CoordinatorEventApplicationsManager from '@/components/coordinator-event-applications-manager';
+import CoordinatorEventCrewOverview from '@/components/coordinator-event-crew-overview';
 import { useClipboard } from '@/hooks/use-clipboard';
 import CoordinatorEventForm, {
     type CoordinatorEventFormData,
@@ -64,11 +65,12 @@ type ShiftStatusOption = {
     label: string;
 };
 
-type PendingApplication = {
+type EventApplication = {
     id: number;
-    status: string;
+    status: 'pending' | 'approved' | 'rejected';
     motivation: string | null;
     created_at: string | null;
+    reviewed_at: string | null;
     user: {
         id: number;
         name: string;
@@ -89,6 +91,22 @@ type PendingApplication = {
     };
 };
 
+type CrewMember = {
+    id: number;
+    name: string;
+    email: string;
+    phone: string | null;
+    approved_shifts_count: number;
+    shifts: Array<{
+        application_id: number;
+        shift_id: number;
+        title: string;
+        zone_name: string;
+        starts_at: string | null;
+        ends_at: string | null;
+    }>;
+};
+
 const statusLabels: Record<string, string> = {
     draft: 'Concept',
     published: 'Gepubliceerd',
@@ -97,13 +115,15 @@ const statusLabels: Record<string, string> = {
 
 export default function EditCoordinatorEvent({
     event,
-    pendingApplications,
+    applications,
+    crewMembers,
     visibilityOptions,
     skillOptions,
     shiftStatusOptions,
 }: {
     event: EventDetail;
-    pendingApplications: PendingApplication[];
+    applications: EventApplication[];
+    crewMembers: CrewMember[];
     visibilityOptions: VisibilityOption[];
     skillOptions: SkillOption[];
     shiftStatusOptions: ShiftStatusOption[];
@@ -130,8 +150,9 @@ export default function EditCoordinatorEvent({
             <Head title={event.title} />
 
             <div className="flex flex-1 flex-col gap-6 p-4 md:p-6">
-                <Tabs defaultValue="details" className="space-y-5">
+                <Tabs defaultValue="crew" className="space-y-5">
                     <TabsList variant="line" className="w-full justify-start">
+                        <TabsTrigger value="crew">Crew & shifts</TabsTrigger>
                         <TabsTrigger value="details">Event details</TabsTrigger>
                         <TabsTrigger value="publish">Publiceren</TabsTrigger>
                         <TabsTrigger value="structure">
@@ -142,7 +163,19 @@ export default function EditCoordinatorEvent({
                         </TabsTrigger>
                     </TabsList>
 
-                    <TabsContent value="details" className="space-y-4">
+                    <TabsContent
+                        value="crew"
+                        className="mx-auto w-full max-w-6xl space-y-4"
+                    >
+                        <CoordinatorEventCrewOverview
+                            crewMembers={crewMembers}
+                        />
+                    </TabsContent>
+
+                    <TabsContent
+                        value="details"
+                        className="mx-auto w-full max-w-5xl space-y-4"
+                    >
                         <CoordinatorEventForm
                             title={event.title}
                             description="Werk je event uit en bewaar wijzigingen voordat je publiceert."
@@ -159,7 +192,10 @@ export default function EditCoordinatorEvent({
                         />
                     </TabsContent>
 
-                    <TabsContent value="publish" className="space-y-4">
+                    <TabsContent
+                        value="publish"
+                        className="mx-auto w-full max-w-5xl space-y-4"
+                    >
                         <Card>
                             <CardHeader>
                                 <div className="flex flex-wrap gap-2">
@@ -249,7 +285,10 @@ export default function EditCoordinatorEvent({
                         )}
                     </TabsContent>
 
-                    <TabsContent value="structure" className="space-y-4">
+                    <TabsContent
+                        value="structure"
+                        className="mx-auto w-full max-w-6xl space-y-4"
+                    >
                         <CoordinatorEventStructureManager
                             eventId={event.id}
                             zones={event.zones}
@@ -258,9 +297,12 @@ export default function EditCoordinatorEvent({
                         />
                     </TabsContent>
 
-                    <TabsContent value="applications" className="space-y-4">
+                    <TabsContent
+                        value="applications"
+                        className="mx-auto w-full max-w-6xl space-y-4"
+                    >
                         <CoordinatorEventApplicationsManager
-                            applications={pendingApplications}
+                            applications={applications}
                         />
                     </TabsContent>
                 </Tabs>

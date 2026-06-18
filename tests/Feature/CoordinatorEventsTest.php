@@ -278,3 +278,66 @@ it('does not allow a coordinator to review applications on another coordinators 
     expect($application->fresh()->status)->toBe(ApplicationStatus::Pending);
     expect(Assignment::query()->where(APPLICATION_ID_COLUMN, $application->id)->exists())->toBeFalse();
 });
+
+it('allows a coordinator to adjust approved and rejected applications', function () {
+    $coordinator = coordinatorUser();
+    $crew = User::factory()->create();
+    $crew->syncRoles(['crew']);
+
+    $event = Event::query()->create([
+        'coordinator_profile_id' => $coordinator->coordinatorProfile->id,
+        'title' => 'Crew Challenge',
+        'location' => 'Gent',
+        'start_date' => '2026-10-01',
+        'end_date' => '2026-10-02',
+        'status' => 'draft',
+        'publication_visibility' => 'public',
+    ]);
+
+    $zone = Zone::query()->create([
+        'event_id' => $event->id,
+        'name' => 'Main stage',
+    ]);
+
+    $shift = Shift::query()->create([
+        'zone_id' => $zone->id,
+        'title' => 'Stage support',
+        'starts_at' => '2026-10-01 09:00:00',
+        'ends_at' => '2026-10-01 14:00:00',
+        'capacity' => 2,
+        'status' => 'open',
+    ]);
+
+    $application = Application::query()->create([
+        'shift_id' => $shift->id,
+        'user_id' => $crew->id,
+        'status' => 'approved',
+        'reviewed_by' => $coordinator->id,
+        'reviewed_at' => now(),
+    ]);
+
+    Assignment::query()->create([
+        'application_id' => $application->id,
+        'shift_id' => $shift->id,
+        'user_id' => $crew->id,
+        'confirmed_at' => now(),
+    ]);
+
+    $this->actingAs($coordinator)
+        ->patch(route('coordinator.applications.review', ['application' => $application->id]), [
+            'status' => 'rejected',
+        ])
+        ->assertRedirect();
+
+    expect($application->fresh()->status)->toBe(ApplicationStatus::Rejected);
+    expect(Assignment::query()->where(APPLICATION_ID_COLUMN, $application->id)->exists())->toBeFalse();
+
+    $this->actingAs($coordinator)
+        ->patch(route('coordinator.applications.review', ['application' => $application->id]), [
+            'status' => 'approved',
+        ])
+        ->assertRedirect();
+
+    expect($application->fresh()->status)->toBe(ApplicationStatus::Approved);
+    expect(Assignment::query()->where(APPLICATION_ID_COLUMN, $application->id)->exists())->toBeTrue();
+});

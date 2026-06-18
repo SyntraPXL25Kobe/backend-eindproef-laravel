@@ -1,3 +1,4 @@
+import { useMemo, useState } from 'react';
 import { useForm } from '@inertiajs/react';
 import Heading from '@/components/heading';
 import { Badge } from '@/components/ui/badge';
@@ -10,11 +11,14 @@ import {
     CardTitle,
 } from '@/components/ui/card';
 
-type PendingApplication = {
+type ApplicationStatus = 'pending' | 'approved' | 'rejected';
+
+type EventApplication = {
     id: number;
-    status: string;
+    status: ApplicationStatus;
     motivation: string | null;
     created_at: string | null;
+    reviewed_at: string | null;
     user: {
         id: number;
         name: string;
@@ -36,11 +40,17 @@ type PendingApplication = {
 };
 
 type Props = {
-    applications: PendingApplication[];
+    applications: EventApplication[];
 };
 
 type ReviewFormData = {
-    status: 'approved' | 'rejected';
+    status: Exclude<ApplicationStatus, 'pending'>;
+};
+
+const STATUS_LABELS: Record<ApplicationStatus, string> = {
+    pending: 'Pending',
+    approved: 'Goedgekeurd',
+    rejected: 'Afgewezen',
 };
 
 function formatDateTime(value: string | null): string {
@@ -63,7 +73,7 @@ function formatDateTime(value: string | null): string {
 function ApplicationReviewCard({
     application,
 }: {
-    application: PendingApplication;
+    application: EventApplication;
 }) {
     const form = useForm<ReviewFormData>({
         status: 'approved',
@@ -72,7 +82,7 @@ function ApplicationReviewCard({
     const occupancyText = `${application.shift.approved_count}/${application.shift.capacity}`;
 
     return (
-        <Card className="border-border/70 bg-card/95">
+        <Card className="h-full border-border/70 bg-card/95">
             <CardHeader className="space-y-3">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
@@ -86,10 +96,13 @@ function ApplicationReviewCard({
                                 : ''}
                         </CardDescription>
                     </div>
-                    <Badge variant="outline">{application.zone.name}</Badge>
+                    <div className="flex items-center gap-2">
+                        <Badge variant="outline">{application.zone.name}</Badge>
+                        <Badge>{STATUS_LABELS[application.status]}</Badge>
+                    </div>
                 </div>
 
-                <div className="grid gap-1 text-sm text-muted-foreground">
+                <div className="grid gap-2 text-sm text-muted-foreground sm:grid-cols-2">
                     <p>
                         <span className="font-medium text-foreground">
                             Shift:
@@ -115,6 +128,14 @@ function ApplicationReviewCard({
                         </span>{' '}
                         {formatDateTime(application.created_at)}
                     </p>
+                    {application.reviewed_at && (
+                        <p>
+                            <span className="font-medium text-foreground">
+                                Laatst behandeld:
+                            </span>{' '}
+                            {formatDateTime(application.reviewed_at)}
+                        </p>
+                    )}
                 </div>
             </CardHeader>
 
@@ -129,37 +150,41 @@ function ApplicationReviewCard({
                 </div>
 
                 <div className="flex flex-wrap gap-2">
-                    <Button
-                        type="button"
-                        disabled={form.processing}
-                        onClick={() => {
-                            form.setData('status', 'approved');
-                            form.patch(
-                                `/app/applications/${application.id}/review`,
-                                {
-                                    preserveScroll: true,
-                                },
-                            );
-                        }}
-                    >
-                        Goedkeuren
-                    </Button>
-                    <Button
-                        type="button"
-                        variant="outline"
-                        disabled={form.processing}
-                        onClick={() => {
-                            form.setData('status', 'rejected');
-                            form.patch(
-                                `/app/applications/${application.id}/review`,
-                                {
-                                    preserveScroll: true,
-                                },
-                            );
-                        }}
-                    >
-                        Afwijzen
-                    </Button>
+                    {application.status !== 'approved' && (
+                        <Button
+                            type="button"
+                            disabled={form.processing}
+                            onClick={() => {
+                                form.setData('status', 'approved');
+                                form.patch(
+                                    `/app/applications/${application.id}/review`,
+                                    {
+                                        preserveScroll: true,
+                                    },
+                                );
+                            }}
+                        >
+                            Goedkeuren
+                        </Button>
+                    )}
+                    {application.status !== 'rejected' && (
+                        <Button
+                            type="button"
+                            variant="outline"
+                            disabled={form.processing}
+                            onClick={() => {
+                                form.setData('status', 'rejected');
+                                form.patch(
+                                    `/app/applications/${application.id}/review`,
+                                    {
+                                        preserveScroll: true,
+                                    },
+                                );
+                            }}
+                        >
+                            Afwijzen
+                        </Button>
+                    )}
                 </div>
             </CardContent>
         </Card>
@@ -169,22 +194,86 @@ function ApplicationReviewCard({
 export default function CoordinatorEventApplicationsManager({
     applications,
 }: Props) {
+    const [statusFilter, setStatusFilter] = useState<'all' | ApplicationStatus>(
+        'all',
+    );
+
+    const filteredApplications = useMemo(
+        () =>
+            statusFilter === 'all'
+                ? applications
+                : applications.filter(
+                      (application) => application.status === statusFilter,
+                  ),
+        [applications, statusFilter],
+    );
+
+    const countByStatus = useMemo(
+        () => ({
+            pending: applications.filter(
+                (application) => application.status === 'pending',
+            ).length,
+            approved: applications.filter(
+                (application) => application.status === 'approved',
+            ).length,
+            rejected: applications.filter(
+                (application) => application.status === 'rejected',
+            ).length,
+        }),
+        [applications],
+    );
+
     return (
         <section className="space-y-4">
             <Heading
                 title="Aanvragen behandelen"
-                description="Bekijk pending shift-aanvragen en keur ze goed of wijs ze af."
+                description="Bekijk alle aanvragen en pas de status aan wanneer nodig."
             />
 
-            {applications.length === 0 ? (
+            <div className="flex flex-wrap gap-2">
+                <Button
+                    type="button"
+                    variant={statusFilter === 'all' ? 'default' : 'outline'}
+                    onClick={() => setStatusFilter('all')}
+                >
+                    Alles ({applications.length})
+                </Button>
+                <Button
+                    type="button"
+                    variant={statusFilter === 'pending' ? 'default' : 'outline'}
+                    onClick={() => setStatusFilter('pending')}
+                >
+                    Pending ({countByStatus.pending})
+                </Button>
+                <Button
+                    type="button"
+                    variant={
+                        statusFilter === 'approved' ? 'default' : 'outline'
+                    }
+                    onClick={() => setStatusFilter('approved')}
+                >
+                    Goedgekeurd ({countByStatus.approved})
+                </Button>
+                <Button
+                    type="button"
+                    variant={
+                        statusFilter === 'rejected' ? 'default' : 'outline'
+                    }
+                    onClick={() => setStatusFilter('rejected')}
+                >
+                    Afgewezen ({countByStatus.rejected})
+                </Button>
+            </div>
+
+            {filteredApplications.length === 0 ? (
                 <Card className="border-dashed">
                     <CardContent className="py-8 text-sm text-muted-foreground">
-                        Er zijn momenteel geen pending aanvragen voor dit event.
+                        Geen aanvragen gevonden voor deze filter.
                     </CardContent>
                 </Card>
             ) : (
-                <div className="grid gap-4">
-                    {applications.map((application) => (
+                <div className="grid gap-4 md:grid-cols-2">
+                    {filteredApplications.map((application) => (
                         <ApplicationReviewCard
                             key={application.id}
                             application={application}
