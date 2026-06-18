@@ -341,3 +341,66 @@ it('allows a coordinator to adjust approved and rejected applications', function
     expect($application->fresh()->status)->toBe(ApplicationStatus::Approved);
     expect(Assignment::query()->where(APPLICATION_ID_COLUMN, $application->id)->exists())->toBeTrue();
 });
+
+it('allows a coordinator to cancel an application so crew can re-apply', function () {
+    $coordinator = coordinatorUser();
+    $crew = User::factory()->create();
+    $crew->syncRoles(['crew']);
+
+    $event = Event::query()->create([
+        'coordinator_profile_id' => $coordinator->coordinatorProfile->id,
+        'title' => 'Heropen test event',
+        'location' => 'Kortrijk',
+        'start_date' => '2026-11-01',
+        'end_date' => '2026-11-02',
+        'status' => 'draft',
+        'publication_visibility' => 'public',
+    ]);
+
+    $zone = Zone::query()->create([
+        'event_id' => $event->id,
+        'name' => 'Service',
+    ]);
+
+    $shift = Shift::query()->create([
+        'zone_id' => $zone->id,
+        'title' => 'Service shift',
+        'starts_at' => '2026-11-01 09:00:00',
+        'ends_at' => '2026-11-01 13:00:00',
+        'capacity' => 2,
+        'status' => 'open',
+    ]);
+
+    $application = Application::query()->create([
+        'shift_id' => $shift->id,
+        'user_id' => $crew->id,
+        'status' => 'approved',
+        'reviewed_by' => $coordinator->id,
+        'reviewed_at' => now(),
+    ]);
+
+    Assignment::query()->create([
+        'application_id' => $application->id,
+        'shift_id' => $shift->id,
+        'user_id' => $crew->id,
+        'confirmed_at' => now(),
+    ]);
+
+    $this->actingAs($coordinator)
+        ->patch(route('coordinator.applications.review', ['application' => $application->id]), [
+            'status' => 'cancelled',
+        ])
+        ->assertRedirect();
+
+    expect($application->fresh()->status)->toBe(ApplicationStatus::Cancelled);
+    expect(Assignment::query()->where(APPLICATION_ID_COLUMN, $application->id)->exists())->toBeFalse();
+
+    $this->actingAs($crew)
+        ->post(route('shift-applications.store', ['shift' => $shift->id]), [
+            'motivation' => 'Ik stel me opnieuw kandidaat.',
+        ])
+        ->assertRedirect();
+
+    expect($application->fresh()->status)->toBe(ApplicationStatus::Pending);
+    expect($application->fresh()->reviewed_at)->toBeNull();
+});

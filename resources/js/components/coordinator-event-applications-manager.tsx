@@ -44,7 +44,7 @@ type Props = {
 };
 
 type ReviewFormData = {
-    status: Exclude<ApplicationStatus, 'pending'>;
+    status: Exclude<ApplicationStatus, 'pending'> | 'cancelled';
 };
 
 const STATUS_LABELS: Record<ApplicationStatus, string> = {
@@ -185,6 +185,22 @@ function ApplicationReviewCard({
                             Afwijzen
                         </Button>
                     )}
+                    <Button
+                        type="button"
+                        variant="secondary"
+                        disabled={form.processing}
+                        onClick={() => {
+                            form.setData('status', 'cancelled');
+                            form.patch(
+                                `/app/applications/${application.id}/review`,
+                                {
+                                    preserveScroll: true,
+                                },
+                            );
+                        }}
+                    >
+                        Annuleren
+                    </Button>
                 </div>
             </CardContent>
         </Card>

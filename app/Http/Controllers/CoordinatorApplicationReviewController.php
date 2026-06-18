@@ -20,6 +20,7 @@ class CoordinatorApplicationReviewController extends Controller
             'status' => ['required', Rule::in([
                 ApplicationStatus::Approved->value,
                 ApplicationStatus::Rejected->value,
+                ApplicationStatus::Cancelled->value,
             ])],
         ]);
 
@@ -59,9 +60,12 @@ class CoordinatorApplicationReviewController extends Controller
 
         Inertia::flash('toast', [
             'type' => 'success',
-            'message' => $application->status === ApplicationStatus::Approved
-                ? 'Aanvraag goedgekeurd.'
-                : 'Aanvraag afgewezen.',
+            'message' => match ($application->status) {
+                ApplicationStatus::Approved => 'Aanvraag goedgekeurd.',
+                ApplicationStatus::Rejected => 'Aanvraag afgewezen.',
+                ApplicationStatus::Cancelled => 'Aanvraag geannuleerd en opnieuw opengezet.',
+                default => 'Aanvraag bijgewerkt.',
+            },
         ]);
 
         return back();
