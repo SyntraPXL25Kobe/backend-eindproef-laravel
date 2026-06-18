@@ -14,6 +14,7 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 type VisibilityOption = {
     value: string;
@@ -57,6 +58,11 @@ type SkillOption = {
     label: string;
 };
 
+type ShiftStatusOption = {
+    value: string;
+    label: string;
+};
+
 const statusLabels: Record<string, string> = {
     draft: 'Concept',
     published: 'Gepubliceerd',
@@ -72,7 +78,7 @@ export default function EditCoordinatorEvent({
     event: EventDetail;
     visibilityOptions: VisibilityOption[];
     skillOptions: SkillOption[];
-    shiftStatusOptions: VisibilityOption[];
+    shiftStatusOptions: ShiftStatusOption[];
 }) {
     const [copiedText, copy] = useClipboard();
     const form = useForm<CoordinatorEventFormData>({
@@ -96,23 +102,33 @@ export default function EditCoordinatorEvent({
             <Head title={event.title} />
 
             <div className="flex flex-1 flex-col gap-6 p-4 md:p-6">
-                <div className="grid gap-6 xl:grid-cols-[minmax(0,2fr)_360px]">
-                    <CoordinatorEventForm
-                        title={event.title}
-                        description="Werk je event uit en publiceer het zodra de crew-informatie klaarstaat."
-                        data={form.data}
-                        setData={form.setData}
-                        errors={form.errors}
-                        processing={form.processing}
-                        visibilityOptions={visibilityOptions}
-                        submitLabel="Wijzigingen opslaan"
-                        onSubmit={(submitEvent) => {
-                            submitEvent.preventDefault();
-                            form.put(`/app/events/${event.id}`);
-                        }}
-                    />
+                <Tabs defaultValue="details" className="space-y-5">
+                    <TabsList variant="line" className="w-full justify-start">
+                        <TabsTrigger value="details">Event details</TabsTrigger>
+                        <TabsTrigger value="publish">Publiceren</TabsTrigger>
+                        <TabsTrigger value="structure">
+                            Zones & shifts
+                        </TabsTrigger>
+                    </TabsList>
 
-                    <div className="space-y-4">
+                    <TabsContent value="details" className="space-y-4">
+                        <CoordinatorEventForm
+                            title={event.title}
+                            description="Werk je event uit en bewaar wijzigingen voordat je publiceert."
+                            data={form.data}
+                            setData={form.setData}
+                            errors={form.errors}
+                            processing={form.processing}
+                            visibilityOptions={visibilityOptions}
+                            submitLabel="Wijzigingen opslaan"
+                            onSubmit={(submitEvent) => {
+                                submitEvent.preventDefault();
+                                form.put(`/app/events/${event.id}`);
+                            }}
+                        />
+                    </TabsContent>
+
+                    <TabsContent value="publish" className="space-y-4">
                         <Card>
                             <CardHeader>
                                 <div className="flex flex-wrap gap-2">
@@ -129,8 +145,9 @@ export default function EditCoordinatorEvent({
                                 </div>
                                 <CardTitle>Publiceren</CardTitle>
                                 <CardDescription>
-                                    Een publicatie zet dit event live voor het
-                                    gekozen kanaal.
+                                    Zet dit event live als publieke pagina of
+                                    als unieke uitnodigingslink voor crew
+                                    members.
                                 </CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-3 text-sm text-muted-foreground">
@@ -199,15 +216,17 @@ export default function EditCoordinatorEvent({
                                 </CardContent>
                             </Card>
                         )}
-                    </div>
-                </div>
+                    </TabsContent>
 
-                <CoordinatorEventStructureManager
-                    eventId={event.id}
-                    zones={event.zones}
-                    skillOptions={skillOptions}
-                    shiftStatusOptions={shiftStatusOptions}
-                />
+                    <TabsContent value="structure" className="space-y-4">
+                        <CoordinatorEventStructureManager
+                            eventId={event.id}
+                            zones={event.zones}
+                            skillOptions={skillOptions}
+                            shiftStatusOptions={shiftStatusOptions}
+                        />
+                    </TabsContent>
+                </Tabs>
             </div>
         </>
     );
