@@ -13,8 +13,16 @@ class RedirectAdminToFilament
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if ($request->user()?->hasRole('admin') && ! $request->is('admin*')) {
-            return redirect('/admin');
+        $isAdmin = $request->user()?->hasRole('admin');
+        $isFilamentPath = $request->is('admin') || $request->is('admin/*');
+        $isNavigationRequest = $request->isMethodSafe()
+            && ! $request->expectsJson()
+            && ! $request->ajax()
+            && ! $request->hasHeader('X-Inertia')
+            && ! $request->hasHeader('X-Livewire');
+
+        if ($isAdmin && ! $isFilamentPath && $isNavigationRequest) {
+            return redirect()->route('filament.admin.pages.dashboard');
         }
 
         return $next($request);
