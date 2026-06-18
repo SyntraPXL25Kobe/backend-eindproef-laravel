@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\CoordinatorEvents;
 
+use App\Models\Shift;
 use App\Models\Zone;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -12,7 +13,7 @@ class StoreShiftRequest extends FormRequest
     {
         $zone = $this->route('zone');
 
-        return $zone instanceof Zone && ($this->user()?->can('create', [\App\Models\Shift::class, $zone]) ?? false);
+        return $zone instanceof Zone && ($this->user()?->can('create', [Shift::class, $zone]) ?? false);
     }
 
     public function rules(): array
