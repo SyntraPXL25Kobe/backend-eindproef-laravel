@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\ApplicationStatus;
 use App\EventStatus;
 use App\EventVisibility;
-use App\ApplicationStatus;
 use App\Http\Requests\CoordinatorEvents\PublishCoordinatorEventRequest;
 use App\Http\Requests\CoordinatorEvents\StoreCoordinatorEventRequest;
 use App\Http\Requests\CoordinatorEvents\UpdateCoordinatorEventRequest;
@@ -14,25 +14,12 @@ use App\Models\Skill;
 use App\ShiftStatus;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class CoordinatorEventController extends Controller
 {
-    private const EVENT_START_DATE_COLUMN = 'start_date';
-
-    private const EVENT_ID_COLUMN = 'event_id';
-
-    private const SKILL_NAME_COLUMN = 'name';
-
-    private const STATUS_COLUMN = 'status';
-
-    private const SHIFT_ID_COLUMN = 'shift_id';
-
-    private const USER_ID_COLUMN = 'user_id';
-
-    private const SHIFT_STARTS_AT_COLUMN = 'starts_at';
-
     public function index(Request $request): Response
     {
         $this->authorize('create', Event::class);
@@ -40,7 +27,7 @@ class CoordinatorEventController extends Controller
         $events = $request->user()
             ->coordinatorProfile
             ->events()
-            ->latest(self::EVENT_START_DATE_COLUMN)
+            ->latest('start_date')
             ->get()
             ->map(fn (Event $event) => $this->eventListItem($event));
 
@@ -80,15 +67,19 @@ class CoordinatorEventController extends Controller
     {
         $this->authorize('update', $event);
 
+        // Load all relationships once — do NOT call ->fresh() afterwards (that drops eager loads)
         $event->load(['zones.shifts.requiredSkill']);
 
+        // Fetch all reviewable applications once; crew overview is derived from this collection
+        $applications = $this->loadApplications($event);
+
         return Inertia::render('app/events/edit', [
-            'event' => $this->eventDetail($event->fresh()),
-            'applications' => $this->applications($event),
-            'crewMembers' => $this->crewMembers($event),
+            'event' => $this->eventDetail($event),
+            'applications' => $this->formatApplications($applications),
+            'crewMembers' => $this->formatCrewMembers($applications),
             'visibilityOptions' => $this->visibilityOptions(),
             'skillOptions' => Skill::query()
-                ->orderBy(self::SKILL_NAME_COLUMN)
+                ->orderBy('name')
                 ->get()
                 ->map(fn (Skill $skill) => [
                     'value' => $skill->id,
@@ -169,7 +160,7 @@ class CoordinatorEventController extends Controller
                 'name' => $zone->name,
                 'description' => $zone->description,
                 'shifts' => $zone->shifts
-                    ->sortBy(self::SHIFT_STARTS_AT_COLUMN)
+                    ->sortBy('starts_at')
                     ->values()
                     ->map(fn ($shift) => [
                         'id' => $shift->id,
@@ -206,30 +197,38 @@ class CoordinatorEventController extends Controller
     }
 
     /**
-     * @return array<int, array<string, mixed>>
+     * Fetch all reviewable applications for an event in a single query.
+     *
+     * @return Collection<int, Application>
      */
-    private function applications(Event $event): array
+    private function loadApplications(Event $event): Collection
     {
-        $applications = Application::query()
-            ->whereIn(self::STATUS_COLUMN, [
+        return Application::query()
+            ->whereIn('status', [
                 ApplicationStatus::Pending->value,
                 ApplicationStatus::Approved->value,
                 ApplicationStatus::Rejected->value,
             ])
-            ->whereHas('shift.zone', fn ($query) => $query->where(self::EVENT_ID_COLUMN, $event->id))
+            ->whereHas('shift.zone', fn ($query) => $query->where('event_id', $event->id))
             ->with([
                 'user:id,name,email,phone',
                 'shift.zone:id,event_id,name',
             ])
             ->latest()
             ->get();
+    }
 
-        $approvedCountsByShift = Application::query()
-            ->where(self::STATUS_COLUMN, ApplicationStatus::Approved->value)
-            ->whereIn(self::SHIFT_ID_COLUMN, $applications->pluck(self::SHIFT_ID_COLUMN)->unique()->values())
-            ->selectRaw('shift_id, COUNT(*) as aggregate')
-            ->groupBy(self::SHIFT_ID_COLUMN)
-            ->pluck('aggregate', self::SHIFT_ID_COLUMN);
+    /**
+     * @param  Collection<int, Application>  $applications
+     * @return array<int, array<string, mixed>>
+     */
+    private function formatApplications(Collection $applications): array
+    {
+        // Compute approved counts from the in-memory collection — avoids a second DB query
+        $approvedCountsByShift = $applications
+            ->where('status', ApplicationStatus::Approved)
+            ->groupBy('shift_id')
+            ->map->count();
 
         return $applications
             ->map(fn (Application $application) => [
@@ -262,21 +261,16 @@ class CoordinatorEventController extends Controller
     }
 
     /**
+     * Derive crew overview from already-loaded applications — no extra DB query.
+     *
+     * @param  Collection<int, Application>  $applications
      * @return array<int, array<string, mixed>>
      */
-    private function crewMembers(Event $event): array
+    private function formatCrewMembers(Collection $applications): array
     {
-        $approvedApplications = Application::query()
-            ->where(self::STATUS_COLUMN, ApplicationStatus::Approved->value)
-            ->whereHas('shift.zone', fn ($query) => $query->where(self::EVENT_ID_COLUMN, $event->id))
-            ->with([
-                'user:id,name,email,phone',
-                'shift.zone:id,event_id,name',
-            ])
-            ->get();
-
-        return $approvedApplications
-            ->groupBy(self::USER_ID_COLUMN)
+        return $applications
+            ->where('status', ApplicationStatus::Approved)
+            ->groupBy('user_id')
             ->map(function ($userApplications) {
                 $user = $userApplications->first()->user;
 

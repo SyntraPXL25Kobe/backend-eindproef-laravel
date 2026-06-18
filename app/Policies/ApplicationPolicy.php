@@ -11,17 +11,13 @@ use App\ShiftStatus;
 
 class ApplicationPolicy
 {
-    private const SHIFT_ID_COLUMN = 'shift_id';
-
-    private const USER_ID_COLUMN = 'user_id';
-
     public function store(User $user, Shift $shift): bool
     {
         return $user->can(Permission::ApplyForShift->value)
             && $shift->status === ShiftStatus::Open
             && ! Application::query()
-                ->where(self::SHIFT_ID_COLUMN, $shift->id)
-                ->where(self::USER_ID_COLUMN, $user->id)
+                ->where('shift_id', $shift->id)
+                ->where('user_id', $user->id)
                 ->whereIn('status', [
                     ApplicationStatus::Pending->value,
                     ApplicationStatus::Approved->value,
@@ -38,6 +34,11 @@ class ApplicationPolicy
 
     public function review(User $user, Application $application): bool
     {
+        // Cancelled applications cannot be reviewed; only pending/approved/rejected can change
+        if ($application->status === ApplicationStatus::Cancelled) {
+            return false;
+        }
+
         return $user->can(Permission::ReviewApplications->value)
             && $user->coordinatorProfile?->id === $application->shift->zone->event->coordinator_profile_id;
     }
