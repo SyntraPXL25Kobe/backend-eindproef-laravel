@@ -27,7 +27,7 @@ Deze applicatie lost dat op door:
 - Goedkeuren of afkeuren van aanvragen
 - Definitieve assignment-flow
 - Check-in board voor de eventdag
-- No-show registratie en vervanging
+- No-show registratie
 - Notificaties bij wijzigingen
 - KPI-overzicht en rapportage
 - Demo data en tests voor presentatie
@@ -47,7 +47,7 @@ Deze applicatie lost dat op door:
 - Zones en shifts beheren
 - Aanvragen beoordelen
 - Check-ins opvolgen
-- No-shows markeren en vervanging activeren
+- No-shows markeren
 
 ### Crew member
 
@@ -55,7 +55,6 @@ Deze applicatie lost dat op door:
 - Skills toevoegen
 - Open shifts bekijken
 - Zich inschrijven op shifts
-- Eigen planning en status opvolgen
 
 ## Tech stack
 
