@@ -162,3 +162,54 @@ it('does not allow a crew member to re-apply after a rejected application', func
     expect($application->fresh()->status)->toBe(ApplicationStatus::Rejected);
     expect($application->fresh()->motivation)->toBeNull();
 });
+
+it('does not allow a crew member to apply for a shift that overlaps with a pending application', function () {
+    $user = crewUser();
+    [$event] = publishedEventWithZonesAndShifts();
+
+    $zone = Zone::query()->where('event_id', $event->id)->first();
+
+    $shiftA = Shift::query()->create([
+        'zone_id' => $zone->id,
+        'title' => 'Ochtend shift',
+        'starts_at' => '2026-08-10 09:00:00',
+        'ends_at' => '2026-08-10 13:00:00',
+        'capacity' => 3,
+        'status' => 'open',
+    ]);
+
+    $shiftB = Shift::query()->create([
+        'zone_id' => $zone->id,
+        'title' => 'Overlap shift',
+        'starts_at' => '2026-08-10 12:00:00',
+        'ends_at' => '2026-08-10 16:00:00',
+        'capacity' => 3,
+        'status' => 'open',
+    ]);
+
+    $this->actingAs($user)
+        ->post(route('shift-applications.store', ['shift' => $shiftA->id]))
+        ->assertRedirect();
+
+    $this->actingAs($user)
+        ->post(route('shift-applications.store', ['shift' => $shiftB->id]))
+        ->assertForbidden();
+
+    expect(Application::query()->where(USER_ID_COLUMN, $user->id)->count())->toBe(1);
+});
+
+it('allows a crew member to apply for shifts that do not overlap', function () {
+    $user = crewUser();
+    [$event, $welcomeShift, $barShift] = publishedEventWithZonesAndShifts();
+
+    // welcomeShift: 08:00-12:00, barShift: 17:00-22:00 — no overlap
+    $this->actingAs($user)
+        ->post(route('shift-applications.store', ['shift' => $welcomeShift->id]))
+        ->assertRedirect();
+
+    $this->actingAs($user)
+        ->post(route('shift-applications.store', ['shift' => $barShift->id]))
+        ->assertRedirect();
+
+    expect(Application::query()->where(USER_ID_COLUMN, $user->id)->count())->toBe(2);
+});

@@ -7,7 +7,9 @@ use App\EventStatus;
 use App\EventVisibility;
 use App\Models\Application;
 use App\Models\Event;
+use App\Models\Shift;
 use App\Models\User;
+use App\ShiftStatus;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Inertia\Inertia;
@@ -15,10 +17,6 @@ use Inertia\Response;
 
 class PublicEventController extends Controller
 {
-    private const SHIFT_ID_COLUMN = 'shift_id';
-
-    private const MODEL_ID_COLUMN = 'id';
-
     public function show(Request $request, Event $event): Response
     {
         $event->load(['coordinatorProfile', 'zones.shifts.requiredSkill']);
@@ -94,12 +92,63 @@ class PublicEventController extends Controller
                                 'status' => $application->status->value,
                             ] : null,
                             'can_apply' => $user?->can('store', [Application::class, $shift]) ?? false,
+                            'cannot_apply_reason' => $this->cannotApplyReason($shift, $application, $user),
                             'can_cancel' => $application ? ($user?->can('cancel', $application) ?? false) : false,
                         ];
                     })->values(),
                 ];
             })->values(),
         ];
+    }
+
+    /**
+     * @return 'shift_closed'|'already_applied'|'rejected'|'overlap'|null
+     */
+    private function cannotApplyReason(Shift $shift, ?Application $application, ?User $user): ?string
+    {
+        if (! $user) {
+            return null;
+        }
+
+        if ($shift->status !== ShiftStatus::Open) {
+            return 'shift_closed';
+        }
+
+        if ($application) {
+            if ($application->status === ApplicationStatus::Rejected) {
+                return 'rejected';
+            }
+
+            if (in_array($application->status->value, [
+                ApplicationStatus::Pending->value,
+                ApplicationStatus::Approved->value,
+            ], true)) {
+                return 'already_applied';
+            }
+        }
+
+        if ($shift->starts_at && $shift->ends_at) {
+            $hasOverlap = $user->applications()
+                ->whereIn('status', [
+                    ApplicationStatus::Pending->value,
+                    ApplicationStatus::Approved->value,
+                ])
+                ->whereHas('shift', function ($query) use ($shift) {
+                    $query
+                        ->whereKeyNot($shift->id)
+                        ->whereNotNull('starts_at')
+                        ->whereNotNull('ends_at')
+                        ->where('starts_at', '<', $shift->ends_at)
+                        ->where('ends_at', '>', $shift->starts_at);
+                })
+                ->exists();
+
+            if ($hasOverlap) {
+                return 'overlap';
+            }
+        }
+
+        return null;
     }
 
     private function applicationsByShift(Event $event, ?User $user): Collection
@@ -109,7 +158,7 @@ class PublicEventController extends Controller
         }
 
         $shiftIds = $event->zones
-            ->flatMap(fn ($zone) => $zone->shifts->pluck(self::MODEL_ID_COLUMN))
+            ->flatMap(fn ($zone) => $zone->shifts->pluck('id'))
             ->values();
 
         if ($shiftIds->isEmpty()) {
@@ -117,7 +166,7 @@ class PublicEventController extends Controller
         }
 
         return $user->applications()
-            ->whereIn(self::SHIFT_ID_COLUMN, $shiftIds)
+            ->whereIn('shift_id', $shiftIds)
             ->whereIn('status', [
                 ApplicationStatus::Pending,
                 ApplicationStatus::Approved,
@@ -125,6 +174,6 @@ class PublicEventController extends Controller
                 ApplicationStatus::Cancelled,
             ])
             ->get()
-            ->keyBy(self::SHIFT_ID_COLUMN);
+            ->keyBy('shift_id');
     }
 }

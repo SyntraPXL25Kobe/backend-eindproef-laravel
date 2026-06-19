@@ -38,6 +38,12 @@ type Shift = {
     required_skill_name: string | null;
     application: ShiftApplication | null;
     can_apply: boolean;
+    cannot_apply_reason:
+        | 'shift_closed'
+        | 'already_applied'
+        | 'rejected'
+        | 'overlap'
+        | null;
     can_cancel: boolean;
 };
 
@@ -405,30 +411,33 @@ export default function ShowPublicEvent({
                                                         {auth.user &&
                                                             !shift.can_apply &&
                                                             !shift.can_cancel &&
-                                                            !shift.application && (
-                                                                <span className="text-sm text-muted-foreground">
-                                                                    Deze shift
-                                                                    is momenteel
-                                                                    niet
-                                                                    beschikbaar
-                                                                    voor een
-                                                                    nieuwe
-                                                                    applicatie.
-                                                                </span>
-                                                            )}
-
-                                                        {auth.user &&
-                                                            shift.application &&
-                                                            !shift.can_cancel && (
-                                                                <span className="text-sm text-muted-foreground">
-                                                                    {shift
-                                                                        .application
-                                                                        .status ===
-                                                                    'rejected'
-                                                                        ? 'Je application voor deze shift werd afgewezen. Opnieuw applyen voor dezelfde shift is niet mogelijk.'
-                                                                        : `Je status voor deze shift is ${shift.application.status}.`}
-                                                                </span>
-                                                            )}
+                                                            (() => {
+                                                                const reason =
+                                                                    shift.cannot_apply_reason;
+                                                                const messages: Record<
+                                                                    string,
+                                                                    string
+                                                                > = {
+                                                                    overlap:
+                                                                        'Je hebt al een aanvraag voor een shift met overlappende uren.',
+                                                                    rejected:
+                                                                        'Je aanvraag voor deze shift werd afgewezen. Opnieuw applyen is niet mogelijk.',
+                                                                    already_applied: `Je status voor deze shift is ${shift.application?.status ?? 'bekend'}.`,
+                                                                    shift_closed:
+                                                                        'Deze shift staat momenteel niet open voor aanvragen.',
+                                                                };
+                                                                const text =
+                                                                    reason
+                                                                        ? messages[
+                                                                              reason
+                                                                          ]
+                                                                        : null;
+                                                                return text ? (
+                                                                    <span className="text-sm text-muted-foreground">
+                                                                        {text}
+                                                                    </span>
+                                                                ) : null;
+                                                            })()}
                                                     </CardFooter>
                                                 </div>
                                             ))

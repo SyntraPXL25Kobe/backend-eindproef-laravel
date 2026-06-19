@@ -404,3 +404,4 @@ it('allows a coordinator to cancel an application so crew can re-apply', functio
     expect($application->fresh()->status)->toBe(ApplicationStatus::Pending);
     expect($application->fresh()->reviewed_at)->toBeNull();
 });
+
