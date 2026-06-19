@@ -14,7 +14,7 @@ use Inertia\Response;
 
 class CrewShiftController extends Controller
 {
-    public function __invoke(Request $request): Response
+    public function index(Request $request): Response
     {
         abort_unless($request->user()?->can(Permission::ViewOwnSchedule->value), 403);
 

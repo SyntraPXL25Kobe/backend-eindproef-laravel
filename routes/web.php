@@ -21,8 +21,8 @@ Route::get('/events/{event}', [PublicEventController::class, 'show'])
     ->name('events.public.show');
 
 Route::middleware(['auth', 'verified'])->prefix('app')->group(function () {
-    Route::get('/', DashboardController::class)->name('dashboard');
-    Route::get('/my-shifts', CrewShiftController::class)->name('crew.shifts.index');
+    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/my-shifts', [CrewShiftController::class, 'index'])->name('crew.shifts.index');
 
     Route::post('/shifts/{shift}/applications', [ShiftApplicationController::class, 'store'])
         ->name('shift-applications.store');
