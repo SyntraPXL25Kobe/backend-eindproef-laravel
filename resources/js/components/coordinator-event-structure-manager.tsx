@@ -78,7 +78,6 @@ function ZoneEditor({
     skillOptions,
     shiftStatusOptions,
 }: {
-    eventId: number;
     zone: ZoneDetail;
     skillOptions: SkillOption[];
     shiftStatusOptions: ShiftStatusOption[];
@@ -502,7 +501,6 @@ export default function CoordinatorEventStructureManager({
                     zones.map((zone) => (
                         <ZoneEditor
                             key={zone.id}
-                            eventId={eventId}
                             zone={zone}
                             skillOptions={skillOptions}
                             shiftStatusOptions={shiftStatusOptions}

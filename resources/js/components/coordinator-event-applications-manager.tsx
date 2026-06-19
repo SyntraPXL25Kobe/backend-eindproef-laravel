@@ -10,6 +10,7 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
+import { formatDateTimeNl } from '@/lib/format-date-time';
 
 type ApplicationStatus = 'pending' | 'approved' | 'rejected';
 
@@ -52,23 +53,6 @@ const STATUS_LABELS: Record<ApplicationStatus, string> = {
     approved: 'Goedgekeurd',
     rejected: 'Afgewezen',
 };
-
-function formatDateTime(value: string | null): string {
-    if (!value) {
-        return 'Nog niet gepland';
-    }
-
-    const date = new Date(value);
-
-    if (Number.isNaN(date.getTime())) {
-        return 'Onbekende datum';
-    }
-
-    return new Intl.DateTimeFormat('nl-BE', {
-        dateStyle: 'medium',
-        timeStyle: 'short',
-    }).format(date);
-}
 
 function ApplicationReviewCard({
     application,
@@ -113,8 +97,8 @@ function ApplicationReviewCard({
                         <span className="font-medium text-foreground">
                             Wanneer:
                         </span>{' '}
-                        {formatDateTime(application.shift.starts_at)} -{' '}
-                        {formatDateTime(application.shift.ends_at)}
+                        {formatDateTimeNl(application.shift.starts_at)} -{' '}
+                        {formatDateTimeNl(application.shift.ends_at)}
                     </p>
                     <p>
                         <span className="font-medium text-foreground">
@@ -126,14 +110,14 @@ function ApplicationReviewCard({
                         <span className="font-medium text-foreground">
                             Aangevraagd:
                         </span>{' '}
-                        {formatDateTime(application.created_at)}
+                        {formatDateTimeNl(application.created_at)}
                     </p>
                     {application.reviewed_at && (
                         <p>
                             <span className="font-medium text-foreground">
                                 Laatst behandeld:
                             </span>{' '}
-                            {formatDateTime(application.reviewed_at)}
+                            {formatDateTimeNl(application.reviewed_at)}
                         </p>
                     )}
                 </div>
