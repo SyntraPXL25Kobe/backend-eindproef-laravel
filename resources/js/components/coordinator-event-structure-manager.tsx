@@ -74,7 +74,6 @@ const emptyShiftData = (status = 'open'): ShiftFormData => ({
 });
 
 function ZoneEditor({
-    eventId,
     zone,
     skillOptions,
     shiftStatusOptions,
