@@ -12,7 +12,7 @@ use App\Http\Controllers\PublicEventController;
 use App\Http\Controllers\ShiftApplicationController;
 use Illuminate\Support\Facades\Route;
 
-Route::inertia('/', 'welcome')->name('home');
+Route::redirect('/', '/app')->name('home');
 Route::inertia('/register/coordinator/pending', 'auth/coordinator-pending')
     ->name('register.coordinator.pending');
 Route::get('/events/invite/{token}', [PublicEventController::class, 'showInvite'])
