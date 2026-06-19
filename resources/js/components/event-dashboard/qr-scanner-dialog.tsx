@@ -155,10 +155,6 @@ export function QrScannerDialog({
                                 <h2 className="text-lg font-semibold">
                                     Scan check-in QR
                                 </h2>
-                                <p className="text-xs text-white/70 sm:text-sm">
-                                    Gebruik bij voorkeur de achtercamera. Camera
-                                    werkt op HTTPS of localhost.
-                                </p>
                             </div>
                             <DialogClose asChild>
                                 <Button variant="secondary" size="sm">
