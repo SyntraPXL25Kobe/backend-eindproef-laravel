@@ -49,9 +49,7 @@ class CoordinatorRegistrationService
             $user->coordinator_rejected_reason = null;
             $user->save();
 
-            if (! $user->hasRole('coordinator')) {
-                $user->assignRole('coordinator');
-            }
+            $user->assignRole('coordinator');
 
             if (! $user->coordinatorProfile()->exists()) {
                 CoordinatorProfile::create([
@@ -71,9 +69,7 @@ class CoordinatorRegistrationService
             $user->coordinator_rejected_reason = $reason;
             $user->save();
 
-            if ($user->hasRole('coordinator')) {
-                $user->removeRole('coordinator');
-            }
+            $user->removeRole('coordinator');
 
             $user->notify(new CoordinatorRejectedNotification($reason));
         });

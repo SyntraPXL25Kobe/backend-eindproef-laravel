@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Event;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -36,13 +37,14 @@ class HandleInertiaRequests extends Middleware
     public function share(Request $request): array
     {
         $user = $request->user();
+        $isCoordinator = $user?->can('create', Event::class) ?? false;
 
         return [
             ...parent::share($request),
             'name' => config('app.name'),
             'auth' => [
                 'user' => $user,
-                'isCoordinator' => $user?->hasRole('coordinator') ?? false,
+                'isCoordinator' => $isCoordinator,
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];
