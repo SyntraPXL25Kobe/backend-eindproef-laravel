@@ -432,6 +432,7 @@ export default function ShowPublicEvent({
                                                                               reason
                                                                           ]
                                                                         : null;
+
                                                                 return text ? (
                                                                     <span className="text-sm text-muted-foreground">
                                                                         {text}

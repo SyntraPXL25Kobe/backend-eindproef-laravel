@@ -1,5 +1,6 @@
-import { FormEvent, useState } from 'react';
 import { Head, Link, router, usePage } from '@inertiajs/react';
+import type { FormEvent} from 'react';
+import { useState } from 'react';
 import Heading from '@/components/heading';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
