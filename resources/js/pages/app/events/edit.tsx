@@ -1,8 +1,12 @@
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Form, Head, Link } from '@inertiajs/react';
+import { useState } from 'react';
+import {
+    publish,
+    update,
+} from '@/actions/App/Http/Controllers/CoordinatorEventController';
 import CoordinatorEventApplicationsManager from '@/components/coordinator-event-applications-manager';
 import CoordinatorEventCrewOverview from '@/components/coordinator-event-crew-overview';
 import CoordinatorEventForm from '@/components/coordinator-event-form';
-import type { CoordinatorEventFormData } from '@/components/coordinator-event-form';
 import CoordinatorEventStructureManager from '@/components/coordinator-event-structure-manager';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -129,19 +133,12 @@ export default function EditCoordinatorEvent({
     shiftStatusOptions: ShiftStatusOption[];
 }) {
     const [copiedText, copy] = useClipboard();
-    const form = useForm<CoordinatorEventFormData>({
-        title: event.title,
-        description: event.description ?? '',
-        location: event.location,
-        start_date: event.start_date ?? '',
-        end_date: event.end_date ?? '',
-        max_crew_members: event.max_crew_members?.toString() ?? '',
-        cover_image_url: event.cover_image_url ?? '',
-        publication_visibility: event.publication_visibility,
-    });
+    const [publicationVisibility, setPublicationVisibility] = useState(
+        event.publication_visibility,
+    );
 
     const publishedLink =
-        form.data.publication_visibility === 'invite_only'
+        publicationVisibility === 'invite_only'
             ? event.invite_url
             : event.public_url;
 
@@ -181,16 +178,24 @@ export default function EditCoordinatorEvent({
                         <CoordinatorEventForm
                             title={event.title}
                             description="Werk je evenement uit en sla wijzigingen op voordat je publiceert."
-                            data={form.data}
-                            setData={form.setData}
-                            errors={form.errors}
-                            processing={form.processing}
+                            formAction={update.form({ event: event.id })}
+                            values={{
+                                title: event.title,
+                                description: event.description ?? '',
+                                location: event.location,
+                                start_date: event.start_date ?? '',
+                                end_date: event.end_date ?? '',
+                                max_crew_members:
+                                    event.max_crew_members?.toString() ?? '',
+                                cover_image_url: event.cover_image_url ?? '',
+                                publication_visibility:
+                                    event.publication_visibility,
+                            }}
                             visibilityOptions={visibilityOptions}
                             submitLabel="Wijzigingen opslaan"
-                            onSubmit={(submitEvent) => {
-                                submitEvent.preventDefault();
-                                form.put(`/app/events/${event.id}`);
-                            }}
+                            onPublicationVisibilityChange={
+                                setPublicationVisibility
+                            }
                         />
                     </TabsContent>
 
@@ -206,8 +211,7 @@ export default function EditCoordinatorEvent({
                                             event.status}
                                     </Badge>
                                     <Badge variant="outline">
-                                        {form.data.publication_visibility ===
-                                        'invite_only'
+                                        {publicationVisibility === 'invite_only'
                                             ? 'Alleen op uitnodiging'
                                             : 'Publiek'}
                                     </Badge>
@@ -221,8 +225,7 @@ export default function EditCoordinatorEvent({
                             <CardContent className="space-y-3 text-sm text-muted-foreground">
                                 <p>
                                     Huidige keuze:{' '}
-                                    {form.data.publication_visibility ===
-                                    'invite_only'
+                                    {publicationVisibility === 'invite_only'
                                         ? 'uitnodigingslink voor de crew'
                                         : 'publieke evenementpagina'}
                                 </p>
@@ -231,22 +234,21 @@ export default function EditCoordinatorEvent({
                                 )}
                             </CardContent>
                             <CardFooter className="flex flex-wrap gap-3">
-                                <Button
-                                    type="button"
-                                    onClick={() =>
-                                        form.post(
-                                            `/app/events/${event.id}/publish`,
-                                            {
-                                                preserveScroll: true,
-                                            },
-                                        )
-                                    }
-                                    disabled={form.processing}
+                                <Form
+                                    {...publish.form({ event: event.id })}
+                                    options={{ preserveScroll: true }}
                                 >
-                                    {event.status === 'published'
-                                        ? 'Opnieuw publiceren'
-                                        : 'Publiceren'}
-                                </Button>
+                                    {({ processing }) => (
+                                        <Button
+                                            type="submit"
+                                            disabled={processing}
+                                        >
+                                            {event.status === 'published'
+                                                ? 'Opnieuw publiceren'
+                                                : 'Publiceren'}
+                                        </Button>
+                                    )}
+                                </Form>
 
                                 {publishedLink && (
                                     <Button

@@ -1,5 +1,6 @@
-import { useForm } from '@inertiajs/react';
+import { Form } from '@inertiajs/react';
 import { useMemo, useState } from 'react';
+import { update } from '@/actions/App/Http/Controllers/CoordinatorApplicationReviewController';
 import Heading from '@/components/heading';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -44,10 +45,6 @@ type Props = {
     applications: EventApplication[];
 };
 
-type ReviewFormData = {
-    status: Exclude<ApplicationStatus, 'pending'> | 'cancelled';
-};
-
 const STATUS_LABELS: Record<ApplicationStatus, string> = {
     pending: 'In behandeling',
     approved: 'Goedgekeurd',
@@ -59,10 +56,6 @@ function ApplicationReviewCard({
 }: {
     application: EventApplication;
 }) {
-    const form = useForm<ReviewFormData>({
-        status: 'approved',
-    });
-
     const occupancyText = `${application.shift.approved_count}/${application.shift.capacity}`;
 
     return (
@@ -135,56 +128,71 @@ function ApplicationReviewCard({
 
                 <div className="flex flex-wrap gap-2">
                     {application.status !== 'approved' && (
-                        <Button
-                            type="button"
-                            disabled={form.processing}
-                            onClick={() => {
-                                form.setData('status', 'approved');
-                                form.patch(
-                                    `/app/applications/${application.id}/review`,
-                                    {
-                                        preserveScroll: true,
-                                    },
-                                );
-                            }}
+                        <Form
+                            {...update.form({ application: application.id })}
+                            options={{ preserveScroll: true }}
+                            className="contents"
                         >
-                            Goedkeuren
-                        </Button>
+                            {({ processing }) => (
+                                <>
+                                    <input
+                                        type="hidden"
+                                        name="status"
+                                        value="approved"
+                                    />
+                                    <Button type="submit" disabled={processing}>
+                                        Goedkeuren
+                                    </Button>
+                                </>
+                            )}
+                        </Form>
                     )}
                     {application.status !== 'rejected' && (
-                        <Button
-                            type="button"
-                            variant="outline"
-                            disabled={form.processing}
-                            onClick={() => {
-                                form.setData('status', 'rejected');
-                                form.patch(
-                                    `/app/applications/${application.id}/review`,
-                                    {
-                                        preserveScroll: true,
-                                    },
-                                );
-                            }}
+                        <Form
+                            {...update.form({ application: application.id })}
+                            options={{ preserveScroll: true }}
+                            className="contents"
                         >
-                            Afwijzen
-                        </Button>
+                            {({ processing }) => (
+                                <>
+                                    <input
+                                        type="hidden"
+                                        name="status"
+                                        value="rejected"
+                                    />
+                                    <Button
+                                        type="submit"
+                                        variant="outline"
+                                        disabled={processing}
+                                    >
+                                        Afwijzen
+                                    </Button>
+                                </>
+                            )}
+                        </Form>
                     )}
-                    <Button
-                        type="button"
-                        variant="secondary"
-                        disabled={form.processing}
-                        onClick={() => {
-                            form.setData('status', 'cancelled');
-                            form.patch(
-                                `/app/applications/${application.id}/review`,
-                                {
-                                    preserveScroll: true,
-                                },
-                            );
-                        }}
+                    <Form
+                        {...update.form({ application: application.id })}
+                        options={{ preserveScroll: true }}
+                        className="contents"
                     >
-                        Annuleren
-                    </Button>
+                        {({ processing }) => (
+                            <>
+                                <input
+                                    type="hidden"
+                                    name="status"
+                                    value="cancelled"
+                                />
+                                <Button
+                                    type="submit"
+                                    variant="secondary"
+                                    disabled={processing}
+                                >
+                                    Annuleren
+                                </Button>
+                            </>
+                        )}
+                    </Form>
                 </div>
             </CardContent>
         </Card>

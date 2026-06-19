@@ -5,6 +5,7 @@ import TextLink from '@/components/text-link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { store } from '@/actions/App/Http/Controllers/Auth/CoordinatorRegistrationController';
 import { Spinner } from '@/components/ui/spinner';
 import { login } from '@/routes';
 
@@ -18,8 +19,7 @@ export default function RegisterCoordinator({ passwordRules }: Props) {
             <Head title="Coordinator registratie" />
 
             <Form
-                action="/register/coordinator"
-                method="post"
+                {...store.form()}
                 resetOnSuccess={['password', 'password_confirmation']}
                 disableWhileProcessing
                 className="flex flex-col gap-6"

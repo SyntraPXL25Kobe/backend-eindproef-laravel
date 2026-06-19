@@ -1,6 +1,6 @@
-import { Head, useForm } from '@inertiajs/react';
+import { Head } from '@inertiajs/react';
+import { store } from '@/actions/App/Http/Controllers/CoordinatorEventController';
 import CoordinatorEventForm from '@/components/coordinator-event-form';
-import type { CoordinatorEventFormData } from '@/components/coordinator-event-form';
 
 type VisibilityOption = {
     value: string;
@@ -13,17 +13,6 @@ export default function CreateCoordinatorEvent({
 }: {
     visibilityOptions: VisibilityOption[];
 }) {
-    const form = useForm<CoordinatorEventFormData>({
-        title: '',
-        description: '',
-        location: '',
-        start_date: '',
-        end_date: '',
-        max_crew_members: '',
-        cover_image_url: '',
-        publication_visibility: 'public',
-    });
-
     return (
         <>
             <Head title="Nieuw evenement" />
@@ -32,16 +21,19 @@ export default function CreateCoordinatorEvent({
                 <CoordinatorEventForm
                     title="Nieuw evenement"
                     description="Sla eerst een concept op. Publiceren gebeurt daarna op de detailpagina."
-                    data={form.data}
-                    setData={form.setData}
-                    errors={form.errors}
-                    processing={form.processing}
+                    formAction={store.form()}
+                    values={{
+                        title: '',
+                        description: '',
+                        location: '',
+                        start_date: '',
+                        end_date: '',
+                        max_crew_members: '',
+                        cover_image_url: '',
+                        publication_visibility: 'public',
+                    }}
                     visibilityOptions={visibilityOptions}
                     submitLabel="Opslaan als concept"
-                    onSubmit={(event) => {
-                        event.preventDefault();
-                        form.post('/app/events');
-                    }}
                 />
             </div>
         </>
