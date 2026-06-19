@@ -1,11 +1,13 @@
 import { Head, router } from '@inertiajs/react';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { EventDashboardAttendanceList } from '@/components/event-dashboard/attendance-list';
+import { EventDashboardCrewMemberDialog } from '@/components/event-dashboard/crew-member-dialog';
 import { NoShowDialog } from '@/components/event-dashboard/no-show-dialog';
 import { QrScannerDialog } from '@/components/event-dashboard/qr-scanner-dialog';
 import { EventDashboardStatsCards } from '@/components/event-dashboard/stats-cards';
 import type {
     EventDashboardAssignment,
+    EventDashboardCrewMember,
     EventDashboardEvent,
     EventDashboardScanFeedback,
     EventDashboardStats,
@@ -25,6 +27,7 @@ export default function CoordinatorEventDashboard({
     last_updated_at,
     scan_endpoint,
     manual_check_in_endpoint,
+    manual_check_out_endpoint,
     no_show_endpoint,
 }: {
     event: EventDashboardEvent;
@@ -33,6 +36,7 @@ export default function CoordinatorEventDashboard({
     last_updated_at: string;
     scan_endpoint: string;
     manual_check_in_endpoint: string;
+    manual_check_out_endpoint: string;
     no_show_endpoint: string;
 }) {
     const [scannerOpen, setScannerOpen] = useState(false);
@@ -44,6 +48,46 @@ export default function CoordinatorEventDashboard({
     );
     const [noShowAssignment, setNoShowAssignment] =
         useState<EventDashboardAssignment | null>(null);
+    const [selectedCrewMemberId, setSelectedCrewMemberId] = useState<
+        number | null
+    >(null);
+
+    const crewMembers = useMemo<EventDashboardCrewMember[]>(() => {
+        const groupedByUser = new Map<number, EventDashboardCrewMember>();
+
+        assignments.forEach((assignment) => {
+            const existing = groupedByUser.get(assignment.user.id);
+
+            if (existing) {
+                existing.assignments.push(assignment);
+
+                return;
+            }
+
+            groupedByUser.set(assignment.user.id, {
+                id: assignment.user.id,
+                name: assignment.user.name,
+                email: assignment.user.email,
+                phone: assignment.user.phone,
+                assignments: [assignment],
+                attendance_history: assignment.user.attendance_history,
+            });
+        });
+
+        return Array.from(groupedByUser.values()).sort((a, b) =>
+            a.name.localeCompare(b.name, 'nl-BE'),
+        );
+    }, [assignments]);
+
+    const selectedCrewMember = useMemo(
+        () =>
+            selectedCrewMemberId === null
+                ? null
+                : (crewMembers.find(
+                      (crewMember) => crewMember.id === selectedCrewMemberId,
+                  ) ?? null),
+        [crewMembers, selectedCrewMemberId],
+    );
 
     useEffect(() => {
         const intervalId = window.setInterval(() => {
@@ -113,34 +157,10 @@ export default function CoordinatorEventDashboard({
                     <EventDashboardStatsCards stats={stats} />
 
                     <EventDashboardAttendanceList
-                        assignments={assignments}
-                        activeAssignmentId={activeAssignmentId}
-                        onCheckIn={(assignmentId) => {
-                            setActiveAssignmentId(assignmentId);
-                            router.post(
-                                endpointFor(
-                                    manual_check_in_endpoint,
-                                    assignmentId,
-                                ),
-                                {},
-                                {
-                                    preserveScroll: true,
-                                    onFinish: () => setActiveAssignmentId(null),
-                                },
-                            );
-                        }}
-                        onOpenNoShow={setNoShowAssignment}
-                        onClearNoShow={(assignmentId) => {
-                            setActiveAssignmentId(assignmentId);
-                            router.patch(
-                                endpointFor(no_show_endpoint, assignmentId),
-                                { no_show: false },
-                                {
-                                    preserveScroll: true,
-                                    onFinish: () => setActiveAssignmentId(null),
-                                },
-                            );
-                        }}
+                        crewMembers={crewMembers}
+                        onOpenDetails={(crewMember) =>
+                            setSelectedCrewMemberId(crewMember.id)
+                        }
                     />
                 </div>
             </div>
@@ -211,6 +231,51 @@ export default function CoordinatorEventDashboard({
                                 setActiveAssignmentId(null);
                                 setNoShowAssignment(null);
                             },
+                        },
+                    );
+                }}
+            />
+
+            <EventDashboardCrewMemberDialog
+                crewMember={selectedCrewMember}
+                open={selectedCrewMember !== null}
+                activeAssignmentId={activeAssignmentId}
+                onOpenChange={(open) => {
+                    if (!open) {
+                        setSelectedCrewMemberId(null);
+                    }
+                }}
+                onCheckIn={(assignmentId) => {
+                    setActiveAssignmentId(assignmentId);
+                    router.post(
+                        endpointFor(manual_check_in_endpoint, assignmentId),
+                        {},
+                        {
+                            preserveScroll: true,
+                            onFinish: () => setActiveAssignmentId(null),
+                        },
+                    );
+                }}
+                onCheckOut={(assignmentId) => {
+                    setActiveAssignmentId(assignmentId);
+                    router.post(
+                        endpointFor(manual_check_out_endpoint, assignmentId),
+                        {},
+                        {
+                            preserveScroll: true,
+                            onFinish: () => setActiveAssignmentId(null),
+                        },
+                    );
+                }}
+                onOpenNoShow={(assignment) => setNoShowAssignment(assignment)}
+                onClearNoShow={(assignmentId) => {
+                    setActiveAssignmentId(assignmentId);
+                    router.patch(
+                        endpointFor(no_show_endpoint, assignmentId),
+                        { no_show: false },
+                        {
+                            preserveScroll: true,
+                            onFinish: () => setActiveAssignmentId(null),
                         },
                     );
                 }}

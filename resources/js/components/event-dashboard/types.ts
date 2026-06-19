@@ -20,6 +20,7 @@ export type EventDashboardAssignment = {
     application_id: number;
     confirmed_at: string | null;
     check_in_at: string | null;
+    check_out_at: string | null;
     no_show: boolean;
     no_show_reason: string | null;
     can_check_in: boolean;
@@ -29,6 +30,11 @@ export type EventDashboardAssignment = {
         name: string;
         email: string;
         phone: string | null;
+        attendance_history: {
+            action: string;
+            source: string | null;
+            performed_at: string;
+        }[];
     };
     shift: {
         id: number;
@@ -39,12 +45,26 @@ export type EventDashboardAssignment = {
     };
 };
 
+export type EventDashboardCrewMember = {
+    id: number;
+    name: string;
+    email: string;
+    phone: string | null;
+    assignments: EventDashboardAssignment[];
+    attendance_history: {
+        action: string;
+        source: string | null;
+        performed_at: string;
+    }[];
+};
+
 export type EventDashboardScanFeedback = {
     status: 'success' | 'error';
     message: string;
     assignment?: {
         id: number;
         check_in_at: string | null;
+        check_out_at: string | null;
         user: {
             name: string;
             email: string;

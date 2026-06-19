@@ -24,8 +24,29 @@ class Assignment extends Model
     protected static function booted(): void
     {
         static::creating(function (Assignment $assignment): void {
-            $assignment->check_in_token ??= (string) Str::uuid();
+            $assignment->check_in_token ??= static::eventBoundToken($assignment) ?? (string) Str::uuid();
         });
+    }
+
+    private static function eventBoundToken(Assignment $assignment): ?string
+    {
+        if (! $assignment->user_id || ! $assignment->shift_id) {
+            return null;
+        }
+
+        $eventId = Shift::query()
+            ->whereKey($assignment->shift_id)
+            ->join('zones', 'zones.id', '=', 'shifts.zone_id')
+            ->value('zones.event_id');
+
+        if (! $eventId) {
+            return null;
+        }
+
+        return static::query()
+            ->where('user_id', $assignment->user_id)
+            ->whereHas('shift.zone', fn ($query) => $query->where('event_id', $eventId))
+            ->value('check_in_token');
     }
 
     /**
