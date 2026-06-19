@@ -18,8 +18,8 @@ class DashboardController extends Controller
 
         $publicEvents = Event::query()
             ->with('coordinatorProfile')
-            ->where('status', EventStatus::Published)
-            ->where('visibility', EventVisibility::Public)
+            ->whereEnum('status', EventStatus::Published)
+            ->whereEnum('visibility', EventVisibility::Public)
             ->when($search !== '', function ($query) use ($search) {
                 $query->where(function ($nested) use ($search) {
                     $nested
