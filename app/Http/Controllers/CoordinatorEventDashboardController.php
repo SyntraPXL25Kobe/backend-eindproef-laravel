@@ -51,6 +51,7 @@ class CoordinatorEventDashboardController extends Controller
                 'application_id' => $assignment->application_id,
                 'confirmed_at' => $assignment->confirmed_at?->toIso8601String(),
                 'check_in_at' => $assignment->check_in_at?->toIso8601String(),
+                'check_out_at' => $assignment->check_out_at?->toIso8601String(),
                 'no_show' => $assignment->no_show,
                 'no_show_reason' => $assignment->no_show_reason,
                 'user' => [

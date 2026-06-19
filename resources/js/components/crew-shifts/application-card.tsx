@@ -133,17 +133,15 @@ export function CrewShiftApplicationCard({
                         </Button>
                     )}
 
-                    {checkIn?.qr_svg_src &&
-                        !checkIn.checked_in_at &&
-                        !checkIn.no_show && (
-                            <Button
-                                type="button"
-                                variant="secondary"
-                                onClick={() => onShowQr(application)}
-                            >
-                                Toon check-in QR
-                            </Button>
-                        )}
+                    {checkIn?.qr_svg_src && checkIn.is_available_today && (
+                        <Button
+                            type="button"
+                            variant="secondary"
+                            onClick={() => onShowQr(application)}
+                        >
+                            Toon check-in QR
+                        </Button>
+                    )}
 
                     {application.can_cancel && (
                         <Button

@@ -67,10 +67,10 @@ export function QrScannerDialog({
             <DialogContent className="inset-0 flex h-dvh max-h-none min-h-dvh w-dvw max-w-none translate-x-0 translate-y-0 flex-col gap-0 rounded-none border-0 p-0 shadow-none sm:max-w-none [&>button.absolute]:hidden">
                 <DialogHeader>
                     <DialogTitle className="sr-only">
-                        Scan check-in QR
+                        Scan check-in/check-out QR
                     </DialogTitle>
                     <DialogDescription className="sr-only">
-                        Full screen scanner voor event check-in.
+                        Full screen scanner voor event check-in en check-out.
                     </DialogDescription>
                 </DialogHeader>
 
@@ -125,6 +125,18 @@ export function QrScannerDialog({
                                             {scannedAssignment.check_in_at
                                                 ? formatDateTimeNl(
                                                       scannedAssignment.check_in_at,
+                                                  )
+                                                : '-'}
+                                        </p>
+                                    </div>
+                                    <div className="rounded-2xl bg-white/12 p-4 sm:col-span-2">
+                                        <p className="text-white/75">
+                                            Uitgecheckt om
+                                        </p>
+                                        <p className="text-lg font-medium">
+                                            {scannedAssignment.check_out_at
+                                                ? formatDateTimeNl(
+                                                      scannedAssignment.check_out_at,
                                                   )
                                                 : '-'}
                                         </p>
@@ -216,7 +228,7 @@ export function QrScannerDialog({
                         <div className="flex items-center justify-between gap-3 p-4">
                             <div>
                                 <h2 className="text-lg font-semibold">
-                                    Scan check-in QR
+                                    Scan check-in/check-out QR
                                 </h2>
                             </div>
                             <DialogClose asChild>

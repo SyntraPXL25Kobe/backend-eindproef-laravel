@@ -65,6 +65,14 @@ export function EventDashboardAttendanceList({
             accessorKey: 'check_in_at',
             header: 'Status',
             cell: ({ row }) => {
+                if (row.original.check_out_at) {
+                    return (
+                        <Badge className="bg-sky-600 text-white hover:bg-sky-600">
+                            Uitgecheckt
+                        </Badge>
+                    );
+                }
+
                 if (row.original.check_in_at) {
                     return (
                         <Badge className="bg-emerald-600 text-white hover:bg-emerald-600">
@@ -87,6 +95,18 @@ export function EventDashboardAttendanceList({
                 row.original.check_in_at ? (
                     <div className="text-sm">
                         {formatDateTimeNl(row.original.check_in_at)}
+                    </div>
+                ) : (
+                    <span className="text-xs text-muted-foreground">—</span>
+                ),
+        },
+        {
+            accessorKey: 'check_out_at',
+            header: 'Check-out tijd',
+            cell: ({ row }) =>
+                row.original.check_out_at ? (
+                    <div className="text-sm">
+                        {formatDateTimeNl(row.original.check_out_at)}
                     </div>
                 ) : (
                     <span className="text-xs text-muted-foreground">—</span>

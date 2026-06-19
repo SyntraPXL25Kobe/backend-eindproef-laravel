@@ -71,7 +71,7 @@ class CrewShiftController extends Controller
         }
 
         return [
-            'is_available_today' => $event->isHappeningToday() && ! $assignment->no_show,
+            'is_available_today' => $event->isHappeningToday(),
             'checked_in_at' => $assignment->check_in_at?->toIso8601String(),
             'no_show' => $assignment->no_show,
             'no_show_reason' => $assignment->no_show_reason,

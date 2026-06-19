@@ -41,7 +41,7 @@ function eventDashboardCoordinator(): User
 
 function approvedAssignmentForEvent(User $coordinator, array $overrides = []): Assignment
 {
-    $crew = User::factory()->create();
+    $crew = $overrides['crew'] ?? User::factory()->create();
     $crew->syncRoles(['crew']);
 
     $event = $overrides['event'] ?? Event::query()->create([
@@ -154,6 +154,219 @@ it('checks in a crew member by scanned qr token', function () {
 
     expect($assignment->fresh()->check_in_at)->not->toBeNull();
     expect($assignment->fresh()->no_show)->toBeFalse();
+});
+
+it('checks in all shifts for the same crew member within one event', function () {
+    $coordinator = eventDashboardCoordinator();
+    $crew = User::factory()->create();
+    $crew->syncRoles(['crew']);
+
+    $event = Event::query()->create([
+        'coordinator_profile_id' => $coordinator->coordinatorProfile->id,
+        'title' => 'Check-in event',
+        'location' => 'Antwerpen',
+        'start_date' => '2026-08-20',
+        'end_date' => '2026-08-20',
+        'status' => 'published',
+        'publication_visibility' => 'public',
+    ]);
+
+    $zone = Zone::query()->create([
+        'event_id' => $event->id,
+        'name' => 'Ingang',
+    ]);
+
+    $shiftA = Shift::query()->create([
+        'zone_id' => $zone->id,
+        'title' => 'Ochtendploeg',
+        'starts_at' => '2026-08-20 08:00:00',
+        'ends_at' => '2026-08-20 12:00:00',
+        'capacity' => 5,
+        'status' => 'open',
+    ]);
+
+    $shiftB = Shift::query()->create([
+        'zone_id' => $zone->id,
+        'title' => 'Middagploeg',
+        'starts_at' => '2026-08-20 12:00:00',
+        'ends_at' => '2026-08-20 16:00:00',
+        'capacity' => 5,
+        'status' => 'open',
+    ]);
+
+    $assignmentA = approvedAssignmentForEvent($coordinator, [
+        'crew' => $crew,
+        'event' => $event,
+        'zone' => $zone,
+        'shift' => $shiftA,
+    ]);
+
+    $assignmentB = approvedAssignmentForEvent($coordinator, [
+        'crew' => $crew,
+        'event' => $event,
+        'zone' => $zone,
+        'shift' => $shiftB,
+    ]);
+
+    $this->actingAs($coordinator)
+        ->post(route('coordinator.events.check-ins.scan', ['event' => $event->id]), [
+            'scan_result' => $assignmentA->check_in_token,
+        ])
+        ->assertRedirect();
+
+    expect($assignmentA->fresh()->check_in_at)->not->toBeNull();
+    expect($assignmentB->fresh()->check_in_at)->not->toBeNull();
+});
+
+it('checks out a checked-in crew member by scanned qr token', function () {
+    $coordinator = eventDashboardCoordinator();
+    $event = Event::query()->create([
+        'coordinator_profile_id' => $coordinator->coordinatorProfile->id,
+        'title' => 'Check-out event',
+        'location' => 'Antwerpen',
+        'start_date' => '2026-08-20',
+        'end_date' => '2026-08-20',
+        'status' => 'published',
+        'publication_visibility' => 'public',
+    ]);
+
+    $zone = Zone::query()->create([
+        'event_id' => $event->id,
+        'name' => 'Ingang',
+    ]);
+
+    $shift = Shift::query()->create([
+        'zone_id' => $zone->id,
+        'title' => 'Opbouw',
+        'starts_at' => '2026-08-20 06:00:00',
+        'ends_at' => '2026-08-20 09:00:00',
+        'capacity' => 5,
+        'status' => 'open',
+    ]);
+
+    $assignment = approvedAssignmentForEvent($coordinator, [
+        'event' => $event,
+        'zone' => $zone,
+        'shift' => $shift,
+        'assignment' => [
+            'check_in_at' => now()->subHours(2),
+        ],
+    ]);
+
+    $this->actingAs($coordinator)
+        ->post(route('coordinator.events.check-ins.scan', ['event' => $event->id]), [
+            'scan_result' => $assignment->check_in_token,
+        ])
+        ->assertRedirect();
+
+    expect($assignment->fresh()->check_out_at)->not->toBeNull();
+});
+
+it('does not check out when crew member still has an active shift', function () {
+    $coordinator = eventDashboardCoordinator();
+    $crew = User::factory()->create();
+    $crew->syncRoles(['crew']);
+
+    $event = Event::query()->create([
+        'coordinator_profile_id' => $coordinator->coordinatorProfile->id,
+        'title' => 'Check-in event',
+        'location' => 'Antwerpen',
+        'start_date' => '2026-08-20',
+        'end_date' => '2026-08-20',
+        'status' => 'published',
+        'publication_visibility' => 'public',
+    ]);
+
+    $zone = Zone::query()->create([
+        'event_id' => $event->id,
+        'name' => 'Ingang',
+    ]);
+
+    $activeShift = Shift::query()->create([
+        'zone_id' => $zone->id,
+        'title' => 'Ochtendploeg',
+        'starts_at' => '2026-08-20 09:00:00',
+        'ends_at' => '2026-08-20 12:00:00',
+        'capacity' => 5,
+        'status' => 'open',
+    ]);
+
+    $nextShift = Shift::query()->create([
+        'zone_id' => $zone->id,
+        'title' => 'Middagploeg',
+        'starts_at' => '2026-08-20 12:00:00',
+        'ends_at' => '2026-08-20 16:00:00',
+        'capacity' => 5,
+        'status' => 'open',
+    ]);
+
+    $activeAssignment = approvedAssignmentForEvent($coordinator, [
+        'crew' => $crew,
+        'event' => $event,
+        'zone' => $zone,
+        'shift' => $activeShift,
+        'assignment' => [
+            'check_in_at' => now()->subHours(2),
+        ],
+    ]);
+
+    $targetAssignment = approvedAssignmentForEvent($coordinator, [
+        'crew' => $crew,
+        'event' => $event,
+        'zone' => $zone,
+        'shift' => $nextShift,
+        'assignment' => [
+            'check_in_at' => now()->subHours(2),
+        ],
+    ]);
+
+    $this->actingAs($coordinator)
+        ->post(route('coordinator.events.check-ins.scan', ['event' => $event->id]), [
+            'scan_result' => $targetAssignment->check_in_token,
+        ])
+        ->assertRedirect();
+
+    expect($targetAssignment->fresh()->check_out_at)->toBeNull();
+    expect($activeAssignment->fresh()->check_out_at)->toBeNull();
+});
+
+it('allows a new manual check-in after event checkout is completed', function () {
+    $coordinator = eventDashboardCoordinator();
+    $assignment = approvedAssignmentForEvent($coordinator, [
+        'assignment' => [
+            'check_in_at' => now()->subHours(3),
+            'check_out_at' => now()->subHours(1),
+        ],
+    ]);
+
+    $this->actingAs($coordinator)
+        ->post(route('coordinator.assignments.check-in', ['assignment' => $assignment->id]))
+        ->assertRedirect();
+
+    expect($assignment->fresh()->check_in_at?->toIso8601String())
+        ->toBe(now()->toIso8601String());
+    expect($assignment->fresh()->check_out_at)->toBeNull();
+});
+
+it('allows scanning again after event checkout is completed', function () {
+    $coordinator = eventDashboardCoordinator();
+    $assignment = approvedAssignmentForEvent($coordinator, [
+        'assignment' => [
+            'check_in_at' => now()->subHours(3),
+            'check_out_at' => now()->subHours(1),
+        ],
+    ]);
+    $event = $assignment->shift->zone->event;
+
+    $this->actingAs($coordinator)
+        ->post(route('coordinator.events.check-ins.scan', ['event' => $event->id]), [
+            'scan_result' => $assignment->check_in_token,
+        ])
+        ->assertRedirect();
+
+    expect($assignment->fresh()->check_in_at?->toIso8601String())
+        ->toBe(now()->toIso8601String());
+    expect($assignment->fresh()->check_out_at)->toBeNull();
 });
 
 it('does not check in a no-show crew member by scanned qr token', function () {
