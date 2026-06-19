@@ -4,9 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Assignment;
 use App\Models\Event;
+use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
