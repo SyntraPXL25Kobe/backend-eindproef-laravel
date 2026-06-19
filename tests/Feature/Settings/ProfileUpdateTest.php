@@ -83,3 +83,10 @@ test('correct password must be provided to delete account', function () {
 
     expect($user->fresh())->not->toBeNull();
 });
+
+test('guest cannot update profile information', function () {
+    $this->patch(route('profile.update'), [
+        'name' => 'Guest User',
+        'email' => 'guest@example.com',
+    ])->assertRedirect(route('login'));
+});

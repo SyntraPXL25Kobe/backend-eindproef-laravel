@@ -422,3 +422,67 @@ it('allows a coordinator to cancel an application so crew can re-apply', functio
     expect($application->fresh()->status)->toBe(ApplicationStatus::Pending);
     expect($application->fresh()->reviewed_at)->toBeNull();
 });
+
+it('prevents approving when shift capacity is already reached', function () {
+    $coordinator = coordinatorUser();
+
+    $approvedCrew = User::factory()->create();
+    $approvedCrew->syncRoles(['crew']);
+
+    $pendingCrew = User::factory()->create();
+    $pendingCrew->syncRoles(['crew']);
+
+    $event = Event::query()->create([
+        'coordinator_profile_id' => $coordinator->coordinatorProfile->id,
+        'title' => 'Capacity guard event',
+        'location' => 'Gent',
+        'start_date' => '2026-12-01',
+        'end_date' => '2026-12-02',
+        'status' => 'draft',
+        'publication_visibility' => 'public',
+    ]);
+
+    $zone = Zone::query()->create([
+        'event_id' => $event->id,
+        'name' => 'Main floor',
+    ]);
+
+    $shift = Shift::query()->create([
+        'zone_id' => $zone->id,
+        'title' => 'Main shift',
+        'starts_at' => '2026-12-01 09:00:00',
+        'ends_at' => '2026-12-01 12:00:00',
+        'capacity' => 1,
+        'status' => 'open',
+    ]);
+
+    $approvedApplication = Application::query()->create([
+        'shift_id' => $shift->id,
+        'user_id' => $approvedCrew->id,
+        'status' => 'approved',
+        'reviewed_by' => $coordinator->id,
+        'reviewed_at' => now(),
+    ]);
+
+    Assignment::query()->create([
+        'application_id' => $approvedApplication->id,
+        'shift_id' => $shift->id,
+        'user_id' => $approvedCrew->id,
+        'confirmed_at' => now(),
+    ]);
+
+    $pendingApplication = Application::query()->create([
+        'shift_id' => $shift->id,
+        'user_id' => $pendingCrew->id,
+        'status' => 'pending',
+    ]);
+
+    $this->actingAs($coordinator)
+        ->patch(route('coordinator.applications.review', ['application' => $pendingApplication->id]), [
+            'status' => 'approved',
+        ])
+        ->assertRedirect();
+
+    expect($pendingApplication->fresh()->status)->toBe(ApplicationStatus::Pending);
+    expect(Assignment::query()->where(APPLICATION_ID_COLUMN, $pendingApplication->id)->exists())->toBeFalse();
+});
