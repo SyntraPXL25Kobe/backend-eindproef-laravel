@@ -40,6 +40,14 @@ export type EventDashboardAssignment = {
     };
 };
 
+export type EventDashboardCrewMember = {
+    id: number;
+    name: string;
+    email: string;
+    phone: string | null;
+    assignments: EventDashboardAssignment[];
+};
+
 export type EventDashboardScanFeedback = {
     status: 'success' | 'error';
     message: string;

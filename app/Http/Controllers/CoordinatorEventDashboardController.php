@@ -72,7 +72,6 @@ class CoordinatorEventDashboardController extends Controller
             ])->values(),
             'last_updated_at' => now()->toIso8601String(),
             'scan_endpoint' => route('coordinator.events.check-ins.scan', ['event' => $event->id]),
-            'manual_check_in_endpoint' => route('coordinator.assignments.check-in', ['assignment' => '__ASSIGNMENT__']),
             'no_show_endpoint' => route('coordinator.assignments.no-show', ['assignment' => '__ASSIGNMENT__']),
         ]);
     }
