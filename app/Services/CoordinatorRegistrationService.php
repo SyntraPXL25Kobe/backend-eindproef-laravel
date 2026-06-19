@@ -71,7 +71,10 @@ class CoordinatorRegistrationService
 
             $user->removeRole('coordinator');
 
-            $user->notify(new CoordinatorRejectedNotification($reason));
+            // Send immediately before deleting the notifiable model.
+            $user->notifyNow(new CoordinatorRejectedNotification($reason));
+
+            $user->delete();
         });
     }
 }

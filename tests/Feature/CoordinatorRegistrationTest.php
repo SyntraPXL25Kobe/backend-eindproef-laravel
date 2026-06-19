@@ -2,6 +2,7 @@
 
 use App\Enums\CoordinatorRegistrationStatus;
 use App\Models\User;
+use App\Services\CoordinatorRegistrationService;
 use Database\Seeders\PermissionsSeeder;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 
@@ -63,4 +64,24 @@ test('pending coordinator with verified email is redirected to pending page from
     $this->actingAs($user)
         ->get(route('dashboard'))
         ->assertRedirect(route('register.coordinator.pending', absolute: false));
+});
+
+test('rejected coordinator registration deletes the user and profile', function () {
+    $user = User::factory()->create([
+        'coordinator_registration_status' => CoordinatorRegistrationStatus::Pending,
+    ]);
+
+    $user->coordinatorProfile()->create([
+        'organisation_name' => 'Crew Collective',
+    ]);
+
+    app(CoordinatorRegistrationService::class)->reject($user, 'Niet geschikt');
+
+    $this->assertDatabaseMissing('users', [
+        'id' => $user->id,
+    ]);
+
+    $this->assertDatabaseMissing('coordinator_profiles', [
+        'user_id' => $user->id,
+    ]);
 });
