@@ -28,7 +28,8 @@ test('guest can submit coordinator registration request', function () {
         'password_confirmation' => 'Password123!',
     ]);
 
-    $response->assertRedirect(route('register.coordinator.pending'));
+    $this->assertAuthenticated();
+    $response->assertRedirect(route('verification.notice'));
 
     $this->assertDatabaseHas('users', [
         'email' => 'coordinator@example.com',
@@ -41,4 +42,25 @@ test('guest can submit coordinator registration request', function () {
     expect($user->coordinator_registration_status)->toBe(CoordinatorRegistrationStatus::Pending);
     expect($user->coordinatorProfile)->not->toBeNull();
     expect($user->coordinatorProfile->organisation_name)->toBe('Crew Collective');
+    expect($user->email_verified_at)->toBeNull();
+});
+
+test('pending coordinator with unverified email is redirected to email verification before pending page', function () {
+    $user = User::factory()->unverified()->create([
+        'coordinator_registration_status' => CoordinatorRegistrationStatus::Pending,
+    ]);
+
+    $this->actingAs($user)
+        ->get(route('dashboard'))
+        ->assertRedirect(route('verification.notice', absolute: false));
+});
+
+test('pending coordinator with verified email is redirected to pending page from dashboard', function () {
+    $user = User::factory()->create([
+        'coordinator_registration_status' => CoordinatorRegistrationStatus::Pending,
+    ]);
+
+    $this->actingAs($user)
+        ->get(route('dashboard'))
+        ->assertRedirect(route('register.coordinator.pending', absolute: false));
 });
