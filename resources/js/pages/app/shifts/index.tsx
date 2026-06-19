@@ -4,10 +4,11 @@ import { CrewShiftApplicationCard } from '@/components/crew-shifts/application-c
 import { ApplicationStatusFilters } from '@/components/crew-shifts/application-status-filters';
 import { CheckInQrDialog } from '@/components/crew-shifts/check-in-qr-dialog';
 import {
-    statusLabel,
-    type ApplicationFilter,
-    type CrewApplication,
+    statusLabel
+    
+    
 } from '@/components/crew-shifts/types';
+import type {ApplicationFilter, CrewApplication} from '@/components/crew-shifts/types';
 import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
 import {

@@ -1,5 +1,5 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import type { EventDashboardStats } from '@/components/event-dashboard/types';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export function EventDashboardStatsCards({
     stats,

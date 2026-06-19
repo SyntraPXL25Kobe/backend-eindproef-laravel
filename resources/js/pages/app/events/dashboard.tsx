@@ -1,4 +1,4 @@
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 import { EventDashboardAttendanceList } from '@/components/event-dashboard/attendance-list';
 import { NoShowDialog } from '@/components/event-dashboard/no-show-dialog';
@@ -151,6 +151,7 @@ export default function CoordinatorEventDashboard({
                 feedback={scanFeedback}
                 onOpenChange={(open) => {
                     setScannerOpen(open);
+
                     if (!open) {
                         setScanFeedback(null);
                         setScannerPaused(false);

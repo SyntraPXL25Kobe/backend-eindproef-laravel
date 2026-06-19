@@ -1,3 +1,4 @@
+import type { CrewApplication } from '@/components/crew-shifts/types';
 import {
     Dialog,
     DialogContent,
@@ -5,7 +6,6 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
-import type { CrewApplication } from '@/components/crew-shifts/types';
 
 export function CheckInQrDialog({
     application,

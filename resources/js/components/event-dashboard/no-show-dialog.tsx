@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import type { EventDashboardAssignment } from '@/components/event-dashboard/types';
 import { Button } from '@/components/ui/button';
 import {
@@ -25,15 +25,11 @@ export function NoShowDialog({
 }) {
     const [reason, setReason] = useState('');
 
-    useEffect(() => {
-        if (open) {
-            setReason('');
-        }
-    }, [open]);
-
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent>
+            <DialogContent
+                key={`${assignment?.id ?? 'none'}-${open ? 'open' : 'closed'}`}
+            >
                 <DialogHeader>
                     <DialogTitle>Markeer als no-show</DialogTitle>
                     <DialogDescription>
