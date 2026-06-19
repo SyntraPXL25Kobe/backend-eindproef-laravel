@@ -9,8 +9,12 @@ use App\Models\Shift;
 use App\Models\Skill;
 use App\Models\User;
 use App\Models\Zone;
+use App\Notifications\ShiftApplicationApprovedNotification;
+use App\Notifications\ShiftApplicationCancelledNotification;
+use App\Notifications\ShiftApplicationRejectedNotification;
 use Database\Seeders\PermissionsSeeder;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
+use Illuminate\Support\Facades\Notification;
 
 const APPLICATION_ID_COLUMN = 'application_id';
 
@@ -181,6 +185,8 @@ it('allows a coordinator to manage zones and shifts on an event', function () {
 });
 
 it('allows a coordinator to approve a pending application for own event', function () {
+    Notification::fake();
+
     $coordinator = coordinatorUser();
     $crew = User::factory()->create();
     $crew->syncRoles(['crew']);
@@ -231,6 +237,9 @@ it('allows a coordinator to approve a pending application for own event', functi
     expect($assignment?->shift_id)->toBe($shift->id);
     expect($assignment?->user_id)->toBe($crew->id);
     expect($assignment?->confirmed_at)->not->toBeNull();
+
+    Notification::assertSentTo($crew, ShiftApplicationApprovedNotification::class);
+    Notification::assertNotSentTo($crew, ShiftApplicationRejectedNotification::class);
 });
 
 it('does not allow a coordinator to review applications on another coordinators event', function () {
@@ -280,6 +289,8 @@ it('does not allow a coordinator to review applications on another coordinators 
 });
 
 it('allows a coordinator to adjust approved and rejected applications', function () {
+    Notification::fake();
+
     $coordinator = coordinatorUser();
     $crew = User::factory()->create();
     $crew->syncRoles(['crew']);
@@ -340,9 +351,14 @@ it('allows a coordinator to adjust approved and rejected applications', function
 
     expect($application->fresh()->status)->toBe(ApplicationStatus::Approved);
     expect(Assignment::query()->where(APPLICATION_ID_COLUMN, $application->id)->exists())->toBeTrue();
+
+    Notification::assertSentTo($crew, ShiftApplicationRejectedNotification::class);
+    Notification::assertSentTo($crew, ShiftApplicationApprovedNotification::class);
 });
 
 it('allows a coordinator to cancel an application so crew can re-apply', function () {
+    Notification::fake();
+
     $coordinator = coordinatorUser();
     $crew = User::factory()->create();
     $crew->syncRoles(['crew']);
@@ -400,6 +416,8 @@ it('allows a coordinator to cancel an application so crew can re-apply', functio
             'motivation' => 'Ik stel me opnieuw kandidaat.',
         ])
         ->assertRedirect();
+
+    Notification::assertSentTo($crew, ShiftApplicationCancelledNotification::class);
 
     expect($application->fresh()->status)->toBe(ApplicationStatus::Pending);
     expect($application->fresh()->reviewed_at)->toBeNull();

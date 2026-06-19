@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Enums\ApplicationStatus;
 use App\Models\Application;
 use App\Models\Assignment;
+use App\Notifications\ShiftApplicationApprovedNotification;
+use App\Notifications\ShiftApplicationCancelledNotification;
+use App\Notifications\ShiftApplicationRejectedNotification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -15,6 +18,8 @@ class CoordinatorApplicationReviewController extends Controller
     public function update(Request $request, Application $application): RedirectResponse
     {
         $this->authorize('review', $application);
+
+        $previousStatus = $application->status;
 
         $validated = $request->validate([
             'status' => ['required', Rule::in([
@@ -42,6 +47,23 @@ class CoordinatorApplicationReviewController extends Controller
             'reviewed_by' => $request->user()->id,
             'reviewed_at' => now(),
         ]);
+
+        $application->loadMissing('user', 'shift.zone.event');
+
+        if ($previousStatus !== $application->status) {
+            match ($application->status) {
+                ApplicationStatus::Approved => $application->user->notify(
+                    new ShiftApplicationApprovedNotification($application)
+                ),
+                ApplicationStatus::Rejected => $application->user->notify(
+                    new ShiftApplicationRejectedNotification($application)
+                ),
+                ApplicationStatus::Cancelled => $application->user->notify(
+                    new ShiftApplicationCancelledNotification($application)
+                ),
+                default => null,
+            };
+        }
 
         if ($application->status === ApplicationStatus::Approved) {
             Assignment::query()->updateOrCreate(
