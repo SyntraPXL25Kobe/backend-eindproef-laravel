@@ -74,7 +74,7 @@ export default function CoordinatorEventForm({
                         onChange={(event) =>
                             setData('description', event.currentTarget.value)
                         }
-                        placeholder="Beschrijf sfeer, taken en verwachtingen voor crew members."
+                        placeholder="Beschrijf sfeer, taken en verwachtingen voor de crew."
                         className="min-h-32 rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px]"
                     />
                     <InputError message={errors.description} />
@@ -95,9 +95,7 @@ export default function CoordinatorEventForm({
                     </div>
 
                     <div className="grid gap-2">
-                        <Label htmlFor="max_crew_members">
-                            Max. crew members
-                        </Label>
+                        <Label htmlFor="max_crew_members">Max. crewleden</Label>
                         <Input
                             id="max_crew_members"
                             type="number"
@@ -144,7 +142,9 @@ export default function CoordinatorEventForm({
                 </div>
 
                 <div className="grid gap-2">
-                    <Label htmlFor="cover_image_url">Cover image URL</Label>
+                    <Label htmlFor="cover_image_url">
+                        Omslagafbeelding (URL)
+                    </Label>
                     <Input
                         id="cover_image_url"
                         type="url"

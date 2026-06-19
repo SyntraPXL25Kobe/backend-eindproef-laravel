@@ -30,7 +30,7 @@ class ShiftApplicationController extends Controller
 
         Inertia::flash('toast', [
             'type' => 'success',
-            'message' => 'Je inschrijving voor deze shift werd verstuurd.',
+            'message' => 'Je aanmelding voor deze shift is verstuurd.',
         ]);
 
         return back();
@@ -46,7 +46,7 @@ class ShiftApplicationController extends Controller
 
         Inertia::flash('toast', [
             'type' => 'success',
-            'message' => 'Je inschrijving werd geannuleerd.',
+            'message' => 'Je aanmelding is geannuleerd.',
         ]);
 
         return back();

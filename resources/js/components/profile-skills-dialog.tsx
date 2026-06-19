@@ -53,8 +53,8 @@ export default function ProfileSkillsDialog({
             <div className="flex items-start justify-between gap-4">
                 <Heading
                     variant="small"
-                    title="Skills"
-                    description="Show off your skills and let others know what you're good at!"
+                    title="Vaardigheden"
+                    description="Toon je vaardigheden en laat zien waar je goed in bent."
                 />
 
                 <Dialog
@@ -69,16 +69,16 @@ export default function ProfileSkillsDialog({
                 >
                     <DialogTrigger asChild>
                         <Button variant="outline" type="button">
-                            Edit Skills
+                            Bewerken
                         </Button>
                     </DialogTrigger>
 
                     <DialogContent>
                         <DialogHeader>
-                            <DialogTitle>Edit Skills</DialogTitle>
+                            <DialogTitle>Vaardigheden bewerken</DialogTitle>
                             <DialogDescription>
-                                Select the skills that should appear on your
-                                profile.
+                                Selecteer de vaardigheden die op je profiel
+                                moeten verschijnen.
                             </DialogDescription>
                         </DialogHeader>
 
@@ -161,7 +161,7 @@ export default function ProfileSkillsDialog({
                                             type="submit"
                                             disabled={processing}
                                         >
-                                            Save
+                                            Opslaan
                                         </Button>
                                     </DialogFooter>
                                 </>
@@ -181,7 +181,8 @@ export default function ProfileSkillsDialog({
                 </div>
             ) : (
                 <p className="text-sm text-muted-foreground">
-                    You haven't added any skills yet. Click the "Edit Skills"
+                    Je hebt nog geen vaardigheden toegevoegd. Klik op
+                    'Bewerken'.
                 </p>
             )}
         </div>

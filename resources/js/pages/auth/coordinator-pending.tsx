@@ -13,18 +13,18 @@ export default function CoordinatorPending() {
                     </h1>
 
                     <p className="mt-3 text-sm text-muted-foreground">
-                        Je coordinator-aanvraag staat op pending. Een admin
-                        beoordeelt je aanvraag. Je ontvangt een bericht zodra de
-                        aanvraag is goedgekeurd of afgewezen.
+                        Je coordinatoraanvraag is in behandeling. Een beheerder
+                        beoordeelt je aanvraag. Je ontvangt een bericht zodra
+                        deze is goedgekeurd of afgewezen.
                     </p>
 
                     <p className="mt-6 text-xs text-muted-foreground">
-                        Je kan later opnieuw aanmelden via{' '}
+                        Je kunt later opnieuw aanmelden via{' '}
                         <Link
                             href={login()}
                             className="font-medium underline underline-offset-4"
                         >
-                            login
+                            inloggen
                         </Link>
                         .
                     </p>

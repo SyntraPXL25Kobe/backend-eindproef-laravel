@@ -29,7 +29,7 @@ export function ApplicationStatusFilters({
                 variant={filter === 'pending' ? 'default' : 'outline'}
                 onClick={() => onFilterChange('pending')}
             >
-                Pending ({countByStatus.pending})
+                In behandeling ({countByStatus.pending})
             </Button>
             <Button
                 type="button"

@@ -34,7 +34,7 @@ export function ApplyShiftDialog({
         <Dialog open={Boolean(applyShift)} onOpenChange={onOpenChange}>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>Apply voor deze shift</DialogTitle>
+                    <DialogTitle>Aanmelden voor deze shift</DialogTitle>
                     <DialogDescription>
                         {applyShift
                             ? `Voeg optioneel een motivatie toe voor ${applyShift.title}.`
@@ -75,8 +75,8 @@ export function ApplyShiftDialog({
                         }
                     >
                         {applyShift && activeShiftId === applyShift.id
-                            ? 'Verwerken...'
-                            : 'Verstuur aanvraag'}
+                            ? 'Bezig...'
+                            : 'Aanmelden'}
                     </Button>
                 </DialogFooter>
             </DialogContent>

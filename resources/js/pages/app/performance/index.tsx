@@ -63,14 +63,14 @@ export default function CrewPerformanceIndex() {
                 <div className="mx-auto w-full max-w-6xl space-y-6">
                     <Heading
                         title="Mijn prestaties"
-                        description="Overzicht van je check-ins en no-shows per event."
+                        description="Overzicht van je check-ins en no-shows per evenement."
                     />
 
                     <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
                         <Card>
                             <CardHeader>
                                 <CardTitle className="text-sm">
-                                    Events
+                                    Evenementen
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="text-3xl font-semibold">
@@ -81,7 +81,7 @@ export default function CrewPerformanceIndex() {
                         <Card>
                             <CardHeader>
                                 <CardTitle className="text-sm">
-                                    Events ingecheckt
+                                    Evenementen ingecheckt
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="text-3xl font-semibold text-emerald-600">
@@ -137,7 +137,7 @@ export default function CrewPerformanceIndex() {
                                                 {event.shifts_total} shift
                                                 {event.shifts_total === 1
                                                     ? ''
-                                                    : 's'}
+                                                    : 'en'}
                                             </Badge>
                                         </div>
                                         <p className="text-sm text-muted-foreground">
@@ -188,7 +188,7 @@ export default function CrewPerformanceIndex() {
 
                                     <CardContent className="pt-0">
                                         <p className="mb-2 text-sm font-medium">
-                                            Gedraaide shiften
+                                            Uitgevoerde diensten
                                         </p>
 
                                         <div className="space-y-2">

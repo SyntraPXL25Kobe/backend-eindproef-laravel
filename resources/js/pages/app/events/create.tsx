@@ -26,11 +26,11 @@ export default function CreateCoordinatorEvent({
 
     return (
         <>
-            <Head title="Nieuw event" />
+            <Head title="Nieuw evenement" />
 
             <div className="flex flex-1 flex-col gap-6 p-4 md:p-6">
                 <CoordinatorEventForm
-                    title="Nieuw event"
+                    title="Nieuw evenement"
                     description="Sla eerst een concept op. Publiceren gebeurt daarna op de detailpagina."
                     data={form.data}
                     setData={form.setData}
@@ -51,11 +51,11 @@ export default function CreateCoordinatorEvent({
 CreateCoordinatorEvent.layout = {
     breadcrumbs: [
         {
-            title: 'Mijn events',
+            title: 'Mijn evenementen',
             href: '/app/events',
         },
         {
-            title: 'Nieuw event',
+            title: 'Nieuw evenement',
             href: '/app/events/create',
         },
     ],

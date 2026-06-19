@@ -152,11 +152,13 @@ export default function EditCoordinatorEvent({
             <div className="flex flex-1 flex-col gap-6 p-4 md:p-6">
                 <Tabs defaultValue="crew" className="space-y-5">
                     <TabsList variant="line" className="w-full justify-start">
-                        <TabsTrigger value="crew">Crew & shifts</TabsTrigger>
-                        <TabsTrigger value="details">Event details</TabsTrigger>
-                        <TabsTrigger value="publish">Publiceren</TabsTrigger>
+                        <TabsTrigger value="crew">Crew en shiften</TabsTrigger>
+                        <TabsTrigger value="details">
+                            Evenementdetails
+                        </TabsTrigger>
+                        <TabsTrigger value="publish">Publicatie</TabsTrigger>
                         <TabsTrigger value="structure">
-                            Zones & shifts
+                            Zones en shiften
                         </TabsTrigger>
                         <TabsTrigger value="applications">
                             Aanvragen
@@ -178,7 +180,7 @@ export default function EditCoordinatorEvent({
                     >
                         <CoordinatorEventForm
                             title={event.title}
-                            description="Werk je event uit en bewaar wijzigingen voordat je publiceert."
+                            description="Werk je evenement uit en sla wijzigingen op voordat je publiceert."
                             data={form.data}
                             setData={form.setData}
                             errors={form.errors}
@@ -206,15 +208,14 @@ export default function EditCoordinatorEvent({
                                     <Badge variant="outline">
                                         {form.data.publication_visibility ===
                                         'invite_only'
-                                            ? 'Invite-only'
+                                            ? 'Alleen op uitnodiging'
                                             : 'Publiek'}
                                     </Badge>
                                 </div>
-                                <CardTitle>Publiceren</CardTitle>
+                                <CardTitle>Publicatie</CardTitle>
                                 <CardDescription>
-                                    Zet dit event live als publieke pagina of
-                                    als unieke uitnodigingslink voor crew
-                                    members.
+                                    Zet dit evenement live als publieke pagina
+                                    of als unieke uitnodigingslink voor de crew.
                                 </CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-3 text-sm text-muted-foreground">
@@ -222,8 +223,8 @@ export default function EditCoordinatorEvent({
                                     Huidige keuze:{' '}
                                     {form.data.publication_visibility ===
                                     'invite_only'
-                                        ? 'crew-uitnodigingslink'
-                                        : 'publieke eventpagina'}
+                                        ? 'uitnodigingslink voor de crew'
+                                        : 'publieke evenementpagina'}
                                 </p>
                                 {publishedLink && (
                                     <p className="break-all">{publishedLink}</p>
@@ -244,7 +245,7 @@ export default function EditCoordinatorEvent({
                                 >
                                     {event.status === 'published'
                                         ? 'Opnieuw publiceren'
-                                        : 'Nu publiceren'}
+                                        : 'Publiceren'}
                                 </Button>
 
                                 {publishedLink && (
@@ -262,14 +263,14 @@ export default function EditCoordinatorEvent({
                                 {publishedLink && (
                                     <Button asChild variant="ghost">
                                         <Link href={publishedLink}>
-                                            Open pagina
+                                            Pagina openen
                                         </Link>
                                     </Button>
                                 )}
 
                                 <Button asChild variant="secondary">
                                     <Link href={event.dashboard_url}>
-                                        Open live dashboard
+                                        Dashboard openen
                                     </Link>
                                 </Button>
                             </CardFooter>
@@ -278,7 +279,7 @@ export default function EditCoordinatorEvent({
                         {event.cover_image_url && (
                             <Card>
                                 <CardHeader>
-                                    <CardTitle>Preview</CardTitle>
+                                    <CardTitle>Voorbeeld</CardTitle>
                                 </CardHeader>
                                 <CardContent>
                                     <img
@@ -320,11 +321,11 @@ export default function EditCoordinatorEvent({
 EditCoordinatorEvent.layout = {
     breadcrumbs: [
         {
-            title: 'Mijn events',
+            title: 'Mijn evenementen',
             href: '/app/events',
         },
         {
-            title: 'Event beheren',
+            title: 'Evenement beheren',
             href: '/app/events',
         },
     ],

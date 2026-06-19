@@ -149,7 +149,7 @@ export default function CoordinatorEventDashboard({
                         <Card className="border-dashed">
                             <CardContent className="pt-6 text-sm text-muted-foreground">
                                 Check-in via QR is alleen actief op de dag van
-                                het event.
+                                het evenement.
                             </CardContent>
                         </Card>
                     )}
@@ -287,7 +287,7 @@ export default function CoordinatorEventDashboard({
 CoordinatorEventDashboard.layout = {
     breadcrumbs: [
         {
-            title: 'Mijn events',
+            title: 'Mijn evenementen',
             href: '/app/events',
         },
         {

@@ -49,7 +49,7 @@ type ReviewFormData = {
 };
 
 const STATUS_LABELS: Record<ApplicationStatus, string> = {
-    pending: 'Pending',
+    pending: 'In behandeling',
     approved: 'Goedgekeurd',
     rejected: 'Afgewezen',
 };
@@ -243,7 +243,7 @@ export default function CoordinatorEventApplicationsManager({
                     variant={statusFilter === 'pending' ? 'default' : 'outline'}
                     onClick={() => setStatusFilter('pending')}
                 >
-                    Pending ({countByStatus.pending})
+                    In behandeling ({countByStatus.pending})
                 </Button>
                 <Button
                     type="button"

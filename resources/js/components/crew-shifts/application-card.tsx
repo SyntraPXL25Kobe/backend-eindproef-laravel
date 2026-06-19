@@ -34,7 +34,8 @@ export function CrewShiftApplicationCard({
                             {application.shift.title || 'Onbekende shift'}
                         </CardTitle>
                         <CardDescription>
-                            {application.shift.event_title || 'Onbekend event'}
+                            {application.shift.event_title ||
+                                'Onbekend evenement'}
                             {application.shift.event_location
                                 ? ` · ${application.shift.event_location}`
                                 : ''}
@@ -88,7 +89,7 @@ export function CrewShiftApplicationCard({
                 {checkIn && (
                     <div className="rounded-lg border border-border/70 bg-muted/30 p-3 text-muted-foreground">
                         <p className="mb-1 font-medium text-foreground">
-                            Event check-in
+                            Check-in
                         </p>
 
                         {checkIn.checked_in_at && (
@@ -100,7 +101,7 @@ export function CrewShiftApplicationCard({
 
                         {!checkIn.checked_in_at && checkIn.no_show && (
                             <p>
-                                Gemarkeerd als no-show
+                                Gemarkeerd als afwezig
                                 {checkIn.no_show_reason
                                     ? `: ${checkIn.no_show_reason}`
                                     : '.'}
@@ -112,7 +113,7 @@ export function CrewShiftApplicationCard({
                             !checkIn.is_available_today && (
                                 <p>
                                     Je QR-code verschijnt automatisch op de dag
-                                    van het event.
+                                    van het evenement.
                                 </p>
                             )}
 
@@ -128,7 +129,7 @@ export function CrewShiftApplicationCard({
                     {application.shift.event_show_url && (
                         <Button asChild variant="outline">
                             <Link href={application.shift.event_show_url}>
-                                Bekijk event
+                                Bekijk evenement
                             </Link>
                         </Button>
                     )}
@@ -150,7 +151,7 @@ export function CrewShiftApplicationCard({
                             onClick={() => onCancel(application.id)}
                         >
                             {activeApplicationId === application.id
-                                ? 'Verwerken...'
+                                ? 'Bezig...'
                                 : 'Annuleer aanvraag'}
                         </Button>
                     )}

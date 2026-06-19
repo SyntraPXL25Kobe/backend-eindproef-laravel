@@ -93,7 +93,7 @@ function ZoneEditor({
             <CardHeader>
                 <CardTitle>{zone.name}</CardTitle>
                 <CardDescription>
-                    Beheer de zonegegevens en alle shifts binnen deze zone.
+                    Beheer de zonegegevens en alle shiften binnen deze zone.
                 </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -161,8 +161,8 @@ function ZoneEditor({
                 <div className="space-y-4">
                     <Heading
                         variant="small"
-                        title="Shifts"
-                        description="Voeg shifts toe of werk bestaande shifts bij voor deze zone."
+                        title="Shiften"
+                        description="Voeg shiften toe of werk bestaande shiften bij voor deze zone."
                     />
 
                     {zone.shifts.map((shift) => (
@@ -244,8 +244,8 @@ function ShiftEditor({
                 <h4 className="text-sm font-medium">{shift.title}</h4>
                 <span className="text-xs text-muted-foreground">
                     {shift.required_skill_name
-                        ? `Skill: ${shift.required_skill_name}`
-                        : 'Geen skill vereist'}
+                        ? `Vaardigheid: ${shift.required_skill_name}`
+                        : 'Geen vaardigheid vereist'}
                 </span>
             </div>
 
@@ -378,7 +378,9 @@ function ShiftFields({
                 </div>
 
                 <div className="grid gap-2">
-                    <Label htmlFor={`${idPrefix}-skill`}>Vereiste skill</Label>
+                    <Label htmlFor={`${idPrefix}-skill`}>
+                        Vereiste vaardigheid
+                    </Label>
                     <select
                         id={`${idPrefix}-skill`}
                         value={form.data.required_skill_id}
@@ -390,7 +392,7 @@ function ShiftFields({
                         }
                         className="h-10 rounded-md border border-input bg-transparent px-3 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px]"
                     >
-                        <option value="">Geen skill vereist</option>
+                        <option value="">Geen vaardigheid vereist</option>
                         {skillOptions.map((option) => (
                             <option
                                 key={option.value}
@@ -421,8 +423,8 @@ export default function CoordinatorEventStructureManager({
     return (
         <section className="space-y-6">
             <Heading
-                title="Zones en shifts"
-                description="Beheer per event de zones en de shifts waarvoor crew members zich kunnen inschrijven."
+                title="Zones en shiften"
+                description="Beheer per evenement de zones en de shiften waarvoor de crew zich kan inschrijven."
             />
 
             <Card className="border-dashed border-border/70 bg-card/95">
@@ -494,7 +496,7 @@ export default function CoordinatorEventStructureManager({
                 {zones.length === 0 ? (
                     <Card className="border-dashed border-border/70 bg-card/95">
                         <CardContent className="pt-6 text-sm text-muted-foreground">
-                            Nog geen zones toegevoegd voor dit event.
+                            Nog geen zones toegevoegd voor dit evenement.
                         </CardContent>
                     </Card>
                 ) : (

@@ -62,14 +62,14 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
     const { isCurrentUrl, whenCurrentUrl } = useCurrentUrl();
     const mainNavItems: NavItem[] = [
         {
-            title: 'Dashboard',
+            title: 'Ontdekken',
             href: dashboard(),
             icon: LayoutGrid,
         },
         ...(!auth.isCoordinator
             ? [
                   {
-                      title: 'Mijn shifts',
+                      title: 'Mijn shiften',
                       href: '/app/my-shifts',
                       icon: CalendarDays,
                   },

@@ -13,6 +13,14 @@ import {
 } from '@/components/ui/card';
 import { formatDateTimeNl } from '@/lib/format-date-time';
 
+const STATUS_LABELS: Record<string, string> = {
+    open: 'Open',
+    closed: 'Gesloten',
+    pending: 'In behandeling',
+    approved: 'Goedgekeurd',
+    rejected: 'Afgewezen',
+};
+
 function ShiftCard({
     shift,
     user,
@@ -33,13 +41,18 @@ function ShiftCard({
             <div className="flex flex-wrap items-start justify-between gap-3">
                 <div className="space-y-2">
                     <div className="flex flex-wrap gap-2">
-                        <Badge variant="outline">{shift.status}</Badge>
+                        <Badge variant="outline">
+                            {STATUS_LABELS[shift.status] ?? shift.status}
+                        </Badge>
                         {shift.application && (
-                            <Badge>{shift.application.status}</Badge>
+                            <Badge>
+                                {STATUS_LABELS[shift.application.status] ??
+                                    shift.application.status}
+                            </Badge>
                         )}
                         {shift.required_skill_name && (
                             <Badge variant="secondary">
-                                Skill: {shift.required_skill_name}
+                                Vaardigheid: {shift.required_skill_name}
                             </Badge>
                         )}
                     </div>
@@ -48,7 +61,7 @@ function ShiftCard({
                     </h3>
                     <p className="text-sm text-muted-foreground">
                         {shift.description ||
-                            'Geen extra shiftbeschrijving beschikbaar.'}
+                            'Geen aanvullende shiftbeschrijving beschikbaar.'}
                     </p>
                 </div>
                 <div className="text-right text-sm text-muted-foreground">
@@ -69,7 +82,7 @@ function ShiftCard({
             <CardFooter className="mt-4 flex items-center gap-3 px-0 pb-0">
                 {!user && (
                     <Button asChild variant="outline">
-                        <Link href="/login">Log in om te applien</Link>
+                        <Link href="/login">Inloggen</Link>
                     </Button>
                 )}
 
@@ -79,9 +92,7 @@ function ShiftCard({
                         disabled={activeShiftId === shift.id}
                         onClick={() => onOpenApply(shift)}
                     >
-                        {activeShiftId === shift.id
-                            ? 'Verwerken...'
-                            : 'Apply voor deze shift'}
+                        {activeShiftId === shift.id ? 'Bezig...' : 'Aanmelden'}
                     </Button>
                 )}
 
@@ -95,8 +106,8 @@ function ShiftCard({
                         }
                     >
                         {activeShiftId === shift.id
-                            ? 'Verwerken...'
-                            : 'Annuleer applicatie'}
+                            ? 'Bezig...'
+                            : 'Aanmelding annuleren'}
                     </Button>
                 )}
 
@@ -132,13 +143,13 @@ export function ZoneCard({
                 <CardTitle>{zone.name}</CardTitle>
                 <CardDescription>
                     {zone.description ||
-                        'Geen extra zonebeschrijving beschikbaar.'}
+                        'Geen aanvullende zonebeschrijving beschikbaar.'}
                 </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
                 {zone.shifts.length === 0 ? (
                     <div className="rounded-2xl border border-dashed border-border/70 bg-muted/40 p-4 text-sm text-muted-foreground">
-                        Voor deze zone zijn nog geen shifts gepubliceerd.
+                        Voor deze zone zijn nog geen shiften gepubliceerd.
                     </div>
                 ) : (
                     zone.shifts.map((shift) => (

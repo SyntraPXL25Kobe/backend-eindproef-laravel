@@ -23,8 +23,8 @@ export function EventAccessCard({
             <CardHeader>
                 <CardTitle>
                     {isInvitation
-                        ? 'Je bent uitgenodigd voor dit event'
-                        : 'Dit event is publiek zichtbaar'}
+                        ? 'Je bent uitgenodigd voor dit evenement'
+                        : 'Dit evenement is publiek zichtbaar'}
                 </CardTitle>
                 <CardDescription className="text-muted-foreground">
                     Georganiseerd door{' '}
@@ -33,26 +33,26 @@ export function EventAccessCard({
             </CardHeader>
             <CardContent className="space-y-4 text-sm text-muted-foreground">
                 <p>
-                    Crew members kunnen zich hieronder voor een of meerdere
-                    shifts inschrijven, ook als die shifts in verschillende
-                    zones vallen.
+                    Crewleden kunnen zich hieronder voor een of meerdere shiften
+                    inschrijven, ook als die shiften in verschillende zones
+                    vallen.
                 </p>
 
                 {!user && (
                     <>
                         <Button asChild className="w-full">
-                            <Link href="/register">Maak een account aan</Link>
+                            <Link href="/register">Account aanmaken</Link>
                         </Button>
                         <Button asChild variant="outline" className="w-full">
-                            <Link href="/login">Ik heb al een account</Link>
+                            <Link href="/login">Inloggen</Link>
                         </Button>
                     </>
                 )}
 
                 {user && (
                     <div className="rounded-2xl border border-border/70 bg-muted/50 p-4 text-foreground">
-                        Je bent ingelogd. Kies hieronder de shifts waarvoor je
-                        wil applien.
+                        Je bent ingelogd. Kies hieronder de shiften waarvoor je
+                        je wilt aanmelden.
                     </div>
                 )}
             </CardContent>

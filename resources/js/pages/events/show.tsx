@@ -96,8 +96,8 @@ export default function ShowPublicEvent({
                                 Beschikbare zones en shifts
                             </h2>
                             <p className="text-sm text-muted-foreground">
-                                Elke shift is apart aan te vragen. Een crew
-                                member kan dus meerdere shifts kiezen, ook over
+                                Elke dienst is apart aan te vragen. Een crewlid
+                                kan dus meerdere diensten kiezen, ook over
                                 verschillende zones heen.
                             </p>
                         </div>
