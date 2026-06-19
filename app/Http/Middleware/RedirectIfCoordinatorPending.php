@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use App\Enums\CoordinatorRegistrationStatus;
 use Closure;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -17,6 +18,10 @@ class RedirectIfCoordinatorPending
         $user = $request->user();
 
         if (! $user || $user->coordinator_registration_status !== CoordinatorRegistrationStatus::Pending) {
+            return $next($request);
+        }
+
+        if ($user instanceof MustVerifyEmail && ! $user->hasVerifiedEmail()) {
             return $next($request);
         }
 

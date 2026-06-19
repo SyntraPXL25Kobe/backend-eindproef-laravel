@@ -7,7 +7,7 @@ export default function CoordinatorPending() {
             <Head title="Coordinator aanvraag in behandeling" />
 
             <div className="flex min-h-screen items-center justify-center bg-muted/30 px-6 py-12">
-                <div className="w-full max-w-lg rounded-lg border bg-background p-8 text-center shadow-sm">
+                <div className="w-full max-w-lg min-w-md bg-background p-8 text-center">
                     <h1 className="text-2xl font-semibold tracking-tight">
                         Aanvraag ingediend
                     </h1>
