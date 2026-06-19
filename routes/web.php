@@ -1,12 +1,12 @@
 <?php
 
+use App\Http\Controllers\Auth\CoordinatorRegistrationController;
 use App\Http\Controllers\CoordinatorApplicationReviewController;
 use App\Http\Controllers\CoordinatorAssignmentAttendanceController;
 use App\Http\Controllers\CoordinatorEventController;
 use App\Http\Controllers\CoordinatorEventDashboardController;
 use App\Http\Controllers\CoordinatorShiftController;
 use App\Http\Controllers\CoordinatorZoneController;
-use App\Http\Controllers\Auth\CoordinatorRegistrationController;
 use App\Http\Controllers\CrewShiftController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PublicEventController;
@@ -22,8 +22,11 @@ Route::middleware('guest')->group(function () {
         ->name('register.coordinator.store');
 });
 
-Route::inertia('/register/coordinator/pending', 'auth/coordinator-pending')
-    ->name('register.coordinator.pending');
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::inertia('/register/coordinator/pending', 'auth/coordinator-pending')
+        ->name('register.coordinator.pending');
+});
+
 Route::get('/events/invite/{token}', [PublicEventController::class, 'showInvite'])
     ->name('events.invite.show');
 Route::get('/events/{event}', [PublicEventController::class, 'show'])
