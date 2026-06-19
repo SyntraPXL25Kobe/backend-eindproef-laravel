@@ -48,8 +48,9 @@ export default function CoordinatorEventDashboard({
     );
     const [noShowAssignment, setNoShowAssignment] =
         useState<EventDashboardAssignment | null>(null);
-    const [selectedCrewMember, setSelectedCrewMember] =
-        useState<EventDashboardCrewMember | null>(null);
+    const [selectedCrewMemberId, setSelectedCrewMemberId] = useState<
+        number | null
+    >(null);
 
     const crewMembers = useMemo<EventDashboardCrewMember[]>(() => {
         const groupedByUser = new Map<number, EventDashboardCrewMember>();
@@ -78,17 +79,15 @@ export default function CoordinatorEventDashboard({
         );
     }, [assignments]);
 
-    useEffect(() => {
-        if (!selectedCrewMember) {
-            return;
-        }
-
-        const refreshedCrewMember = crewMembers.find(
-            (crewMember) => crewMember.id === selectedCrewMember.id,
-        );
-
-        setSelectedCrewMember(refreshedCrewMember ?? null);
-    }, [crewMembers, selectedCrewMember]);
+    const selectedCrewMember = useMemo(
+        () =>
+            selectedCrewMemberId === null
+                ? null
+                : (crewMembers.find(
+                      (crewMember) => crewMember.id === selectedCrewMemberId,
+                  ) ?? null),
+        [crewMembers, selectedCrewMemberId],
+    );
 
     useEffect(() => {
         const intervalId = window.setInterval(() => {
@@ -159,7 +158,9 @@ export default function CoordinatorEventDashboard({
 
                     <EventDashboardAttendanceList
                         crewMembers={crewMembers}
-                        onOpenDetails={setSelectedCrewMember}
+                        onOpenDetails={(crewMember) =>
+                            setSelectedCrewMemberId(crewMember.id)
+                        }
                     />
                 </div>
             </div>
@@ -241,7 +242,7 @@ export default function CoordinatorEventDashboard({
                 activeAssignmentId={activeAssignmentId}
                 onOpenChange={(open) => {
                     if (!open) {
-                        setSelectedCrewMember(null);
+                        setSelectedCrewMemberId(null);
                     }
                 }}
                 onCheckIn={(assignmentId) => {
