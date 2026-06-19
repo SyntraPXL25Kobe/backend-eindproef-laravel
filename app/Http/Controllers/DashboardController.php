@@ -11,21 +11,15 @@ use Inertia\Response;
 
 class DashboardController extends Controller
 {
-    private const STATUS_COLUMN = 'status';
-
-    private const VISIBILITY_COLUMN = 'publication_visibility';
-
-    private const START_DATE_COLUMN = 'start_date';
-
-    public function __invoke(Request $request): Response
+    public function index(Request $request): Response
     {
         $search = trim((string) $request->string('search'));
         $isCoordinator = $request->user()?->can('create', Event::class) ?? false;
 
         $publicEvents = Event::query()
             ->with('coordinatorProfile')
-            ->where(self::STATUS_COLUMN, EventStatus::Published)
-            ->where(self::VISIBILITY_COLUMN, EventVisibility::Public)
+            ->where('status', EventStatus::Published)
+            ->where('visibility', EventVisibility::Public)
             ->when($search !== '', function ($query) use ($search) {
                 $query->where(function ($nested) use ($search) {
                     $nested
@@ -37,7 +31,7 @@ class DashboardController extends Controller
                         });
                 });
             })
-            ->orderBy(self::START_DATE_COLUMN)
+            ->orderBy('start_date')
             ->limit(24)
             ->get()
             ->map(fn (Event $event) => [
