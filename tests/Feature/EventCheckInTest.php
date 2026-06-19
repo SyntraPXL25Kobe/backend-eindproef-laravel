@@ -216,6 +216,77 @@ it('checks in all shifts for the same crew member within one event', function ()
 
     expect($assignmentA->fresh()->check_in_at)->not->toBeNull();
     expect($assignmentB->fresh()->check_in_at)->not->toBeNull();
+    expect($assignmentA->fresh()->check_in_token)->toBe($assignmentB->fresh()->check_in_token);
+});
+
+it('uses different qr tokens for the same crew member across different events', function () {
+    $coordinator = eventDashboardCoordinator();
+    $crew = User::factory()->create();
+    $crew->syncRoles(['crew']);
+
+    $eventA = Event::query()->create([
+        'coordinator_profile_id' => $coordinator->coordinatorProfile->id,
+        'title' => 'Event A',
+        'location' => 'Antwerpen',
+        'start_date' => '2026-08-20',
+        'end_date' => '2026-08-20',
+        'status' => 'published',
+        'publication_visibility' => 'public',
+    ]);
+
+    $zoneA = Zone::query()->create([
+        'event_id' => $eventA->id,
+        'name' => 'Zone A',
+    ]);
+
+    $shiftA = Shift::query()->create([
+        'zone_id' => $zoneA->id,
+        'title' => 'Shift A',
+        'starts_at' => '2026-08-20 08:00:00',
+        'ends_at' => '2026-08-20 10:00:00',
+        'capacity' => 5,
+        'status' => 'open',
+    ]);
+
+    $eventB = Event::query()->create([
+        'coordinator_profile_id' => $coordinator->coordinatorProfile->id,
+        'title' => 'Event B',
+        'location' => 'Gent',
+        'start_date' => '2026-08-21',
+        'end_date' => '2026-08-21',
+        'status' => 'published',
+        'publication_visibility' => 'public',
+    ]);
+
+    $zoneB = Zone::query()->create([
+        'event_id' => $eventB->id,
+        'name' => 'Zone B',
+    ]);
+
+    $shiftB = Shift::query()->create([
+        'zone_id' => $zoneB->id,
+        'title' => 'Shift B',
+        'starts_at' => '2026-08-21 08:00:00',
+        'ends_at' => '2026-08-21 10:00:00',
+        'capacity' => 5,
+        'status' => 'open',
+    ]);
+
+    $assignmentA = approvedAssignmentForEvent($coordinator, [
+        'crew' => $crew,
+        'event' => $eventA,
+        'zone' => $zoneA,
+        'shift' => $shiftA,
+    ]);
+
+    $assignmentB = approvedAssignmentForEvent($coordinator, [
+        'crew' => $crew,
+        'event' => $eventB,
+        'zone' => $zoneB,
+        'shift' => $shiftB,
+    ]);
+
+    expect($assignmentA->check_in_token)->not->toBe($assignmentB->check_in_token);
 });
 
 it('checks out a checked-in crew member by scanned qr token', function () {
