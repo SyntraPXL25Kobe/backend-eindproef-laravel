@@ -1,6 +1,6 @@
 import { Head, router, usePage } from '@inertiajs/react';
-import type { FormEvent } from 'react';
 import { useState } from 'react';
+import DashboardController from '@/actions/App/Http/Controllers/DashboardController';
 import { DashboardHero } from '@/components/dashboard/dashboard-hero';
 import { PublicEventCard } from '@/components/dashboard/public-event-card';
 import { PublicEventsSearch } from '@/components/dashboard/public-events-search';
@@ -27,21 +27,6 @@ export default function Dashboard() {
     const isCoordinator = auth.isCoordinator;
     const [search, setSearch] = useState(filters.search ?? '');
 
-    const submitSearch = (event: FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        router.get(
-            '/app',
-            {
-                search: search.trim() || undefined,
-            },
-            {
-                preserveState: true,
-                preserveScroll: true,
-                replace: true,
-            },
-        );
-    };
-
     return (
         <>
             <Head title="Dashboard" />
@@ -54,11 +39,10 @@ export default function Dashboard() {
                             search={search}
                             hasActiveSearch={Boolean(filters.search)}
                             onSearchChange={setSearch}
-                            onSubmit={submitSearch}
                             onReset={() => {
                                 setSearch('');
                                 router.get(
-                                    '/app',
+                                    DashboardController.index(),
                                     {},
                                     {
                                         preserveState: true,

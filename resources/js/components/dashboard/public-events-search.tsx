@@ -1,4 +1,5 @@
-import type { FormEvent } from 'react';
+import { Form } from '@inertiajs/react';
+import DashboardController from '@/actions/App/Http/Controllers/DashboardController';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
@@ -6,18 +7,25 @@ export function PublicEventsSearch({
     search,
     hasActiveSearch,
     onSearchChange,
-    onSubmit,
     onReset,
 }: {
     search: string;
     hasActiveSearch: boolean;
     onSearchChange: (value: string) => void;
-    onSubmit: (event: FormEvent<HTMLFormElement>) => void;
     onReset: () => void;
 }) {
     return (
-        <form onSubmit={onSubmit} className="flex flex-col gap-2 sm:flex-row">
+        <Form
+            {...DashboardController.index.form()}
+            options={{
+                preserveState: true,
+                preserveScroll: true,
+                replace: true,
+            }}
+            className="flex flex-col gap-2 sm:flex-row"
+        >
             <Input
+                name="search"
                 value={search}
                 onChange={(event) => onSearchChange(event.currentTarget.value)}
                 placeholder="Zoek op event, locatie of organisatie"
@@ -31,6 +39,6 @@ export function PublicEventsSearch({
                     </Button>
                 )}
             </div>
-        </form>
+        </Form>
     );
 }

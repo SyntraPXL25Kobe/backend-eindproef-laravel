@@ -1,4 +1,14 @@
-import { useForm } from '@inertiajs/react';
+import { Form, router } from '@inertiajs/react';
+import {
+    destroy as destroyShift,
+    store as storeShift,
+    update as updateShift,
+} from '@/actions/App/Http/Controllers/CoordinatorShiftController';
+import {
+    destroy as destroyZone,
+    store as storeZone,
+    update as updateZone,
+} from '@/actions/App/Http/Controllers/CoordinatorZoneController';
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
@@ -48,11 +58,6 @@ type Props = {
     shiftStatusOptions: ShiftStatusOption[];
 };
 
-type ZoneFormData = {
-    name: string;
-    description: string;
-};
-
 type ShiftFormData = {
     title: string;
     description: string;
@@ -82,12 +87,6 @@ function ZoneEditor({
     skillOptions: SkillOption[];
     shiftStatusOptions: ShiftStatusOption[];
 }) {
-    const zoneForm = useForm<ZoneFormData>({
-        name: zone.name,
-        description: zone.description ?? '',
-    });
-    const createShiftForm = useForm<ShiftFormData>(emptyShiftData());
-
     return (
         <Card className="border-border/70 bg-card/95">
             <CardHeader>
@@ -97,66 +96,63 @@ function ZoneEditor({
                 </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-                <form
+                <Form
+                    {...updateZone.form({ zone: zone.id })}
+                    options={{ preserveScroll: true }}
                     className="grid gap-4 rounded-2xl border border-border/70 bg-muted/30 p-4"
-                    onSubmit={(event) => {
-                        event.preventDefault();
-                        zoneForm.patch(`/app/zones/${zone.id}`, {
-                            preserveScroll: true,
-                        });
-                    }}
                 >
-                    <div className="grid gap-2">
-                        <Label htmlFor={`zone-name-${zone.id}`}>Zonenaam</Label>
-                        <Input
-                            id={`zone-name-${zone.id}`}
-                            value={zoneForm.data.name}
-                            onChange={(event) =>
-                                zoneForm.setData(
-                                    'name',
-                                    event.currentTarget.value,
-                                )
-                            }
-                        />
-                        <InputError message={zoneForm.errors.name} />
-                    </div>
+                    {({ processing, errors }) => (
+                        <>
+                            <div className="grid gap-2">
+                                <Label htmlFor={`zone-name-${zone.id}`}>
+                                    Zonenaam
+                                </Label>
+                                <Input
+                                    id={`zone-name-${zone.id}`}
+                                    name="name"
+                                    defaultValue={zone.name}
+                                />
+                                <InputError message={errors.name as string} />
+                            </div>
 
-                    <div className="grid gap-2">
-                        <Label htmlFor={`zone-description-${zone.id}`}>
-                            Beschrijving
-                        </Label>
-                        <textarea
-                            id={`zone-description-${zone.id}`}
-                            value={zoneForm.data.description}
-                            onChange={(event) =>
-                                zoneForm.setData(
-                                    'description',
-                                    event.currentTarget.value,
-                                )
-                            }
-                            className="min-h-24 rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px]"
-                        />
-                        <InputError message={zoneForm.errors.description} />
-                    </div>
+                            <div className="grid gap-2">
+                                <Label htmlFor={`zone-description-${zone.id}`}>
+                                    Beschrijving
+                                </Label>
+                                <textarea
+                                    id={`zone-description-${zone.id}`}
+                                    name="description"
+                                    defaultValue={zone.description ?? ''}
+                                    className="min-h-24 rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px]"
+                                />
+                                <InputError
+                                    message={errors.description as string}
+                                />
+                            </div>
 
-                    <div className="flex flex-wrap gap-3">
-                        <Button disabled={zoneForm.processing}>
-                            Zone opslaan
-                        </Button>
-                        <Button
-                            type="button"
-                            variant="outline"
-                            disabled={zoneForm.processing}
-                            onClick={() =>
-                                zoneForm.delete(`/app/zones/${zone.id}`, {
-                                    preserveScroll: true,
-                                })
-                            }
-                        >
-                            Zone verwijderen
-                        </Button>
-                    </div>
-                </form>
+                            <div className="flex flex-wrap gap-3">
+                                <Button disabled={processing}>
+                                    Zone opslaan
+                                </Button>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    disabled={processing}
+                                    onClick={() =>
+                                        router.delete(
+                                            destroyZone({ zone: zone.id }),
+                                            {
+                                                preserveScroll: true,
+                                            },
+                                        )
+                                    }
+                                >
+                                    Zone verwijderen
+                                </Button>
+                            </div>
+                        </>
+                    )}
+                </Form>
 
                 <div className="space-y-4">
                     <Heading
@@ -174,42 +170,47 @@ function ZoneEditor({
                         />
                     ))}
 
-                    <form
+                    <Form
+                        {...storeShift.form({ zone: zone.id })}
+                        options={{ preserveScroll: true }}
+                        resetOnSuccess={[
+                            'title',
+                            'description',
+                            'starts_at',
+                            'ends_at',
+                            'capacity',
+                            'required_skill_id',
+                            'status',
+                        ]}
                         className="grid gap-4 rounded-2xl border border-dashed border-border/70 bg-background/70 p-4"
-                        onSubmit={(event) => {
-                            event.preventDefault();
-                            createShiftForm.post(
-                                `/app/zones/${zone.id}/shifts`,
-                                {
-                                    preserveScroll: true,
-                                    onSuccess: () =>
-                                        createShiftForm.reset(
-                                            ...(Object.keys(
-                                                createShiftForm.data,
-                                            ) as Array<keyof ShiftFormData>),
-                                        ),
-                                },
-                            );
-                        }}
                     >
-                        <h4 className="text-sm font-medium">Nieuwe shift</h4>
-                        <ShiftFields
-                            form={createShiftForm}
-                            skillOptions={skillOptions}
-                            shiftStatusOptions={shiftStatusOptions}
-                            idPrefix={`create-shift-${zone.id}`}
-                        />
-                        <div>
-                            <Button disabled={createShiftForm.processing}>
-                                Shift toevoegen
-                            </Button>
-                        </div>
-                    </form>
+                        {({ processing, errors }) => (
+                            <>
+                                <h4 className="text-sm font-medium">
+                                    Nieuwe shift
+                                </h4>
+                                <ShiftFields
+                                    values={emptyShiftData()}
+                                    errors={errors as EventFormErrors}
+                                    skillOptions={skillOptions}
+                                    shiftStatusOptions={shiftStatusOptions}
+                                    idPrefix={`create-shift-${zone.id}`}
+                                />
+                                <div>
+                                    <Button disabled={processing}>
+                                        Shift toevoegen
+                                    </Button>
+                                </div>
+                            </>
+                        )}
+                    </Form>
                 </div>
             </CardContent>
         </Card>
     );
 }
+
+type EventFormErrors = Partial<Record<keyof ShiftFormData, string>>;
 
 function ShiftEditor({
     shift,
@@ -220,68 +221,73 @@ function ShiftEditor({
     skillOptions: SkillOption[];
     shiftStatusOptions: ShiftStatusOption[];
 }) {
-    const shiftForm = useForm<ShiftFormData>({
-        title: shift.title,
-        description: shift.description ?? '',
-        starts_at: shift.starts_at ?? '',
-        ends_at: shift.ends_at ?? '',
-        capacity: shift.capacity.toString(),
-        required_skill_id: shift.required_skill_id?.toString() ?? '',
-        status: shift.status,
-    });
-
     return (
-        <form
+        <Form
+            {...updateShift.form({ shift: shift.id })}
+            options={{ preserveScroll: true }}
             className="grid gap-4 rounded-2xl border border-border/70 bg-muted/30 p-4"
-            onSubmit={(event) => {
-                event.preventDefault();
-                shiftForm.patch(`/app/shifts/${shift.id}`, {
-                    preserveScroll: true,
-                });
-            }}
         >
-            <div className="flex items-center justify-between gap-3">
-                <h4 className="text-sm font-medium">{shift.title}</h4>
-                <span className="text-xs text-muted-foreground">
-                    {shift.required_skill_name
-                        ? `Vaardigheid: ${shift.required_skill_name}`
-                        : 'Geen vaardigheid vereist'}
-                </span>
-            </div>
+            {({ processing, errors }) => (
+                <>
+                    <div className="flex items-center justify-between gap-3">
+                        <h4 className="text-sm font-medium">{shift.title}</h4>
+                        <span className="text-xs text-muted-foreground">
+                            {shift.required_skill_name
+                                ? `Vaardigheid: ${shift.required_skill_name}`
+                                : 'Geen vaardigheid vereist'}
+                        </span>
+                    </div>
 
-            <ShiftFields
-                form={shiftForm}
-                skillOptions={skillOptions}
-                shiftStatusOptions={shiftStatusOptions}
-                idPrefix={`shift-${shift.id}`}
-            />
+                    <ShiftFields
+                        values={{
+                            title: shift.title,
+                            description: shift.description ?? '',
+                            starts_at: shift.starts_at ?? '',
+                            ends_at: shift.ends_at ?? '',
+                            capacity: shift.capacity.toString(),
+                            required_skill_id:
+                                shift.required_skill_id?.toString() ?? '',
+                            status: shift.status,
+                        }}
+                        errors={errors as EventFormErrors}
+                        skillOptions={skillOptions}
+                        shiftStatusOptions={shiftStatusOptions}
+                        idPrefix={`shift-${shift.id}`}
+                    />
 
-            <div className="flex flex-wrap gap-3">
-                <Button disabled={shiftForm.processing}>Shift opslaan</Button>
-                <Button
-                    type="button"
-                    variant="outline"
-                    disabled={shiftForm.processing}
-                    onClick={() =>
-                        shiftForm.delete(`/app/shifts/${shift.id}`, {
-                            preserveScroll: true,
-                        })
-                    }
-                >
-                    Shift verwijderen
-                </Button>
-            </div>
-        </form>
+                    <div className="flex flex-wrap gap-3">
+                        <Button disabled={processing}>Shift opslaan</Button>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            disabled={processing}
+                            onClick={() =>
+                                router.delete(
+                                    destroyShift({ shift: shift.id }),
+                                    {
+                                        preserveScroll: true,
+                                    },
+                                )
+                            }
+                        >
+                            Shift verwijderen
+                        </Button>
+                    </div>
+                </>
+            )}
+        </Form>
     );
 }
 
 function ShiftFields({
-    form,
+    values,
+    errors,
     skillOptions,
     shiftStatusOptions,
     idPrefix,
 }: {
-    form: ReturnType<typeof useForm<ShiftFormData>>;
+    values: ShiftFormData;
+    errors: EventFormErrors;
     skillOptions: SkillOption[];
     shiftStatusOptions: ShiftStatusOption[];
     idPrefix: string;
@@ -293,26 +299,22 @@ function ShiftFields({
                     <Label htmlFor={`${idPrefix}-title`}>Titel</Label>
                     <Input
                         id={`${idPrefix}-title`}
-                        value={form.data.title}
-                        onChange={(event) =>
-                            form.setData('title', event.currentTarget.value)
-                        }
+                        name="title"
+                        defaultValue={values.title}
                     />
-                    <InputError message={form.errors.title} />
+                    <InputError message={errors.title} />
                 </div>
 
                 <div className="grid gap-2">
                     <Label htmlFor={`${idPrefix}-capacity`}>Capaciteit</Label>
                     <Input
                         id={`${idPrefix}-capacity`}
+                        name="capacity"
                         type="number"
                         min="1"
-                        value={form.data.capacity}
-                        onChange={(event) =>
-                            form.setData('capacity', event.currentTarget.value)
-                        }
+                        defaultValue={values.capacity}
                     />
-                    <InputError message={form.errors.capacity} />
+                    <InputError message={errors.capacity} />
                 </div>
             </div>
 
@@ -320,13 +322,11 @@ function ShiftFields({
                 <Label htmlFor={`${idPrefix}-description`}>Beschrijving</Label>
                 <textarea
                     id={`${idPrefix}-description`}
-                    value={form.data.description}
-                    onChange={(event) =>
-                        form.setData('description', event.currentTarget.value)
-                    }
+                    name="description"
+                    defaultValue={values.description}
                     className="min-h-24 rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px]"
                 />
-                <InputError message={form.errors.description} />
+                <InputError message={errors.description} />
             </div>
 
             <div className="grid gap-4 md:grid-cols-2">
@@ -334,26 +334,22 @@ function ShiftFields({
                     <Label htmlFor={`${idPrefix}-starts-at`}>Start</Label>
                     <Input
                         id={`${idPrefix}-starts-at`}
+                        name="starts_at"
                         type="datetime-local"
-                        value={form.data.starts_at}
-                        onChange={(event) =>
-                            form.setData('starts_at', event.currentTarget.value)
-                        }
+                        defaultValue={values.starts_at}
                     />
-                    <InputError message={form.errors.starts_at} />
+                    <InputError message={errors.starts_at} />
                 </div>
 
                 <div className="grid gap-2">
                     <Label htmlFor={`${idPrefix}-ends-at`}>Einde</Label>
                     <Input
                         id={`${idPrefix}-ends-at`}
+                        name="ends_at"
                         type="datetime-local"
-                        value={form.data.ends_at}
-                        onChange={(event) =>
-                            form.setData('ends_at', event.currentTarget.value)
-                        }
+                        defaultValue={values.ends_at}
                     />
-                    <InputError message={form.errors.ends_at} />
+                    <InputError message={errors.ends_at} />
                 </div>
             </div>
 
@@ -362,10 +358,8 @@ function ShiftFields({
                     <Label htmlFor={`${idPrefix}-status`}>Status</Label>
                     <select
                         id={`${idPrefix}-status`}
-                        value={form.data.status}
-                        onChange={(event) =>
-                            form.setData('status', event.currentTarget.value)
-                        }
+                        name="status"
+                        defaultValue={values.status}
                         className="h-10 rounded-md border border-input bg-transparent px-3 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px]"
                     >
                         {shiftStatusOptions.map((option) => (
@@ -374,7 +368,7 @@ function ShiftFields({
                             </option>
                         ))}
                     </select>
-                    <InputError message={form.errors.status} />
+                    <InputError message={errors.status} />
                 </div>
 
                 <div className="grid gap-2">
@@ -383,13 +377,8 @@ function ShiftFields({
                     </Label>
                     <select
                         id={`${idPrefix}-skill`}
-                        value={form.data.required_skill_id}
-                        onChange={(event) =>
-                            form.setData(
-                                'required_skill_id',
-                                event.currentTarget.value,
-                            )
-                        }
+                        name="required_skill_id"
+                        defaultValue={values.required_skill_id}
                         className="h-10 rounded-md border border-input bg-transparent px-3 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px]"
                     >
                         <option value="">Geen vaardigheid vereist</option>
@@ -402,7 +391,7 @@ function ShiftFields({
                             </option>
                         ))}
                     </select>
-                    <InputError message={form.errors.required_skill_id} />
+                    <InputError message={errors.required_skill_id} />
                 </div>
             </div>
         </>
@@ -415,11 +404,6 @@ export default function CoordinatorEventStructureManager({
     skillOptions,
     shiftStatusOptions,
 }: Props) {
-    const createZoneForm = useForm<ZoneFormData>({
-        name: '',
-        description: '',
-    });
-
     return (
         <section className="space-y-6">
             <Heading
@@ -436,59 +420,45 @@ export default function CoordinatorEventStructureManager({
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <form
+                    <Form
+                        {...storeZone.form({ event: eventId })}
+                        options={{ preserveScroll: true }}
+                        resetOnSuccess={['name', 'description']}
                         className="grid gap-4 md:grid-cols-[1fr_1fr_auto] md:items-end"
-                        onSubmit={(event) => {
-                            event.preventDefault();
-                            createZoneForm.post(
-                                `/app/events/${eventId}/zones`,
-                                {
-                                    preserveScroll: true,
-                                    onSuccess: () => createZoneForm.reset(),
-                                },
-                            );
-                        }}
                     >
-                        <div className="grid gap-2">
-                            <Label htmlFor="create-zone-name">Zonenaam</Label>
-                            <Input
-                                id="create-zone-name"
-                                value={createZoneForm.data.name}
-                                onChange={(event) =>
-                                    createZoneForm.setData(
-                                        'name',
-                                        event.currentTarget.value,
-                                    )
-                                }
-                            />
-                            <InputError message={createZoneForm.errors.name} />
-                        </div>
+                        {({ processing, errors }) => (
+                            <>
+                                <div className="grid gap-2">
+                                    <Label htmlFor="create-zone-name">
+                                        Zonenaam
+                                    </Label>
+                                    <Input id="create-zone-name" name="name" />
+                                    <InputError
+                                        message={errors.name as string}
+                                    />
+                                </div>
 
-                        <div className="grid gap-2">
-                            <Label htmlFor="create-zone-description">
-                                Beschrijving
-                            </Label>
-                            <Input
-                                id="create-zone-description"
-                                value={createZoneForm.data.description}
-                                onChange={(event) =>
-                                    createZoneForm.setData(
-                                        'description',
-                                        event.currentTarget.value,
-                                    )
-                                }
-                            />
-                            <InputError
-                                message={createZoneForm.errors.description}
-                            />
-                        </div>
+                                <div className="grid gap-2">
+                                    <Label htmlFor="create-zone-description">
+                                        Beschrijving
+                                    </Label>
+                                    <Input
+                                        id="create-zone-description"
+                                        name="description"
+                                    />
+                                    <InputError
+                                        message={errors.description as string}
+                                    />
+                                </div>
 
-                        <div>
-                            <Button disabled={createZoneForm.processing}>
-                                Zone toevoegen
-                            </Button>
-                        </div>
-                    </form>
+                                <div>
+                                    <Button disabled={processing}>
+                                        Zone toevoegen
+                                    </Button>
+                                </div>
+                            </>
+                        )}
+                    </Form>
                 </CardContent>
             </Card>
 

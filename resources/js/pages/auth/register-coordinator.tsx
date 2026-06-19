@@ -1,4 +1,5 @@
 import { Form, Head } from '@inertiajs/react';
+import { store } from '@/actions/App/Http/Controllers/Auth/CoordinatorRegistrationController';
 import InputError from '@/components/input-error';
 import PasswordInput from '@/components/password-input';
 import TextLink from '@/components/text-link';
@@ -18,8 +19,7 @@ export default function RegisterCoordinator({ passwordRules }: Props) {
             <Head title="Coordinator registratie" />
 
             <Form
-                action="/register/coordinator"
-                method="post"
+                {...store.form()}
                 resetOnSuccess={['password', 'password_confirmation']}
                 disableWhileProcessing
                 className="flex flex-col gap-6"
