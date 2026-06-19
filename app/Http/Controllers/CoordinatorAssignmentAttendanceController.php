@@ -48,6 +48,15 @@ class CoordinatorAssignmentAttendanceController extends Controller
         return $this->performCheckIn($assignment);
     }
 
+    public function checkOut(Assignment $assignment): RedirectResponse
+    {
+        $assignment->loadMissing(['user', 'shift.zone.event']);
+
+        $this->authorize('manageCheckIn', $assignment);
+
+        return $this->performCheckOut($assignment);
+    }
+
     public function updateNoShow(Request $request, Assignment $assignment): RedirectResponse
     {
         $assignment->loadMissing(['shift.zone.event']);
@@ -58,10 +67,6 @@ class CoordinatorAssignmentAttendanceController extends Controller
             'no_show' => ['required', 'boolean'],
             'reason' => ['nullable', 'string', 'max:1000'],
         ]);
-
-        if ($validated['no_show'] && $assignment->check_in_at !== null) {
-            return back();
-        }
 
         $assignment->update([
             'no_show' => $validated['no_show'],
@@ -143,12 +148,36 @@ class CoordinatorAssignmentAttendanceController extends Controller
             return $this->performCheckIn($assignment, true);
         }
 
-        if ($this->hasActiveShiftNow($assignment)) {
-            Inertia::flash('scan_feedback', [
-                'status' => 'error',
-                'message' => 'Crewlid heeft nog een actieve shift lopen en kan nog niet uitgecheckt worden.',
-                'assignment' => $this->scanAssignmentData($assignment),
-            ]);
+        return $this->performCheckOut($assignment, true);
+    }
+
+    private function performCheckOut(Assignment $assignment, bool $forScan = false): RedirectResponse
+    {
+        $hasOpenCheckInForEvent = $this->eventAssignmentsQuery($assignment)
+            ->whereNotNull('check_in_at')
+            ->whereNull('check_out_at')
+            ->exists();
+
+        if (! $hasOpenCheckInForEvent) {
+            if ($forScan) {
+                Inertia::flash('scan_feedback', [
+                    'status' => 'error',
+                    'message' => 'Crewlid is niet ingecheckt voor dit event.',
+                    'assignment' => $this->scanAssignmentData($assignment),
+                ]);
+            }
+
+            return back();
+        }
+
+        if ($forScan && $this->hasActiveShiftNow($assignment)) {
+            if ($forScan) {
+                Inertia::flash('scan_feedback', [
+                    'status' => 'error',
+                    'message' => 'Crewlid heeft nog een actieve shift lopen en kan nog niet uitgecheckt worden.',
+                    'assignment' => $this->scanAssignmentData($assignment),
+                ]);
+            }
 
             return back();
         }
@@ -160,11 +189,13 @@ class CoordinatorAssignmentAttendanceController extends Controller
                 'check_out_at' => now(),
             ]);
 
-        Inertia::flash('scan_feedback', [
-            'status' => 'success',
-            'message' => 'Crewlid succesvol uitgecheckt.',
-            'assignment' => $this->scanAssignmentData($assignment->fresh()),
-        ]);
+        if ($forScan) {
+            Inertia::flash('scan_feedback', [
+                'status' => 'success',
+                'message' => 'Crewlid succesvol uitgecheckt.',
+                'assignment' => $this->scanAssignmentData($assignment->fresh()),
+            ]);
+        }
 
         return back();
     }

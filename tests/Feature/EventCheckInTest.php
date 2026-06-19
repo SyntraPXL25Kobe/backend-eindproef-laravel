@@ -333,6 +333,64 @@ it('checks out a checked-in crew member by scanned qr token', function () {
     expect($assignment->fresh()->check_out_at)->not->toBeNull();
 });
 
+it('checks out a checked-in crew member manually', function () {
+    $coordinator = eventDashboardCoordinator();
+    $assignment = approvedAssignmentForEvent($coordinator, [
+        'assignment' => [
+            'check_in_at' => now()->subHours(2),
+        ],
+    ]);
+
+    $this->actingAs($coordinator)
+        ->post(route('coordinator.assignments.check-out', ['assignment' => $assignment->id]))
+        ->assertRedirect();
+
+    expect($assignment->fresh()->check_out_at)->not->toBeNull();
+});
+
+it('checks out manually even when crew member still has an active shift', function () {
+    $coordinator = eventDashboardCoordinator();
+
+    $event = Event::query()->create([
+        'coordinator_profile_id' => $coordinator->coordinatorProfile->id,
+        'title' => 'Actieve shift event',
+        'location' => 'Antwerpen',
+        'start_date' => '2026-08-20',
+        'end_date' => '2026-08-20',
+        'status' => 'published',
+        'publication_visibility' => 'public',
+    ]);
+
+    $zone = Zone::query()->create([
+        'event_id' => $event->id,
+        'name' => 'Main stage',
+    ]);
+
+    $activeShift = Shift::query()->create([
+        'zone_id' => $zone->id,
+        'title' => 'Actieve shift',
+        'starts_at' => '2026-08-20 09:00:00',
+        'ends_at' => '2026-08-20 12:00:00',
+        'capacity' => 5,
+        'status' => 'open',
+    ]);
+
+    $assignment = approvedAssignmentForEvent($coordinator, [
+        'event' => $event,
+        'zone' => $zone,
+        'shift' => $activeShift,
+        'assignment' => [
+            'check_in_at' => now()->subHour(),
+        ],
+    ]);
+
+    $this->actingAs($coordinator)
+        ->post(route('coordinator.assignments.check-out', ['assignment' => $assignment->id]))
+        ->assertRedirect();
+
+    expect($assignment->fresh()->check_out_at)->not->toBeNull();
+});
+
 it('does not check out when crew member still has an active shift', function () {
     $coordinator = eventDashboardCoordinator();
     $crew = User::factory()->create();
@@ -483,4 +541,23 @@ it('marks and clears a no-show from the coordinator dashboard', function () {
 
     expect($assignment->fresh()->no_show)->toBeFalse();
     expect($assignment->fresh()->no_show_reason)->toBeNull();
+});
+
+it('allows marking a checked-in shift as no-show', function () {
+    $coordinator = eventDashboardCoordinator();
+    $assignment = approvedAssignmentForEvent($coordinator, [
+        'assignment' => [
+            'check_in_at' => now()->subHour(),
+        ],
+    ]);
+
+    $this->actingAs($coordinator)
+        ->patch(route('coordinator.assignments.no-show', ['assignment' => $assignment->id]), [
+            'no_show' => true,
+            'reason' => 'Toch niet aanwezig',
+        ])
+        ->assertRedirect();
+
+    expect($assignment->fresh()->no_show)->toBeTrue();
+    expect($assignment->fresh()->no_show_reason)->toBe('Toch niet aanwezig');
 });

@@ -44,6 +44,8 @@ Route::middleware(['auth', 'verified'])->prefix('app')->group(function () {
         ->name('coordinator.applications.review');
     Route::post('/assignments/{assignment}/check-in', [CoordinatorAssignmentAttendanceController::class, 'checkIn'])
         ->name('coordinator.assignments.check-in');
+    Route::post('/assignments/{assignment}/check-out', [CoordinatorAssignmentAttendanceController::class, 'checkOut'])
+        ->name('coordinator.assignments.check-out');
     Route::patch('/assignments/{assignment}/no-show', [CoordinatorAssignmentAttendanceController::class, 'updateNoShow'])
         ->name('coordinator.assignments.no-show');
 

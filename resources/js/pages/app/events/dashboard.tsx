@@ -26,6 +26,8 @@ export default function CoordinatorEventDashboard({
     assignments,
     last_updated_at,
     scan_endpoint,
+    manual_check_in_endpoint,
+    manual_check_out_endpoint,
     no_show_endpoint,
 }: {
     event: EventDashboardEvent;
@@ -33,6 +35,8 @@ export default function CoordinatorEventDashboard({
     assignments: EventDashboardAssignment[];
     last_updated_at: string;
     scan_endpoint: string;
+    manual_check_in_endpoint: string;
+    manual_check_out_endpoint: string;
     no_show_endpoint: string;
 }) {
     const [scannerOpen, setScannerOpen] = useState(false);
@@ -238,6 +242,28 @@ export default function CoordinatorEventDashboard({
                     if (!open) {
                         setSelectedCrewMember(null);
                     }
+                }}
+                onCheckIn={(assignmentId) => {
+                    setActiveAssignmentId(assignmentId);
+                    router.post(
+                        endpointFor(manual_check_in_endpoint, assignmentId),
+                        {},
+                        {
+                            preserveScroll: true,
+                            onFinish: () => setActiveAssignmentId(null),
+                        },
+                    );
+                }}
+                onCheckOut={(assignmentId) => {
+                    setActiveAssignmentId(assignmentId);
+                    router.post(
+                        endpointFor(manual_check_out_endpoint, assignmentId),
+                        {},
+                        {
+                            preserveScroll: true,
+                            onFinish: () => setActiveAssignmentId(null),
+                        },
+                    );
                 }}
                 onOpenNoShow={(assignment) => setNoShowAssignment(assignment)}
                 onClearNoShow={(assignmentId) => {
