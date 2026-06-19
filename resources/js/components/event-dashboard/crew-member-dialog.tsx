@@ -52,22 +52,6 @@ function crewMemberStatusBadge(crewMember: EventDashboardCrewMember) {
     return <Badge variant="outline">Wacht op check-in</Badge>;
 }
 
-function shiftStatusBadge(assignment: EventDashboardAssignment) {
-    if (assignment.check_in_at !== null && assignment.check_out_at === null) {
-        return <Badge className="bg-emerald-600 text-white">Actief</Badge>;
-    }
-
-    if (assignment.check_out_at !== null) {
-        return <Badge className="bg-sky-600 text-white">Afgerond</Badge>;
-    }
-
-    if (assignment.no_show) {
-        return <Badge variant="destructive">No-show</Badge>;
-    }
-
-    return <Badge variant="outline">Gepland</Badge>;
-}
-
 export function EventDashboardCrewMemberDialog({
     crewMember,
     open,
@@ -254,7 +238,6 @@ export function EventDashboardCrewMemberDialog({
                                                     )}
                                                 </p>
                                             </div>
-                                            {shiftStatusBadge(assignment)}
                                         </div>
 
                                         {assignment.no_show &&
