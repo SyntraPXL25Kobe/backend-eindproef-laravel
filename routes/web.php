@@ -6,6 +6,7 @@ use App\Http\Controllers\CoordinatorEventController;
 use App\Http\Controllers\CoordinatorEventDashboardController;
 use App\Http\Controllers\CoordinatorShiftController;
 use App\Http\Controllers\CoordinatorZoneController;
+use App\Http\Controllers\Auth\CoordinatorRegistrationController;
 use App\Http\Controllers\CrewShiftController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PublicEventController;
@@ -13,6 +14,14 @@ use App\Http\Controllers\ShiftApplicationController;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/app')->name('home');
+
+Route::middleware('guest')->group(function () {
+    Route::get('/register/coordinator', [CoordinatorRegistrationController::class, 'create'])
+        ->name('register.coordinator.create');
+    Route::post('/register/coordinator', [CoordinatorRegistrationController::class, 'store'])
+        ->name('register.coordinator.store');
+});
+
 Route::inertia('/register/coordinator/pending', 'auth/coordinator-pending')
     ->name('register.coordinator.pending');
 Route::get('/events/invite/{token}', [PublicEventController::class, 'showInvite'])

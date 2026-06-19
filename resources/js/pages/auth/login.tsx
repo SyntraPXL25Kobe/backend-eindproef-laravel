@@ -95,6 +95,13 @@ export default function Login({ status, canResetPassword }: Props) {
                                 Sign up
                             </TextLink>
                         </div>
+
+                        <div className="text-center text-sm text-muted-foreground">
+                            Want to organize events?{' '}
+                            <TextLink href="/register/coordinator" tabIndex={6}>
+                                Register as coordinator
+                            </TextLink>
+                        </div>
                     </>
                 )}
             </Form>

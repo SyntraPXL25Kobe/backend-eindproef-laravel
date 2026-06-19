@@ -7,18 +7,19 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import { login } from '@/routes';
-import { store } from '@/routes/register';
 
 type Props = {
     passwordRules: string;
 };
 
-export default function Register({ passwordRules }: Props) {
+export default function RegisterCoordinator({ passwordRules }: Props) {
     return (
         <>
-            <Head title="Register" />
+            <Head title="Coordinator registratie" />
+
             <Form
-                {...store.form()}
+                action="/register/coordinator"
+                method="post"
                 resetOnSuccess={['password', 'password_confirmation']}
                 disableWhileProcessing
                 className="flex flex-col gap-6"
@@ -27,7 +28,7 @@ export default function Register({ passwordRules }: Props) {
                     <>
                         <div className="grid gap-6">
                             <div className="grid gap-2">
-                                <Label htmlFor="name">Name</Label>
+                                <Label htmlFor="name">Contact name</Label>
                                 <Input
                                     id="name"
                                     type="text"
@@ -73,11 +74,68 @@ export default function Register({ passwordRules }: Props) {
                             </div>
 
                             <div className="grid gap-2">
+                                <Label htmlFor="organisation_name">
+                                    Organisation name
+                                </Label>
+                                <Input
+                                    id="organisation_name"
+                                    type="text"
+                                    required
+                                    tabIndex={4}
+                                    name="organisation_name"
+                                    placeholder="Organisation"
+                                />
+                                <InputError
+                                    message={errors.organisation_name}
+                                />
+                            </div>
+
+                            <div className="grid gap-2">
+                                <Label htmlFor="city">City</Label>
+                                <Input
+                                    id="city"
+                                    type="text"
+                                    tabIndex={5}
+                                    name="city"
+                                    placeholder="City"
+                                />
+                                <InputError message={errors.city} />
+                            </div>
+
+                            <div className="grid gap-2">
+                                <Label htmlFor="vat_number">
+                                    VAT number (optional)
+                                </Label>
+                                <Input
+                                    id="vat_number"
+                                    type="text"
+                                    tabIndex={6}
+                                    name="vat_number"
+                                    placeholder="BE0123456789"
+                                />
+                                <InputError message={errors.vat_number} />
+                            </div>
+
+                            <div className="grid gap-2">
+                                <Label htmlFor="website">
+                                    Website (optional)
+                                </Label>
+                                <Input
+                                    id="website"
+                                    type="url"
+                                    tabIndex={7}
+                                    name="website"
+                                    placeholder="https://example.com"
+                                />
+                                <InputError message={errors.website} />
+                            </div>
+
+                            <div className="grid gap-2">
                                 <Label htmlFor="password">Password</Label>
                                 <PasswordInput
                                     id="password"
                                     required
-                                    tabIndex={4}
+                                    tabIndex={8}
                                     autoComplete="new-password"
                                     name="password"
                                     placeholder="Password"
@@ -93,7 +151,7 @@ export default function Register({ passwordRules }: Props) {
                                 <PasswordInput
                                     id="password_confirmation"
                                     required
-                                    tabIndex={5}
+                                    tabIndex={9}
                                     autoComplete="new-password"
                                     name="password_confirmation"
                                     placeholder="Confirm password"
@@ -107,26 +165,28 @@ export default function Register({ passwordRules }: Props) {
                             <Button
                                 type="submit"
                                 className="mt-2 w-full"
-                                tabIndex={5}
-                                data-test="register-user-button"
+                                tabIndex={10}
+                                data-test="register-coordinator-button"
                             >
                                 {processing && <Spinner />}
-                                Create account
+                                Submit coordinator request
                             </Button>
                         </div>
 
-                        <div className="text-center text-sm text-muted-foreground">
-                            Already have an account?{' '}
-                            <TextLink href={login()} tabIndex={6}>
-                                Log in
-                            </TextLink>
-                        </div>
+                        <div className="space-y-2 text-center text-sm text-muted-foreground">
+                            <div>
+                                Already have an account?{' '}
+                                <TextLink href={login()} tabIndex={11}>
+                                    Log in
+                                </TextLink>
+                            </div>
 
-                        <div className="text-center text-sm text-muted-foreground">
-                            Want to organize events?{' '}
-                            <TextLink href="/register/coordinator" tabIndex={7}>
-                                Register as coordinator
-                            </TextLink>
+                            <div>
+                                Crew member?{' '}
+                                <TextLink href="/register" tabIndex={12}>
+                                    Create a regular account
+                                </TextLink>
+                            </div>
                         </div>
                     </>
                 )}
@@ -135,7 +195,7 @@ export default function Register({ passwordRules }: Props) {
     );
 }
 
-Register.layout = {
-    title: 'Create an account',
-    description: 'Enter your details below to create your account',
+RegisterCoordinator.layout = {
+    title: 'Coordinator registration',
+    description: 'Create your coordinator profile and submit your request',
 };
