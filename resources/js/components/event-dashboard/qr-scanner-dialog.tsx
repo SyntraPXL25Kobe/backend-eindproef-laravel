@@ -254,6 +254,7 @@ export function QrScannerDialog({
                                         },
                                     }}
                                     sound={true}
+                                    startTimeoutMs={5000}
                                 />
                             </div>
                         </div>
