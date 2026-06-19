@@ -1,8 +1,7 @@
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Head, usePage } from '@inertiajs/react';
 import Heading from '@/components/heading';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { dashboard } from '@/routes';
 
 type PerformanceEvent = {
     id: number;
