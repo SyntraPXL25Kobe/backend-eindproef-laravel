@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Assignment;
 use App\Models\Event;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -25,9 +26,31 @@ class CoordinatorEventDashboardController extends Controller
             ->orderBy('created_at')
             ->get();
 
-        $checkedInCount = $assignments->filter(fn (Assignment $assignment) => $assignment->check_in_at !== null)->count();
-        $noShowCount = $assignments->where('no_show', true)->count();
-        $pendingCount = $assignments->count() - $checkedInCount - $noShowCount;
+        $crewStatuses = $assignments
+            ->groupBy('user_id')
+            ->map(function (Collection $crewAssignments): string {
+                $hasCheckedIn = $crewAssignments->contains(
+                    fn (Assignment $assignment) => $assignment->check_in_at !== null,
+                );
+                $hasNoShow = $crewAssignments->contains(
+                    fn (Assignment $assignment) => $assignment->no_show,
+                );
+
+                if ($hasCheckedIn) {
+                    return 'checked_in';
+                }
+
+                if ($hasNoShow) {
+                    return 'no_show';
+                }
+
+                return 'pending';
+            });
+
+        $totalCrewCount = $crewStatuses->count();
+        $checkedInCount = $crewStatuses->filter(fn (string $status) => $status === 'checked_in')->count();
+        $noShowCount = $crewStatuses->filter(fn (string $status) => $status === 'no_show')->count();
+        $pendingCount = $crewStatuses->filter(fn (string $status) => $status === 'pending')->count();
         $historyByUser = DB::table('event_attendance_logs')
             ->where('event_id', $event->id)
             ->orderBy('performed_at', 'desc')
@@ -44,12 +67,12 @@ class CoordinatorEventDashboardController extends Controller
                 'is_live_today' => $event->isHappeningToday(),
             ],
             'stats' => [
-                'total_assigned' => $assignments->count(),
+                'total_assigned' => $totalCrewCount,
                 'checked_in' => $checkedInCount,
                 'pending' => $pendingCount,
                 'no_shows' => $noShowCount,
-                'check_in_rate' => $assignments->count() > 0
-                    ? round(($checkedInCount / $assignments->count()) * 100)
+                'check_in_rate' => $totalCrewCount > 0
+                    ? round(($checkedInCount / $totalCrewCount) * 100)
                     : 0,
             ],
             'assignments' => $assignments->map(fn (Assignment $assignment) => [

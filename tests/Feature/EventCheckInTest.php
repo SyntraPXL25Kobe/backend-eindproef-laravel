@@ -141,6 +141,66 @@ it('shows the coordinator event dashboard with live attendance stats', function 
             ->has('assignments', 2));
 });
 
+it('counts total assigned crew as unique crew members not shifts', function () {
+    $coordinator = eventDashboardCoordinator();
+    $crew = User::factory()->create();
+    $crew->syncRoles(['crew']);
+
+    $event = Event::query()->create([
+        'coordinator_profile_id' => $coordinator->coordinatorProfile->id,
+        'title' => 'Crew count event',
+        'location' => 'Antwerpen',
+        'start_date' => '2026-08-20',
+        'end_date' => '2026-08-20',
+        'status' => 'published',
+        'publication_visibility' => 'public',
+    ]);
+
+    $zone = Zone::query()->create([
+        'event_id' => $event->id,
+        'name' => 'Main',
+    ]);
+
+    $shiftA = Shift::query()->create([
+        'zone_id' => $zone->id,
+        'title' => 'Shift A',
+        'starts_at' => '2026-08-20 09:00:00',
+        'ends_at' => '2026-08-20 12:00:00',
+        'capacity' => 5,
+        'status' => 'open',
+    ]);
+
+    $shiftB = Shift::query()->create([
+        'zone_id' => $zone->id,
+        'title' => 'Shift B',
+        'starts_at' => '2026-08-20 12:00:00',
+        'ends_at' => '2026-08-20 16:00:00',
+        'capacity' => 5,
+        'status' => 'open',
+    ]);
+
+    approvedAssignmentForEvent($coordinator, [
+        'crew' => $crew,
+        'event' => $event,
+        'zone' => $zone,
+        'shift' => $shiftA,
+    ]);
+
+    approvedAssignmentForEvent($coordinator, [
+        'crew' => $crew,
+        'event' => $event,
+        'zone' => $zone,
+        'shift' => $shiftB,
+    ]);
+
+    $this->actingAs($coordinator)
+        ->get(route('coordinator.events.dashboard', ['event' => $event->id]))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->where('stats.total_assigned', 1)
+            ->where('stats.pending', 1));
+});
+
 it('checks in a crew member by scanned qr token', function () {
     $coordinator = eventDashboardCoordinator();
     $assignment = approvedAssignmentForEvent($coordinator);
