@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { CalendarDays, LayoutGrid, Menu } from 'lucide-react';
+import { CalendarDays, ChartColumn, LayoutGrid, Menu } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import AppLogoIcon from '@/components/app-logo-icon';
 import { Breadcrumbs } from '@/components/breadcrumbs';
@@ -72,6 +72,11 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
                       title: 'Mijn shifts',
                       href: '/app/my-shifts',
                       icon: CalendarDays,
+                  },
+                  {
+                      title: 'Mijn prestaties',
+                      href: '/app/my-performance',
+                      icon: ChartColumn,
                   },
               ]
             : []),
