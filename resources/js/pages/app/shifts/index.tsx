@@ -11,6 +11,7 @@ import {
     CardTitle,
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { formatDateTimeNl } from '@/lib/format-date-time';
 
 type ApplicationStatus = 'pending' | 'approved' | 'rejected';
 
@@ -39,32 +40,157 @@ type PageProps = {
     applications: CrewApplication[];
 };
 
+type ApplicationFilter = 'all' | ApplicationStatus;
+
 const statusLabel: Record<ApplicationStatus, string> = {
     pending: 'Pending',
     approved: 'Goedgekeurd',
     rejected: 'Afgewezen',
 };
 
-function formatDateTime(value: string | null): string {
-    if (!value) {
-        return 'Nog niet ingepland';
-    }
+function ApplicationStatusFilters({
+    filter,
+    total,
+    countByStatus,
+    onFilterChange,
+}: {
+    filter: ApplicationFilter;
+    total: number;
+    countByStatus: Record<ApplicationStatus, number>;
+    onFilterChange: (nextFilter: ApplicationFilter) => void;
+}) {
+    return (
+        <div className="flex flex-wrap gap-2">
+            <Button
+                type="button"
+                variant={filter === 'all' ? 'default' : 'outline'}
+                onClick={() => onFilterChange('all')}
+            >
+                Alles ({total})
+            </Button>
+            <Button
+                type="button"
+                variant={filter === 'pending' ? 'default' : 'outline'}
+                onClick={() => onFilterChange('pending')}
+            >
+                Pending ({countByStatus.pending})
+            </Button>
+            <Button
+                type="button"
+                variant={filter === 'approved' ? 'default' : 'outline'}
+                onClick={() => onFilterChange('approved')}
+            >
+                Goedgekeurd ({countByStatus.approved})
+            </Button>
+            <Button
+                type="button"
+                variant={filter === 'rejected' ? 'default' : 'outline'}
+                onClick={() => onFilterChange('rejected')}
+            >
+                Afgewezen ({countByStatus.rejected})
+            </Button>
+        </div>
+    );
+}
 
-    const date = new Date(value);
+function CrewShiftApplicationCard({
+    application,
+    activeApplicationId,
+    onCancel,
+}: {
+    application: CrewApplication;
+    activeApplicationId: number | null;
+    onCancel: (applicationId: number) => void;
+}) {
+    return (
+        <Card className="h-full border-border/70 bg-card/95">
+            <CardHeader>
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                        <CardTitle className="text-base">
+                            {application.shift.title || 'Onbekende shift'}
+                        </CardTitle>
+                        <CardDescription>
+                            {application.shift.event_title || 'Onbekend event'}
+                            {application.shift.event_location
+                                ? ` · ${application.shift.event_location}`
+                                : ''}
+                        </CardDescription>
+                    </div>
+                    <Badge>{statusLabel[application.status]}</Badge>
+                </div>
+            </CardHeader>
+            <CardContent className="space-y-3 text-sm">
+                <div className="space-y-1 text-muted-foreground">
+                    <p>
+                        <span className="font-medium text-foreground">
+                            Zone:
+                        </span>{' '}
+                        {application.shift.zone_name || 'Onbekend'}
+                    </p>
+                    <p>
+                        <span className="font-medium text-foreground">
+                            Wanneer:
+                        </span>{' '}
+                        {formatDateTimeNl(
+                            application.shift.starts_at,
+                            'Nog niet ingepland',
+                        )}{' '}
+                        -{' '}
+                        {formatDateTimeNl(
+                            application.shift.ends_at,
+                            'Nog niet ingepland',
+                        )}
+                    </p>
+                    <p>
+                        <span className="font-medium text-foreground">
+                            Aangevraagd op:
+                        </span>{' '}
+                        {formatDateTimeNl(
+                            application.created_at,
+                            'Nog niet ingepland',
+                        )}
+                    </p>
+                </div>
 
-    if (Number.isNaN(date.getTime())) {
-        return 'Onbekende datum';
-    }
+                <div className="rounded-lg border border-border/70 bg-muted/30 p-3 text-muted-foreground">
+                    <p className="mb-1 font-medium text-foreground">
+                        Motivatie
+                    </p>
+                    <p>
+                        {application.motivation || 'Geen motivatie ingevuld.'}
+                    </p>
+                </div>
 
-    return new Intl.DateTimeFormat('nl-BE', {
-        dateStyle: 'medium',
-        timeStyle: 'short',
-    }).format(date);
+                <div className="flex flex-wrap gap-2 pt-1">
+                    {application.shift.event_show_url && (
+                        <Button asChild variant="outline">
+                            <Link href={application.shift.event_show_url}>
+                                Bekijk event
+                            </Link>
+                        </Button>
+                    )}
+
+                    {application.can_cancel && (
+                        <Button
+                            type="button"
+                            disabled={activeApplicationId === application.id}
+                            onClick={() => onCancel(application.id)}
+                        >
+                            {activeApplicationId === application.id
+                                ? 'Verwerken...'
+                                : 'Annuleer aanvraag'}
+                        </Button>
+                    )}
+                </div>
+            </CardContent>
+        </Card>
+    );
 }
 
 export default function CrewShiftsIndex() {
     const { applications } = usePage<PageProps>().props;
-    const [filter, setFilter] = useState<'all' | ApplicationStatus>('all');
+    const [filter, setFilter] = useState<ApplicationFilter>('all');
     const [searchQuery, setSearchQuery] = useState('');
     const [activeApplicationId, setActiveApplicationId] = useState<
         number | null
@@ -132,42 +258,12 @@ export default function CrewShiftsIndex() {
                         className="max-w-xl"
                     />
 
-                    <div className="flex flex-wrap gap-2">
-                        <Button
-                            type="button"
-                            variant={filter === 'all' ? 'default' : 'outline'}
-                            onClick={() => setFilter('all')}
-                        >
-                            Alles ({applications.length})
-                        </Button>
-                        <Button
-                            type="button"
-                            variant={
-                                filter === 'pending' ? 'default' : 'outline'
-                            }
-                            onClick={() => setFilter('pending')}
-                        >
-                            Pending ({countByStatus.pending})
-                        </Button>
-                        <Button
-                            type="button"
-                            variant={
-                                filter === 'approved' ? 'default' : 'outline'
-                            }
-                            onClick={() => setFilter('approved')}
-                        >
-                            Goedgekeurd ({countByStatus.approved})
-                        </Button>
-                        <Button
-                            type="button"
-                            variant={
-                                filter === 'rejected' ? 'default' : 'outline'
-                            }
-                            onClick={() => setFilter('rejected')}
-                        >
-                            Afgewezen ({countByStatus.rejected})
-                        </Button>
-                    </div>
+                    <ApplicationStatusFilters
+                        filter={filter}
+                        total={applications.length}
+                        countByStatus={countByStatus}
+                        onFilterChange={setFilter}
+                    />
 
                     {filteredApplications.length === 0 ? (
                         <Card className="border-dashed">
@@ -187,127 +283,24 @@ export default function CrewShiftsIndex() {
                     ) : (
                         <div className="grid gap-4 md:grid-cols-2">
                             {filteredApplications.map((application) => (
-                                <Card
+                                <CrewShiftApplicationCard
                                     key={application.id}
-                                    className="h-full border-border/70 bg-card/95"
-                                >
-                                    <CardHeader>
-                                        <div className="flex flex-wrap items-start justify-between gap-3">
-                                            <div>
-                                                <CardTitle className="text-base">
-                                                    {application.shift.title ||
-                                                        'Onbekende shift'}
-                                                </CardTitle>
-                                                <CardDescription>
-                                                    {application.shift
-                                                        .event_title ||
-                                                        'Onbekend event'}
-                                                    {application.shift
-                                                        .event_location
-                                                        ? ` · ${application.shift.event_location}`
-                                                        : ''}
-                                                </CardDescription>
-                                            </div>
-                                            <Badge>
-                                                {
-                                                    statusLabel[
-                                                        application.status
-                                                    ]
-                                                }
-                                            </Badge>
-                                        </div>
-                                    </CardHeader>
-                                    <CardContent className="space-y-3 text-sm">
-                                        <div className="space-y-1 text-muted-foreground">
-                                            <p>
-                                                <span className="font-medium text-foreground">
-                                                    Zone:
-                                                </span>{' '}
-                                                {application.shift.zone_name ||
-                                                    'Onbekend'}
-                                            </p>
-                                            <p>
-                                                <span className="font-medium text-foreground">
-                                                    Wanneer:
-                                                </span>{' '}
-                                                {formatDateTime(
-                                                    application.shift.starts_at,
-                                                )}{' '}
-                                                -{' '}
-                                                {formatDateTime(
-                                                    application.shift.ends_at,
-                                                )}
-                                            </p>
-                                            <p>
-                                                <span className="font-medium text-foreground">
-                                                    Aangevraagd op:
-                                                </span>{' '}
-                                                {formatDateTime(
-                                                    application.created_at,
-                                                )}
-                                            </p>
-                                        </div>
-
-                                        <div className="rounded-lg border border-border/70 bg-muted/30 p-3 text-muted-foreground">
-                                            <p className="mb-1 font-medium text-foreground">
-                                                Motivatie
-                                            </p>
-                                            <p>
-                                                {application.motivation ||
-                                                    'Geen motivatie ingevuld.'}
-                                            </p>
-                                        </div>
-
-                                        <div className="flex flex-wrap gap-2 pt-1">
-                                            {application.shift
-                                                .event_show_url && (
-                                                <Button
-                                                    asChild
-                                                    variant="outline"
-                                                >
-                                                    <Link
-                                                        href={
-                                                            application.shift
-                                                                .event_show_url
-                                                        }
-                                                    >
-                                                        Bekijk event
-                                                    </Link>
-                                                </Button>
-                                            )}
-
-                                            {application.can_cancel && (
-                                                <Button
-                                                    type="button"
-                                                    disabled={
-                                                        activeApplicationId ===
-                                                        application.id
-                                                    }
-                                                    onClick={() => {
-                                                        setActiveApplicationId(
-                                                            application.id,
-                                                        );
-                                                        router.delete(
-                                                            `/app/applications/${application.id}`,
-                                                            {
-                                                                preserveScroll: true,
-                                                                onFinish: () =>
-                                                                    setActiveApplicationId(
-                                                                        null,
-                                                                    ),
-                                                            },
-                                                        );
-                                                    }}
-                                                >
-                                                    {activeApplicationId ===
-                                                    application.id
-                                                        ? 'Verwerken...'
-                                                        : 'Annuleer aanvraag'}
-                                                </Button>
-                                            )}
-                                        </div>
-                                    </CardContent>
-                                </Card>
+                                    application={application}
+                                    activeApplicationId={activeApplicationId}
+                                    onCancel={(applicationId) => {
+                                        setActiveApplicationId(applicationId);
+                                        router.delete(
+                                            `/app/applications/${applicationId}`,
+                                            {
+                                                preserveScroll: true,
+                                                onFinish: () =>
+                                                    setActiveApplicationId(
+                                                        null,
+                                                    ),
+                                            },
+                                        );
+                                    }}
+                                />
                             ))}
                         </div>
                     )}

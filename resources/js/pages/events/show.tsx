@@ -21,6 +21,7 @@ import {
     DialogTitle,
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
+import { formatDateTimeNl } from '@/lib/format-date-time';
 
 type ShiftApplication = {
     id: number;
@@ -86,17 +87,6 @@ export default function ShowPublicEvent({
     const [applyShift, setApplyShift] = useState<Shift | null>(null);
     const [motivation, setMotivation] = useState('');
     const [motivationError, setMotivationError] = useState<string | null>(null);
-
-    const formatDateTime = (value: string | null) => {
-        if (!value) {
-            return 'Tijdstip volgt nog';
-        }
-
-        return new Intl.DateTimeFormat('nl-BE', {
-            dateStyle: 'medium',
-            timeStyle: 'short',
-        }).format(new Date(value));
-    };
 
     const openApplyDialog = (shift: Shift) => {
         setApplyShift(shift);
@@ -331,14 +321,16 @@ export default function ShowPublicEvent({
                                                         </div>
                                                         <div className="text-right text-sm text-muted-foreground">
                                                             <p>
-                                                                {formatDateTime(
+                                                                {formatDateTimeNl(
                                                                     shift.starts_at,
+                                                                    'Tijdstip volgt nog',
                                                                 )}
                                                             </p>
                                                             <p>
                                                                 tot{' '}
-                                                                {formatDateTime(
+                                                                {formatDateTimeNl(
                                                                     shift.ends_at,
+                                                                    'Tijdstip volgt nog',
                                                                 )}
                                                             </p>
                                                             <p>

@@ -9,6 +9,7 @@ import {
     CardTitle,
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { formatDateTimeNl } from '@/lib/format-date-time';
 
 type CrewShift = {
     application_id: number;
@@ -31,23 +32,6 @@ type CrewMember = {
 type Props = {
     crewMembers: CrewMember[];
 };
-
-function formatDateTime(value: string | null): string {
-    if (!value) {
-        return 'Nog niet gepland';
-    }
-
-    const date = new Date(value);
-
-    if (Number.isNaN(date.getTime())) {
-        return 'Onbekende datum';
-    }
-
-    return new Intl.DateTimeFormat('nl-BE', {
-        dateStyle: 'medium',
-        timeStyle: 'short',
-    }).format(date);
-}
 
 export default function CoordinatorEventCrewOverview({ crewMembers }: Props) {
     const [search, setSearch] = useState('');
@@ -139,11 +123,13 @@ export default function CoordinatorEventCrewOverview({ crewMembers }: Props) {
                                                 </span>
                                             </div>
                                             <p className="text-muted-foreground">
-                                                {formatDateTime(
+                                                {formatDateTimeNl(
                                                     shift.starts_at,
                                                 )}{' '}
                                                 -{' '}
-                                                {formatDateTime(shift.ends_at)}
+                                                {formatDateTimeNl(
+                                                    shift.ends_at,
+                                                )}
                                             </p>
                                         </div>
                                     ))}
