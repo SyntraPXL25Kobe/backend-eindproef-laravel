@@ -156,6 +156,27 @@ it('checks in a crew member by scanned qr token', function () {
     expect($assignment->fresh()->no_show)->toBeFalse();
 });
 
+it('does not check in a no-show crew member by scanned qr token', function () {
+    $coordinator = eventDashboardCoordinator();
+    $assignment = approvedAssignmentForEvent($coordinator, [
+        'assignment' => [
+            'no_show' => true,
+            'no_show_reason' => 'Niet opgedaagd',
+            'no_show_marked_by' => $coordinator->id,
+        ],
+    ]);
+    $event = $assignment->shift->zone->event;
+
+    $this->actingAs($coordinator)
+        ->post(route('coordinator.events.check-ins.scan', ['event' => $event->id]), [
+            'scan_result' => $assignment->check_in_token,
+        ])
+        ->assertRedirect();
+
+    expect($assignment->fresh()->check_in_at)->toBeNull();
+    expect($assignment->fresh()->no_show)->toBeTrue();
+});
+
 it('marks and clears a no-show from the coordinator dashboard', function () {
     $coordinator = eventDashboardCoordinator();
     $assignment = approvedAssignmentForEvent($coordinator);

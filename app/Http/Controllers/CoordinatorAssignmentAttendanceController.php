@@ -98,6 +98,16 @@ class CoordinatorAssignmentAttendanceController extends Controller
             return back();
         }
 
+        if ($forScan && $assignment->no_show) {
+            Inertia::flash('scan_feedback', [
+                'status' => 'error',
+                'message' => 'Crewlid staat als no-show gemarkeerd en kan niet via QR ingecheckt worden.',
+                'assignment' => $this->scanAssignmentData($assignment),
+            ]);
+
+            return back();
+        }
+
         $assignment->update([
             'check_in_at' => now(),
             'no_show' => false,
