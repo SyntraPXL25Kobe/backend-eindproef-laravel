@@ -1,4 +1,5 @@
 import { Link } from '@inertiajs/react';
+import type { PublicEvent } from '@/components/dashboard/types';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -9,7 +10,6 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
-import type { PublicEvent } from '@/components/dashboard/types';
 
 export function PublicEventCard({ event }: { event: PublicEvent }) {
     return (

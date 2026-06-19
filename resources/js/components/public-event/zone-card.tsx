@@ -1,4 +1,6 @@
 import { Link } from '@inertiajs/react';
+import { cannotApplyMessage } from '@/components/public-event/cannot-apply-message';
+import type { AuthUser, Shift, Zone } from '@/components/public-event/types';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -10,8 +12,6 @@ import {
     CardTitle,
 } from '@/components/ui/card';
 import { formatDateTimeNl } from '@/lib/format-date-time';
-import { cannotApplyMessage } from '@/components/public-event/cannot-apply-message';
-import type { AuthUser, Shift, Zone } from '@/components/public-event/types';
 
 function ShiftCard({
     shift,

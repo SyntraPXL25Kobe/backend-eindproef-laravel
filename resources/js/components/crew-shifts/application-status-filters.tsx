@@ -1,8 +1,8 @@
-import { Button } from '@/components/ui/button';
 import type {
     ApplicationFilter,
     ApplicationStatus,
 } from '@/components/crew-shifts/types';
+import { Button } from '@/components/ui/button';
 
 export function ApplicationStatusFilters({
     filter,

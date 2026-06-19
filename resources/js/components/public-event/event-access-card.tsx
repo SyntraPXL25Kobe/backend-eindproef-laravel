@@ -1,4 +1,5 @@
 import { Link } from '@inertiajs/react';
+import type { AuthUser, PublicEvent } from '@/components/public-event/types';
 import { Button } from '@/components/ui/button';
 import {
     Card,
@@ -7,7 +8,6 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
-import type { AuthUser, PublicEvent } from '@/components/public-event/types';
 
 export function EventAccessCard({
     user,

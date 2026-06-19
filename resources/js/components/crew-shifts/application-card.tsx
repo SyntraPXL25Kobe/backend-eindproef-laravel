@@ -1,4 +1,6 @@
 import { Link } from '@inertiajs/react';
+import type { CrewApplication } from '@/components/crew-shifts/types';
+import { statusLabel } from '@/components/crew-shifts/types';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -9,8 +11,6 @@ import {
     CardTitle,
 } from '@/components/ui/card';
 import { formatDateTimeNl } from '@/lib/format-date-time';
-import type { CrewApplication } from '@/components/crew-shifts/types';
-import { statusLabel } from '@/components/crew-shifts/types';
 
 export function CrewShiftApplicationCard({
     application,
