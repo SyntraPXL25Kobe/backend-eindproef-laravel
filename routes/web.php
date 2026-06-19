@@ -2,8 +2,8 @@
 
 use App\Http\Controllers\CoordinatorApplicationReviewController;
 use App\Http\Controllers\CoordinatorAssignmentAttendanceController;
-use App\Http\Controllers\CoordinatorEventDashboardController;
 use App\Http\Controllers\CoordinatorEventController;
+use App\Http\Controllers\CoordinatorEventDashboardController;
 use App\Http\Controllers\CoordinatorShiftController;
 use App\Http\Controllers\CoordinatorZoneController;
 use App\Http\Controllers\CrewShiftController;

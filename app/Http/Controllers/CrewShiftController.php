@@ -76,7 +76,7 @@ class CrewShiftController extends Controller
             'no_show' => $assignment->no_show,
             'no_show_reason' => $assignment->no_show_reason,
             'qr_svg_src' => $event->isHappeningToday() && $request->user()?->can('viewCheckInQr', $assignment)
-                ? (new QRCode())->render($assignment->check_in_token)
+                ? (new QRCode)->render($assignment->check_in_token)
                 : null,
         ];
     }
