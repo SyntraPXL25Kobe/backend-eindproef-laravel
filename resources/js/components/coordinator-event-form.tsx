@@ -1,11 +1,11 @@
 import { Form } from '@inertiajs/react';
-import type { RouteFormDefinition } from '@/wayfinder';
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import type { RouteFormDefinition } from '@/wayfinder';
 
 export type CoordinatorEventFormData = {
     title: string;
