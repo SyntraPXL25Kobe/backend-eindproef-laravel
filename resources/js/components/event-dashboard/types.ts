@@ -30,6 +30,11 @@ export type EventDashboardAssignment = {
         name: string;
         email: string;
         phone: string | null;
+        attendance_history: {
+            action: string;
+            source: string | null;
+            performed_at: string;
+        }[];
     };
     shift: {
         id: number;
@@ -46,6 +51,11 @@ export type EventDashboardCrewMember = {
     email: string;
     phone: string | null;
     assignments: EventDashboardAssignment[];
+    attendance_history: {
+        action: string;
+        source: string | null;
+        performed_at: string;
+    }[];
 };
 
 export type EventDashboardScanFeedback = {

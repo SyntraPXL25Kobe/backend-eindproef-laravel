@@ -13,6 +13,18 @@ import {
 } from '@/components/ui/dialog';
 import { formatDateTimeNl } from '@/lib/format-date-time';
 
+function historyActionLabel(action: string): string {
+    if (action === 'checked_in') {
+        return 'Ingecheckt';
+    }
+
+    if (action === 'checked_out') {
+        return 'Uitgecheckt';
+    }
+
+    return action;
+}
+
 function crewMemberStatusBadge(crewMember: EventDashboardCrewMember) {
     const hasOpenCheckIn = crewMember.assignments.some(
         (assignment) =>
@@ -96,6 +108,43 @@ export function EventDashboardCrewMemberDialog({
                             </div>
                             <p>{crewMember.email}</p>
                             <p>{crewMember.phone || 'Geen telefoonnummer'}</p>
+                        </div>
+
+                        <div className="rounded-xl border border-border/70 p-3">
+                            <p className="mb-2 text-sm font-medium">
+                                Check-in/check-out historiek
+                            </p>
+
+                            {crewMember.attendance_history.length > 0 ? (
+                                <div className="space-y-2">
+                                    {crewMember.attendance_history.map(
+                                        (entry, index) => (
+                                            <div
+                                                key={`${entry.performed_at}-${index}`}
+                                                className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border/60 p-2 text-sm"
+                                            >
+                                                <span className="font-medium">
+                                                    {historyActionLabel(
+                                                        entry.action,
+                                                    )}
+                                                </span>
+                                                <span className="text-muted-foreground">
+                                                    {formatDateTimeNl(
+                                                        entry.performed_at,
+                                                    )}
+                                                    {entry.source
+                                                        ? ` · ${entry.source}`
+                                                        : ''}
+                                                </span>
+                                            </div>
+                                        ),
+                                    )}
+                                </div>
+                            ) : (
+                                <p className="text-sm text-muted-foreground">
+                                    Nog geen check-in/check-out historiek.
+                                </p>
+                            )}
                         </div>
 
                         {primaryAssignmentId && canManageCheckIn && (

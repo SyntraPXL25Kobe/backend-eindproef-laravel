@@ -7,6 +7,7 @@ use App\Models\Event;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class CoordinatorAssignmentAttendanceController extends Controller
@@ -126,6 +127,8 @@ class CoordinatorAssignmentAttendanceController extends Controller
             'no_show_marked_by' => null,
         ]);
 
+        $this->logAttendanceAction($assignment, 'checked_in', $forScan ? 'scan' : 'manual');
+
         if ($forScan) {
             Inertia::flash('scan_feedback', [
                 'status' => 'success',
@@ -189,6 +192,8 @@ class CoordinatorAssignmentAttendanceController extends Controller
                 'check_out_at' => now(),
             ]);
 
+        $this->logAttendanceAction($assignment, 'checked_out', $forScan ? 'scan' : 'manual');
+
         if ($forScan) {
             Inertia::flash('scan_feedback', [
                 'status' => 'success',
@@ -242,5 +247,19 @@ class CoordinatorAssignmentAttendanceController extends Controller
     private function extractToken(string $scanResult): string
     {
         return trim(str($scanResult)->afterLast(':')->value());
+    }
+
+    private function logAttendanceAction(Assignment $assignment, string $action, string $source): void
+    {
+        DB::table('event_attendance_logs')->insert([
+            'event_id' => $assignment->shift->zone->event_id,
+            'user_id' => $assignment->user_id,
+            'action' => $action,
+            'source' => $source,
+            'performed_by' => request()->user()?->id,
+            'performed_at' => now(),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
     }
 }

@@ -69,6 +69,7 @@ export default function CoordinatorEventDashboard({
                 email: assignment.user.email,
                 phone: assignment.user.phone,
                 assignments: [assignment],
+                attendance_history: assignment.user.attendance_history,
             });
         });
 

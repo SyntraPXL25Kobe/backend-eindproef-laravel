@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Assignment;
 use App\Models\Event;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -27,6 +28,11 @@ class CoordinatorEventDashboardController extends Controller
         $checkedInCount = $assignments->filter(fn (Assignment $assignment) => $assignment->check_in_at !== null)->count();
         $noShowCount = $assignments->where('no_show', true)->count();
         $pendingCount = $assignments->count() - $checkedInCount - $noShowCount;
+        $historyByUser = DB::table('event_attendance_logs')
+            ->where('event_id', $event->id)
+            ->orderBy('performed_at', 'desc')
+            ->get()
+            ->groupBy('user_id');
 
         return Inertia::render('app/events/dashboard', [
             'event' => [
@@ -59,6 +65,14 @@ class CoordinatorEventDashboardController extends Controller
                     'name' => $assignment->user->name,
                     'email' => $assignment->user->email,
                     'phone' => $assignment->user->phone,
+                    'attendance_history' => $historyByUser
+                        ->get($assignment->user->id, collect())
+                        ->map(fn ($entry) => [
+                            'action' => $entry->action,
+                            'source' => $entry->source,
+                            'performed_at' => $entry->performed_at,
+                        ])
+                        ->values(),
                 ],
                 'shift' => [
                     'id' => $assignment->shift->id,
