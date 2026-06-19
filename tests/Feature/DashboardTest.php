@@ -2,7 +2,9 @@
 
 use App\Models\CoordinatorProfile;
 use App\Models\Event;
+use App\Models\Shift;
 use App\Models\User;
+use App\Models\Zone;
 use Database\Seeders\PermissionsSeeder;
 
 beforeEach(function () {
@@ -113,4 +115,82 @@ test('dashboard event search filters results via backend query', function () {
         ->assertOk()
         ->assertSee('Stadsfestival Gent')
         ->assertDontSee('Winterbar Antwerpen');
+});
+
+test('crew dashboard hides past events when all shifts are closed or full', function () {
+    $user = User::factory()->create();
+
+    $coordinator = User::factory()->create([
+        'coordinator_registration_status' => 'approved',
+    ]);
+    $coordinator->syncRoles(['coordinator']);
+
+    $profile = CoordinatorProfile::query()->create([
+        'user_id' => $coordinator->id,
+        'organisation_name' => 'Crew Collective',
+        'country' => 'Belgie',
+    ]);
+
+    $hiddenEvent = Event::query()->create([
+        'coordinator_profile_id' => $profile->id,
+        'title' => 'Voorbij en vol',
+        'location' => 'Gent',
+        'start_date' => now()->subDays(5)->toDateString(),
+        'end_date' => now()->subDays(2)->toDateString(),
+        'status' => 'published',
+        'publication_visibility' => 'public',
+    ]);
+
+    $hiddenZone = Zone::query()->create([
+        'event_id' => $hiddenEvent->id,
+        'name' => 'Backstage',
+    ]);
+
+    Shift::query()->create([
+        'zone_id' => $hiddenZone->id,
+        'title' => 'Setup shift',
+        'starts_at' => now()->subDays(4)->startOfDay()->toDateTimeString(),
+        'ends_at' => now()->subDays(4)->endOfDay()->toDateTimeString(),
+        'capacity' => 3,
+        'status' => 'closed',
+    ]);
+
+    Shift::query()->create([
+        'zone_id' => $hiddenZone->id,
+        'title' => 'Breakdown shift',
+        'starts_at' => now()->subDays(3)->startOfDay()->toDateTimeString(),
+        'ends_at' => now()->subDays(3)->endOfDay()->toDateTimeString(),
+        'capacity' => 3,
+        'status' => 'full',
+    ]);
+
+    $visibleEvent = Event::query()->create([
+        'coordinator_profile_id' => $profile->id,
+        'title' => 'Voorbij maar nog open',
+        'location' => 'Antwerpen',
+        'start_date' => now()->subDays(4)->toDateString(),
+        'end_date' => now()->subDay()->toDateString(),
+        'status' => 'published',
+        'publication_visibility' => 'public',
+    ]);
+
+    $visibleZone = Zone::query()->create([
+        'event_id' => $visibleEvent->id,
+        'name' => 'Ingang',
+    ]);
+
+    Shift::query()->create([
+        'zone_id' => $visibleZone->id,
+        'title' => 'Late support',
+        'starts_at' => now()->subDays(2)->startOfDay()->toDateTimeString(),
+        'ends_at' => now()->subDays(2)->endOfDay()->toDateTimeString(),
+        'capacity' => 2,
+        'status' => 'open',
+    ]);
+
+    $this->actingAs($user)
+        ->get(route('dashboard'))
+        ->assertOk()
+        ->assertDontSee('Voorbij en vol')
+        ->assertSee('Voorbij maar nog open');
 });

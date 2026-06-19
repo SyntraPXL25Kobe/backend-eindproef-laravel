@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\EventStatus;
 use App\Enums\EventVisibility;
+use App\Enums\ShiftStatus;
 use App\Models\Event;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -22,6 +23,16 @@ class DashboardController extends Controller
                 ['status', '=', EventStatus::Published->value],
                 ['publication_visibility', '=', EventVisibility::Public->value],
             ])
+            ->where(function ($query) {
+                $query
+                    ->whereDate('end_date', '>=', today())
+                    ->orWhereHas('shifts', function ($shiftQuery) {
+                        $shiftQuery->whereNotIn('status', [
+                            ShiftStatus::Closed->value,
+                            ShiftStatus::Full->value,
+                        ]);
+                    });
+            })
             ->when($search !== '', function ($query) use ($search) {
                 $query->where(function ($nested) use ($search) {
                     $nested
