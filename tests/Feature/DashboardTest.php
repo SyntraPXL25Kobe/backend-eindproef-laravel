@@ -73,3 +73,44 @@ test('crew users see public published events on the dashboard', function () {
         ->assertDontSee('Invite Crew Night')
         ->assertDontSee('Verborgen Draft Event');
 });
+
+test('dashboard event search filters results via backend query', function () {
+    $user = User::factory()->create();
+
+    $coordinator = User::factory()->create([
+        'coordinator_registration_status' => 'approved',
+    ]);
+    $coordinator->syncRoles(['coordinator']);
+
+    $profile = CoordinatorProfile::query()->create([
+        'user_id' => $coordinator->id,
+        'organisation_name' => 'Crew Collective',
+        'country' => 'Belgie',
+    ]);
+
+    Event::query()->create([
+        'coordinator_profile_id' => $profile->id,
+        'title' => 'Stadsfestival Gent',
+        'location' => 'Gent',
+        'start_date' => '2026-08-10',
+        'end_date' => '2026-08-11',
+        'status' => 'published',
+        'publication_visibility' => 'public',
+    ]);
+
+    Event::query()->create([
+        'coordinator_profile_id' => $profile->id,
+        'title' => 'Winterbar Antwerpen',
+        'location' => 'Antwerpen',
+        'start_date' => '2026-08-12',
+        'end_date' => '2026-08-13',
+        'status' => 'published',
+        'publication_visibility' => 'public',
+    ]);
+
+    $this->actingAs($user)
+        ->get(route('dashboard', ['search' => 'gent']))
+        ->assertOk()
+        ->assertSee('Stadsfestival Gent')
+        ->assertDontSee('Winterbar Antwerpen');
+});
