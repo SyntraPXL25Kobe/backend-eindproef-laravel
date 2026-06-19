@@ -25,10 +25,6 @@ class CoordinatorAssignmentAttendanceController extends Controller
             ->first();
 
         if (! $assignment) {
-            Inertia::flash('toast', [
-                'type' => 'error',
-                'message' => 'Deze QR-code hoort niet bij dit event.',
-            ]);
             Inertia::flash('scan_feedback', [
                 'status' => 'error',
                 'message' => 'Deze QR-code hoort niet bij dit event.',
@@ -63,11 +59,6 @@ class CoordinatorAssignmentAttendanceController extends Controller
         ]);
 
         if ($validated['no_show'] && $assignment->check_in_at !== null) {
-            Inertia::flash('toast', [
-                'type' => 'error',
-                'message' => 'Een ingecheckt crewlid kan niet als no-show gemarkeerd worden.',
-            ]);
-
             return back();
         }
 
@@ -75,13 +66,6 @@ class CoordinatorAssignmentAttendanceController extends Controller
             'no_show' => $validated['no_show'],
             'no_show_reason' => $validated['no_show'] ? ($validated['reason'] ?: null) : null,
             'no_show_marked_by' => $validated['no_show'] ? $request->user()->id : null,
-        ]);
-
-        Inertia::flash('toast', [
-            'type' => 'success',
-            'message' => $validated['no_show']
-                ? 'Crewlid gemarkeerd als no-show.'
-                : 'No-show markering verwijderd.',
         ]);
 
         return back();
@@ -92,10 +76,6 @@ class CoordinatorAssignmentAttendanceController extends Controller
         $event = $assignment->shift->zone->event;
 
         if (! $event->isHappeningToday()) {
-            Inertia::flash('toast', [
-                'type' => 'error',
-                'message' => 'Check-in is alleen beschikbaar op de dag van het event.',
-            ]);
             if ($forScan) {
                 Inertia::flash('scan_feedback', [
                     'status' => 'error',
@@ -107,14 +87,10 @@ class CoordinatorAssignmentAttendanceController extends Controller
         }
 
         if ($assignment->check_in_at !== null) {
-            Inertia::flash('toast', [
-                'type' => 'success',
-                'message' => 'Crewlid was al ingecheckt.',
-            ]);
             if ($forScan) {
                 Inertia::flash('scan_feedback', [
-                    'status' => 'success',
-                    'message' => 'Crewlid was al ingecheckt.',
+                    'status' => 'error',
+                    'message' => 'Crewlid is al ingecheckt.',
                     'assignment' => $this->scanAssignmentData($assignment),
                 ]);
             }
@@ -129,10 +105,6 @@ class CoordinatorAssignmentAttendanceController extends Controller
             'no_show_marked_by' => null,
         ]);
 
-        Inertia::flash('toast', [
-            'type' => 'success',
-            'message' => 'Crewlid succesvol ingecheckt.',
-        ]);
         if ($forScan) {
             Inertia::flash('scan_feedback', [
                 'status' => 'success',

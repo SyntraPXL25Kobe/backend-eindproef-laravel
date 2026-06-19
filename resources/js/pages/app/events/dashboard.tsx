@@ -47,7 +47,7 @@ export default function CoordinatorEventDashboard({
 
     useEffect(() => {
         const intervalId = window.setInterval(() => {
-            if (!document.hidden) {
+            if (!document.hidden && !scannerOpen) {
                 router.reload({
                     only: ['stats', 'assignments', 'last_updated_at'],
                 });
@@ -55,6 +55,18 @@ export default function CoordinatorEventDashboard({
         }, 15000);
 
         return () => window.clearInterval(intervalId);
+    }, [scannerOpen]);
+
+    useEffect(() => {
+        return router.on('flash', (event) => {
+            const flash = (event as CustomEvent).detail?.flash as
+                | { scan_feedback?: EventDashboardScanFeedback }
+                | undefined;
+
+            if (flash?.scan_feedback) {
+                setScanFeedback(flash.scan_feedback);
+            }
+        });
     }, []);
 
     return (
@@ -80,6 +92,7 @@ export default function CoordinatorEventDashboard({
                             type="button"
                             onClick={() => {
                                 setScanFeedback(null);
+                                setScannerPaused(false);
                                 setScannerOpen(true);
                             }}
                             disabled={!event.is_live_today}
@@ -140,9 +153,13 @@ export default function CoordinatorEventDashboard({
                     setScannerOpen(open);
                     if (!open) {
                         setScanFeedback(null);
+                        setScannerPaused(false);
                     }
                 }}
-                onClearFeedback={() => setScanFeedback(null)}
+                onClearFeedback={() => {
+                    setScanFeedback(null);
+                    setScannerPaused(false);
+                }}
                 onScan={(rawValue) => {
                     setScannerPaused(true);
                     setScanFeedback(null);
@@ -153,16 +170,6 @@ export default function CoordinatorEventDashboard({
                         {
                             preserveScroll: true,
                             preserveState: true,
-                            onSuccess: (page) => {
-                                const flash = (
-                                    page.props as {
-                                        flash?: {
-                                            scan_feedback?: EventDashboardScanFeedback;
-                                        };
-                                    }
-                                ).flash;
-                                setScanFeedback(flash?.scan_feedback ?? null);
-                            },
                             onFinish: () => {
                                 window.setTimeout(() => {
                                     setScannerPaused(false);
