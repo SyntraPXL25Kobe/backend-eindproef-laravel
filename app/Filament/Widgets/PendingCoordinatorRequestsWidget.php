@@ -2,7 +2,7 @@
 
 namespace App\Filament\Widgets;
 
-use App\CoordinatorRegistrationStatus;
+use App\Enums\CoordinatorRegistrationStatus;
 use App\Filament\Resources\CoordinatorRequests\CoordinatorRequestResource;
 use App\Models\User;
 use Filament\Widgets\StatsOverviewWidget;

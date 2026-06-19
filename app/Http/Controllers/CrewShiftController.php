@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\ApplicationStatus;
+use App\Enums\ApplicationStatus;
+use App\Enums\EventStatus;
+use App\Enums\EventVisibility;
 use App\Enums\Permission;
-use App\EventStatus;
-use App\EventVisibility;
 use App\Models\Application;
 use chillerlan\QRCode\QRCode;
 use Illuminate\Http\Request;

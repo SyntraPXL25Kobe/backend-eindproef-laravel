@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\ApplicationStatus;
+use App\Enums\ApplicationStatus;
 use App\Models\Application;
 use App\Models\Shift;
 use Illuminate\Http\RedirectResponse;

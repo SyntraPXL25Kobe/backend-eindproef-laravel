@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\ShiftStatus;
+use App\Enums\ShiftStatus;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;

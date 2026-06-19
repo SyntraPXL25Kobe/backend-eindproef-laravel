@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources\Events\Schemas;
 
-use App\EventStatus;
+use App\Enums\EventStatus;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;

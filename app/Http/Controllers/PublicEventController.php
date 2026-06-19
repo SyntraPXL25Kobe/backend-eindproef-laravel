@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\ApplicationStatus;
-use App\EventStatus;
-use App\EventVisibility;
+use App\Enums\ApplicationStatus;
+use App\Enums\EventStatus;
+use App\Enums\EventVisibility;
+use App\Enums\ShiftStatus;
 use App\Models\Application;
 use App\Models\Event;
 use App\Models\Shift;
 use App\Models\User;
-use App\ShiftStatus;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Inertia\Inertia;

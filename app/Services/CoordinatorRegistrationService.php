@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\CoordinatorRegistrationStatus;
+use App\Enums\CoordinatorRegistrationStatus;
 use App\Models\CoordinatorProfile;
 use App\Models\User;
 use App\Notifications\CoordinatorApprovedNotification;

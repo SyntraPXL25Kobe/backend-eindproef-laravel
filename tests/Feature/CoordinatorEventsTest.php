@@ -1,6 +1,6 @@
 <?php
 
-use App\ApplicationStatus;
+use App\Enums\ApplicationStatus;
 use App\Models\Application;
 use App\Models\Assignment;
 use App\Models\CoordinatorProfile;

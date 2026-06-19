@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources\CoordinatorRequests;
 
-use App\CoordinatorRegistrationStatus;
+use App\Enums\CoordinatorRegistrationStatus;
 use App\Enums\Permission;
 use App\Filament\Resources\CoordinatorRequests\Pages\ListCoordinatorRequests;
 use App\Filament\Resources\CoordinatorRequests\Tables\CoordinatorRequestsTable;
