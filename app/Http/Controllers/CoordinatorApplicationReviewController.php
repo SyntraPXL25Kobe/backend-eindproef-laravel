@@ -8,8 +8,10 @@ use App\Models\Assignment;
 use App\Notifications\ShiftApplicationApprovedNotification;
 use App\Notifications\ShiftApplicationCancelledNotification;
 use App\Notifications\ShiftApplicationRejectedNotification;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
@@ -19,8 +21,6 @@ class CoordinatorApplicationReviewController extends Controller
     {
         $this->authorize('review', $application);
 
-        $previousStatus = $application->status;
-
         $validated = $request->validate([
             'status' => ['required', Rule::in([
                 ApplicationStatus::Approved->value,
@@ -29,10 +29,52 @@ class CoordinatorApplicationReviewController extends Controller
             ])],
         ]);
 
+        $previousStatus = null;
+
+        $application = DB::transaction(function () use ($application, $validated, $request, &$previousStatus): Application {
+            $lockedApplication = Application::query()
+                ->whereKey($application->getKey())
+                ->lockForUpdate()
+                ->with(['shift', 'user'])
+                ->firstOrFail();
+
+            $previousStatus = $lockedApplication->status;
+
+            if (
+                $validated['status'] === ApplicationStatus::Approved->value
+                && $lockedApplication->status !== ApplicationStatus::Approved
+                && $this->shiftCapacityReached($lockedApplication)
+            ) {
+                return $lockedApplication;
+            }
+
+            $lockedApplication->update([
+                'status' => $validated['status'],
+                'reviewed_by' => $request->user()->id,
+                'reviewed_at' => now(),
+            ]);
+
+            if ($lockedApplication->status === ApplicationStatus::Approved) {
+                Assignment::query()->updateOrCreate(
+                    ['application_id' => $lockedApplication->id],
+                    [
+                        'shift_id' => $lockedApplication->shift_id,
+                        'user_id' => $lockedApplication->user_id,
+                        'confirmed_at' => now(),
+                    ]
+                );
+            } else {
+                Assignment::query()
+                    ->where('application_id', $lockedApplication->id)
+                    ->delete();
+            }
+
+            return $lockedApplication;
+        });
+
         if (
             $validated['status'] === ApplicationStatus::Approved->value
             && $application->status !== ApplicationStatus::Approved
-            && $this->shiftCapacityReached($application)
         ) {
             Inertia::flash('toast', [
                 'type' => 'error',
@@ -41,12 +83,6 @@ class CoordinatorApplicationReviewController extends Controller
 
             return back();
         }
-
-        $application->update([
-            'status' => $validated['status'],
-            'reviewed_by' => $request->user()->id,
-            'reviewed_at' => now(),
-        ]);
 
         $application->loadMissing('user', 'shift.zone.event');
 
@@ -63,21 +99,6 @@ class CoordinatorApplicationReviewController extends Controller
                 ),
                 default => null,
             };
-        }
-
-        if ($application->status === ApplicationStatus::Approved) {
-            Assignment::query()->updateOrCreate(
-                ['application_id' => $application->id],
-                [
-                    'shift_id' => $application->shift_id,
-                    'user_id' => $application->user_id,
-                    'confirmed_at' => now(),
-                ]
-            );
-        } else {
-            Assignment::query()
-                ->where('application_id', $application->id)
-                ->delete();
         }
 
         Inertia::flash('toast', [
@@ -98,6 +119,8 @@ class CoordinatorApplicationReviewController extends Controller
         $approvedCount = Application::query()
             ->where('shift_id', $application->shift_id)
             ->where('status', ApplicationStatus::Approved->value)
+            ->where(fn (Builder $query) => $query->whereKeyNot($application->getKey()))
+            ->lockForUpdate()
             ->count();
 
         return $approvedCount >= $application->shift->capacity;
