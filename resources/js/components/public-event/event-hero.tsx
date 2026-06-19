@@ -22,14 +22,16 @@ export function EventHero({
             <div className="space-y-6 p-8">
                 <div className="space-y-3">
                     <p className="text-sm tracking-[0.35em] text-primary/80 uppercase">
-                        {isInvitation ? 'Crew-uitnodiging' : 'Publiek event'}
+                        {isInvitation
+                            ? 'Crew-uitnodiging'
+                            : 'Publiek evenement'}
                     </p>
                     <h1 className="max-w-3xl text-4xl font-semibold tracking-tight md:text-5xl">
                         {event.title}
                     </h1>
                     <p className="max-w-2xl text-base text-muted-foreground md:text-lg">
                         {event.description ||
-                            'Dit event is gepubliceerd en klaar om met crew members gedeeld te worden.'}
+                            'Dit evenement is gepubliceerd en klaar om met de crew gedeeld te worden.'}
                     </p>
                 </div>
 
@@ -45,7 +47,7 @@ export function EventHero({
                         <MapPin className="mb-3 size-4 text-primary" />
                         <p>{event.location}</p>
                         <p className="text-muted-foreground">
-                            Locatie van het event
+                            Locatie van het evenement
                         </p>
                     </div>
                     <div className="rounded-2xl border border-border/70 bg-muted/60 p-4">

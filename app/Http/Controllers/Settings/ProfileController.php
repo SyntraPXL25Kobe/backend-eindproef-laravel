@@ -51,7 +51,7 @@ class ProfileController extends Controller
 
         $request->user()->save();
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Profile updated.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Profiel bijgewerkt.']);
 
         return to_route('profile.edit');
     }
@@ -63,7 +63,7 @@ class ProfileController extends Controller
     {
         $request->user()->skills()->sync($request->validated('skills', []));
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Skills updated.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Vaardigheden bijgewerkt.']);
 
         return to_route('skills.edit');
     }

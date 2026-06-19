@@ -27,9 +27,9 @@ export default function Profile({
 
     return (
         <>
-            <Head title="Profile settings" />
+            <Head title="Profielinstellingen" />
 
-            <h1 className="sr-only">Profile settings</h1>
+            <h1 className="sr-only">Profielinstellingen</h1>
 
             <div className="space-y-6">
                 <Form
@@ -43,12 +43,12 @@ export default function Profile({
                         <>
                             <Heading
                                 variant="small"
-                                title="Profile"
-                                description="Update your name and email address"
+                                title="Profiel"
+                                description="Werk je naam en e-mailadres bij"
                             />
 
                             <div className="grid gap-2">
-                                <Label htmlFor="name">Full Name</Label>
+                                <Label htmlFor="name">Volledige naam</Label>
 
                                 <Input
                                     id="name"
@@ -57,7 +57,7 @@ export default function Profile({
                                     name="name"
                                     required
                                     autoComplete="name"
-                                    placeholder="Full name"
+                                    placeholder="Volledige naam"
                                 />
 
                                 <InputError
@@ -67,7 +67,7 @@ export default function Profile({
                             </div>
 
                             <div className="grid gap-2">
-                                <Label htmlFor="email">Email address</Label>
+                                <Label htmlFor="email">E-mailadres</Label>
 
                                 <Input
                                     id="email"
@@ -77,7 +77,7 @@ export default function Profile({
                                     name="email"
                                     required
                                     autoComplete="username"
-                                    placeholder="Email address"
+                                    placeholder="E-mailadres"
                                 />
 
                                 <InputError
@@ -87,7 +87,7 @@ export default function Profile({
                             </div>
 
                             <div className="grid gap-2">
-                                <Label htmlFor="phone">Phone</Label>
+                                <Label htmlFor="phone">Telefoonnummer</Label>
 
                                 <Input
                                     id="phone"
@@ -97,7 +97,7 @@ export default function Profile({
                                     name="phone"
                                     required
                                     autoComplete="tel"
-                                    placeholder="Phone number"
+                                    placeholder="Telefoonnummer"
                                 />
 
                                 <InputError
@@ -110,22 +110,23 @@ export default function Profile({
                                 auth.user.email_verified_at === null && (
                                     <div>
                                         <p className="-mt-4 text-sm text-muted-foreground">
-                                            Your email address is unverified.{' '}
+                                            Je e-mailadres is nog niet
+                                            geverifieerd.{' '}
                                             <Link
                                                 href={send()}
                                                 as="button"
                                                 className="text-foreground underline decoration-neutral-300 underline-offset-4 transition-colors duration-300 ease-out hover:decoration-current! dark:decoration-neutral-500"
                                             >
-                                                Click here to re-send the
-                                                verification email.
+                                                Verstuur de verificatiemail
+                                                opnieuw.
                                             </Link>
                                         </p>
 
                                         {status ===
                                             'verification-link-sent' && (
                                             <div className="mt-2 text-sm font-medium text-green-600">
-                                                A new verification link has been
-                                                sent to your email address.
+                                                Er is een nieuwe verificatielink
+                                                verstuurd naar je e-mailadres.
                                             </div>
                                         )}
                                     </div>
@@ -133,12 +134,12 @@ export default function Profile({
 
                             <Heading
                                 variant="small"
-                                title="Address"
-                                description="Update your address information"
+                                title="Adres"
+                                description="Werk je adresgegevens bij"
                             />
 
                             <div className="grid gap-2">
-                                <Label htmlFor="address">Address</Label>
+                                <Label htmlFor="address">Adres</Label>
 
                                 <Input
                                     id="address"
@@ -146,7 +147,7 @@ export default function Profile({
                                     defaultValue={auth.user.address || ''}
                                     name="address"
                                     autoComplete="address"
-                                    placeholder="Address"
+                                    placeholder="Adres"
                                 />
                                 <InputError
                                     className="mt-2"
@@ -155,7 +156,7 @@ export default function Profile({
                             </div>
                             <div className="grid gap-4 md:grid-cols-2">
                                 <div className="grid gap-2">
-                                    <Label htmlFor="city">City</Label>
+                                    <Label htmlFor="city">Plaats</Label>
 
                                     <Input
                                         id="city"
@@ -163,7 +164,7 @@ export default function Profile({
                                         defaultValue={auth.user.city || ''}
                                         name="city"
                                         autoComplete="address-level2"
-                                        placeholder="City"
+                                        placeholder="Plaats"
                                     />
                                     <InputError
                                         className="mt-2"
@@ -173,7 +174,7 @@ export default function Profile({
 
                                 <div className="grid gap-2">
                                     <Label htmlFor="postal_code">
-                                        Postal Code
+                                        Postcode
                                     </Label>
 
                                     <Input
@@ -184,7 +185,7 @@ export default function Profile({
                                         }
                                         name="postal_code"
                                         autoComplete="postal-code"
-                                        placeholder="Postal Code"
+                                        placeholder="Postcode"
                                     />
                                     <InputError
                                         className="mt-2"
@@ -194,7 +195,7 @@ export default function Profile({
 
                                 {mustAddAddress && (
                                     <p className="text-sm text-red-600">
-                                        Please add your address information.
+                                        Vul je adresgegevens aan.
                                     </p>
                                 )}
                             </div>
@@ -203,7 +204,7 @@ export default function Profile({
                                     disabled={processing}
                                     data-test="update-profile-button"
                                 >
-                                    Save
+                                    Opslaan
                                 </Button>
                             </div>
                         </>
@@ -219,7 +220,7 @@ export default function Profile({
 Profile.layout = {
     breadcrumbs: [
         {
-            title: 'Profile settings',
+            title: 'Profielinstellingen',
             href: edit(),
         },
     ],

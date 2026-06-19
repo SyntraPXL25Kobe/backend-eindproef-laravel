@@ -28,7 +28,7 @@ export default function RegisterCoordinator({ passwordRules }: Props) {
                     <>
                         <div className="grid gap-6">
                             <div className="grid gap-2">
-                                <Label htmlFor="name">Contact name</Label>
+                                <Label htmlFor="name">Contactpersoon</Label>
                                 <Input
                                     id="name"
                                     type="text"
@@ -37,7 +37,7 @@ export default function RegisterCoordinator({ passwordRules }: Props) {
                                     tabIndex={1}
                                     autoComplete="name"
                                     name="name"
-                                    placeholder="Full name"
+                                    placeholder="Volledige naam"
                                 />
                                 <InputError
                                     message={errors.name}
@@ -46,7 +46,7 @@ export default function RegisterCoordinator({ passwordRules }: Props) {
                             </div>
 
                             <div className="grid gap-2">
-                                <Label htmlFor="email">Email address</Label>
+                                <Label htmlFor="email">E-mailadres</Label>
                                 <Input
                                     id="email"
                                     type="email"
@@ -60,7 +60,7 @@ export default function RegisterCoordinator({ passwordRules }: Props) {
                             </div>
 
                             <div className="grid gap-2">
-                                <Label htmlFor="phone">Phone number</Label>
+                                <Label htmlFor="phone">Telefoonnummer</Label>
                                 <Input
                                     id="phone"
                                     type="text"
@@ -68,14 +68,14 @@ export default function RegisterCoordinator({ passwordRules }: Props) {
                                     tabIndex={3}
                                     autoComplete="tel"
                                     name="phone"
-                                    placeholder="Phone number"
+                                    placeholder="Telefoonnummer"
                                 />
                                 <InputError message={errors.phone} />
                             </div>
 
                             <div className="grid gap-2">
                                 <Label htmlFor="organisation_name">
-                                    Organisation name
+                                    Organisatienaam
                                 </Label>
                                 <Input
                                     id="organisation_name"
@@ -83,7 +83,7 @@ export default function RegisterCoordinator({ passwordRules }: Props) {
                                     required
                                     tabIndex={4}
                                     name="organisation_name"
-                                    placeholder="Organisation"
+                                    placeholder="Organisatie"
                                 />
                                 <InputError
                                     message={errors.organisation_name}
@@ -91,20 +91,20 @@ export default function RegisterCoordinator({ passwordRules }: Props) {
                             </div>
 
                             <div className="grid gap-2">
-                                <Label htmlFor="city">City</Label>
+                                <Label htmlFor="city">Plaats</Label>
                                 <Input
                                     id="city"
                                     type="text"
                                     tabIndex={5}
                                     name="city"
-                                    placeholder="City"
+                                    placeholder="Plaats"
                                 />
                                 <InputError message={errors.city} />
                             </div>
 
                             <div className="grid gap-2">
                                 <Label htmlFor="vat_number">
-                                    VAT number (optional)
+                                    Btw-nummer (optioneel)
                                 </Label>
                                 <Input
                                     id="vat_number"
@@ -118,7 +118,7 @@ export default function RegisterCoordinator({ passwordRules }: Props) {
 
                             <div className="grid gap-2">
                                 <Label htmlFor="website">
-                                    Website (optional)
+                                    Website (optioneel)
                                 </Label>
                                 <Input
                                     id="website"
@@ -131,14 +131,14 @@ export default function RegisterCoordinator({ passwordRules }: Props) {
                             </div>
 
                             <div className="grid gap-2">
-                                <Label htmlFor="password">Password</Label>
+                                <Label htmlFor="password">Wachtwoord</Label>
                                 <PasswordInput
                                     id="password"
                                     required
                                     tabIndex={8}
                                     autoComplete="new-password"
                                     name="password"
-                                    placeholder="Password"
+                                    placeholder="Wachtwoord"
                                     passwordrules={passwordRules}
                                 />
                                 <InputError message={errors.password} />
@@ -146,7 +146,7 @@ export default function RegisterCoordinator({ passwordRules }: Props) {
 
                             <div className="grid gap-2">
                                 <Label htmlFor="password_confirmation">
-                                    Confirm password
+                                    Bevestig wachtwoord
                                 </Label>
                                 <PasswordInput
                                     id="password_confirmation"
@@ -154,7 +154,7 @@ export default function RegisterCoordinator({ passwordRules }: Props) {
                                     tabIndex={9}
                                     autoComplete="new-password"
                                     name="password_confirmation"
-                                    placeholder="Confirm password"
+                                    placeholder="Bevestig wachtwoord"
                                     passwordrules={passwordRules}
                                 />
                                 <InputError
@@ -169,22 +169,22 @@ export default function RegisterCoordinator({ passwordRules }: Props) {
                                 data-test="register-coordinator-button"
                             >
                                 {processing && <Spinner />}
-                                Submit coordinator request
+                                Aanvraag indienen
                             </Button>
                         </div>
 
                         <div className="space-y-2 text-center text-sm text-muted-foreground">
                             <div>
-                                Already have an account?{' '}
+                                Heb je al een account?{' '}
                                 <TextLink href={login()} tabIndex={11}>
-                                    Log in
+                                    Inloggen
                                 </TextLink>
                             </div>
 
                             <div>
-                                Crew member?{' '}
+                                Ben je crewlid?{' '}
                                 <TextLink href="/register" tabIndex={12}>
-                                    Create a regular account
+                                    Regulier account aanmaken
                                 </TextLink>
                             </div>
                         </div>
@@ -196,6 +196,6 @@ export default function RegisterCoordinator({ passwordRules }: Props) {
 }
 
 RegisterCoordinator.layout = {
-    title: 'Coordinator registration',
-    description: 'Create your coordinator profile and submit your request',
+    title: 'Coordinatorregistratie',
+    description: 'Maak je coordinatorprofiel aan en dien je aanvraag in',
 };

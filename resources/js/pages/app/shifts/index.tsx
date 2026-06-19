@@ -78,13 +78,13 @@ export default function CrewShiftsIndex() {
 
     return (
         <>
-            <Head title="Mijn shifts" />
+            <Head title="Mijn shiften" />
 
             <div className="flex flex-1 flex-col gap-6 p-4 md:p-6">
                 <div className="mx-auto w-full max-w-6xl space-y-5">
                     <Heading
-                        title="Mijn shifts"
-                        description="Overzicht van je aanvragen en shifts, chronologisch gesorteerd."
+                        title="Mijn shiften"
+                        description="Overzicht van je aanvragen en shiften, chronologisch gesorteerd."
                     />
 
                     <Input
@@ -92,7 +92,7 @@ export default function CrewShiftsIndex() {
                         onChange={(event) =>
                             setSearchQuery(event.currentTarget.value)
                         }
-                        placeholder="Zoek op shift, event, zone, locatie, motivatie of status"
+                        placeholder="Zoek op shift, evenement, zone, locatie, motivatie of status"
                         className="max-w-xl"
                     />
 
@@ -106,10 +106,10 @@ export default function CrewShiftsIndex() {
                     {filteredApplications.length === 0 ? (
                         <Card className="border-dashed">
                             <CardHeader>
-                                <CardTitle>Geen shifts gevonden</CardTitle>
+                                <CardTitle>Geen shiften gevonden</CardTitle>
                                 <CardDescription>
                                     Pas je filter of zoekterm aan, of bekijk
-                                    publieke events om te applyen.
+                                    publieke evenementen om je aan te melden.
                                 </CardDescription>
                             </CardHeader>
                             <CardContent>
@@ -162,7 +162,7 @@ export default function CrewShiftsIndex() {
 CrewShiftsIndex.layout = {
     breadcrumbs: [
         {
-            title: 'Mijn shifts',
+            title: 'Mijn shiften',
             href: '/app/my-shifts',
         },
     ],

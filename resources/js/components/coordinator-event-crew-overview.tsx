@@ -58,8 +58,8 @@ export default function CoordinatorEventCrewOverview({ crewMembers }: Props) {
     return (
         <section className="space-y-4">
             <Heading
-                title="Crew members & shifts"
-                description="Overzicht van crewleden met hun goedgekeurde shifts voor dit event."
+                title="Crew en shiften"
+                description="Overzicht van crewleden met hun goedgekeurde shiften voor dit evenement."
             />
 
             <Input
@@ -72,7 +72,8 @@ export default function CoordinatorEventCrewOverview({ crewMembers }: Props) {
             {crewMembers.length === 0 ? (
                 <Card className="border-dashed">
                     <CardContent className="py-8 text-sm text-muted-foreground">
-                        Er zijn nog geen goedgekeurde crewleden voor dit event.
+                        Er zijn nog geen goedgekeurde crewleden voor dit
+                        evenement.
                     </CardContent>
                 </Card>
             ) : filtered.length === 0 ? (
@@ -103,7 +104,7 @@ export default function CoordinatorEventCrewOverview({ crewMembers }: Props) {
                                     </div>
                                     <Badge>
                                         {crewMember.approved_shifts_count}{' '}
-                                        shift(s)
+                                        shift(en)
                                     </Badge>
                                 </div>
                             </CardHeader>

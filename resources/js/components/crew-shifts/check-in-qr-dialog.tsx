@@ -22,10 +22,10 @@ export function CheckInQrDialog({
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-md">
                 <DialogHeader>
-                    <DialogTitle>Check-in QR</DialogTitle>
+                    <DialogTitle>QR-code voor check-in</DialogTitle>
                     <DialogDescription>
                         Toon deze QR-code aan de coordinator op de dag van het
-                        event om ingecheckt te worden.
+                        evenement om ingecheckt te worden.
                     </DialogDescription>
                 </DialogHeader>
 
@@ -34,12 +34,13 @@ export function CheckInQrDialog({
                         <div className="rounded-2xl border border-border/70 bg-white p-4">
                             <img
                                 src={checkIn.qr_svg_src}
-                                alt={`Check-in QR voor ${application.shift.title ?? 'deze shift'}`}
+                                alt={`QR-code voor check-in van ${application.shift.title ?? 'deze shift'}`}
                                 className="mx-auto block w-full max-w-xs"
                             />
                         </div>
                         <div className="rounded-xl border border-border/70 bg-muted/30 p-3 text-sm text-muted-foreground">
-                            {application.shift.event_title || 'Onbekend event'}
+                            {application.shift.event_title ||
+                                'Onbekend evenement'}
                             {' · '}
                             {application.shift.title || 'Onbekende shift'}
                         </div>

@@ -29,7 +29,7 @@ class CoordinatorAssignmentAttendanceController extends Controller
         if (! $assignment) {
             Inertia::flash('scan_feedback', [
                 'status' => 'error',
-                'message' => 'Deze QR-code hoort niet bij dit event.',
+                'message' => 'Deze QR-code hoort niet bij dit evenement.',
             ]);
 
             return back();
@@ -90,7 +90,7 @@ class CoordinatorAssignmentAttendanceController extends Controller
             if ($forScan) {
                 Inertia::flash('scan_feedback', [
                     'status' => 'error',
-                    'message' => 'Check-in is alleen beschikbaar op de dag van het event.',
+                    'message' => 'Check-in is alleen beschikbaar op de dag van het evenement.',
                 ]);
             }
 
@@ -101,7 +101,7 @@ class CoordinatorAssignmentAttendanceController extends Controller
             if ($forScan) {
                 Inertia::flash('scan_feedback', [
                     'status' => 'error',
-                    'message' => 'Crewlid is al ingecheckt voor dit event.',
+                    'message' => 'Crewlid is al ingecheckt voor dit evenement.',
                     'assignment' => $this->scanAssignmentData($assignment),
                 ]);
             }
@@ -165,7 +165,7 @@ class CoordinatorAssignmentAttendanceController extends Controller
             if ($forScan) {
                 Inertia::flash('scan_feedback', [
                     'status' => 'error',
-                    'message' => 'Crewlid is niet ingecheckt voor dit event.',
+                    'message' => 'Crewlid is niet ingecheckt voor dit evenement.',
                     'assignment' => $this->scanAssignmentData($assignment),
                 ]);
             }

@@ -74,12 +74,12 @@ export default function Dashboard() {
                                 <Card className="border-dashed">
                                     <CardHeader>
                                         <CardTitle>
-                                            Geen events gevonden
+                                            Geen evenementen gevonden
                                         </CardTitle>
                                         <CardDescription>
                                             {filters.search
                                                 ? 'Geen resultaten voor je zoekopdracht.'
-                                                : 'Zodra coordinators events publiek publiceren, verschijnen ze hier voor crew members.'}
+                                                : 'Zodra coordinators evenementen publiek publiceren, verschijnen ze hier voor crewleden.'}
                                         </CardDescription>
                                     </CardHeader>
                                 </Card>

@@ -18,9 +18,9 @@ export default function Skills() {
 
     return (
         <>
-            <Head title="Skills settings" />
+            <Head title="Vaardigheden" />
 
-            <h1 className="sr-only">Skills settings</h1>
+            <h1 className="sr-only">Vaardigheden</h1>
 
             <ProfileSkillsDialog
                 availableSkills={availableSkills}
@@ -33,7 +33,7 @@ export default function Skills() {
 Skills.layout = {
     breadcrumbs: [
         {
-            title: 'Skills settings',
+            title: 'Vaardigheden',
             href: edit(),
         },
     ],

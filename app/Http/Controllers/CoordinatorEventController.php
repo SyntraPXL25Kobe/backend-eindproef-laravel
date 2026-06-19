@@ -57,7 +57,7 @@ class CoordinatorEventController extends Controller
 
         Inertia::flash('toast', [
             'type' => 'success',
-            'message' => 'Event opgeslagen als concept.',
+            'message' => 'Evenement opgeslagen als concept.',
         ]);
 
         return to_route('coordinator.events.edit', ['event' => $event->getKey()]);
@@ -88,7 +88,12 @@ class CoordinatorEventController extends Controller
             'shiftStatusOptions' => collect(ShiftStatus::cases())
                 ->map(fn (ShiftStatus $status) => [
                     'value' => $status->value,
-                    'label' => ucfirst($status->value),
+                    'label' => match ($status) {
+                        ShiftStatus::Open => 'Open',
+                        ShiftStatus::Full => 'Volzet',
+                        ShiftStatus::Closed => 'Gesloten',
+                        ShiftStatus::Cancelled => 'Geannuleerd',
+                    },
                 ])->values(),
         ]);
     }
@@ -101,7 +106,7 @@ class CoordinatorEventController extends Controller
 
         Inertia::flash('toast', [
             'type' => 'success',
-            'message' => 'Event bijgewerkt.',
+            'message' => 'Evenement bijgewerkt.',
         ]);
 
         return to_route('coordinator.events.edit', ['event' => $event->getKey()]);
@@ -114,8 +119,8 @@ class CoordinatorEventController extends Controller
         Inertia::flash('toast', [
             'type' => 'success',
             'message' => $event->publication_visibility === EventVisibility::Public
-                ? 'Event publiek gepubliceerd.'
-                : 'Event gepubliceerd met een unieke crew-uitnodigingslink.',
+                ? 'Evenement publiek gepubliceerd.'
+                : 'Evenement gepubliceerd met een unieke crew-uitnodigingslink.',
         ]);
 
         return to_route('coordinator.events.edit', ['event' => $event->getKey()]);
@@ -187,12 +192,12 @@ class CoordinatorEventController extends Controller
             [
                 'value' => EventVisibility::Public->value,
                 'label' => 'Publiek',
-                'description' => 'Iedereen met de publieke eventpagina kan het event bekijken.',
+                'description' => 'Iedereen met de publieke evenementpagina kan het evenement bekijken.',
             ],
             [
                 'value' => EventVisibility::InviteOnly->value,
-                'label' => 'Invite-only',
-                'description' => 'Alleen crew members met de unieke uitnodigingslink krijgen toegang.',
+                'label' => 'Alleen op uitnodiging',
+                'description' => 'Alleen crewleden met de unieke uitnodigingslink krijgen toegang.',
             ],
         ];
     }

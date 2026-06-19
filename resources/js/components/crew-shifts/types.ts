@@ -32,7 +32,7 @@ export type CrewApplication = {
 export type ApplicationFilter = 'all' | ApplicationStatus;
 
 export const statusLabel: Record<ApplicationStatus, string> = {
-    pending: 'Pending',
+    pending: 'In behandeling',
     approved: 'Goedgekeurd',
     rejected: 'Afgewezen',
 };

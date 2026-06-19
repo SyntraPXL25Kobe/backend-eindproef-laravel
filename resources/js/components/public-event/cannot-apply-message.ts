@@ -5,6 +5,12 @@ export function cannotApplyMessage(shift: Shift): string | null {
         return null;
     }
 
+    const statusLabel: Record<string, string> = {
+        pending: 'in behandeling',
+        approved: 'goedgekeurd',
+        rejected: 'afgewezen',
+    };
+
     const messages: Record<
         NonNullable<Shift['cannot_apply_reason']>,
         string
@@ -12,8 +18,8 @@ export function cannotApplyMessage(shift: Shift): string | null {
         overlap:
             'Je hebt al een aanvraag voor een shift met overlappende uren.',
         rejected:
-            'Je aanvraag voor deze shift werd afgewezen. Opnieuw applyen is niet mogelijk.',
-        already_applied: `Je status voor deze shift is ${shift.application?.status ?? 'bekend'}.`,
+            'Je aanvraag voor deze shift is afgewezen. Opnieuw aanmelden is niet mogelijk.',
+        already_applied: `Je status voor deze shift is ${statusLabel[shift.application?.status ?? ''] ?? 'onbekend'}.`,
         shift_closed: 'Deze shift staat momenteel niet open voor aanvragen.',
     };
 

@@ -34,7 +34,7 @@ const statusLabels: Record<string, string> = {
 
 const visibilityLabels: Record<string, string> = {
     public: 'Publiek',
-    invite_only: 'Invite-only',
+    invite_only: 'Alleen op uitnodiging',
 };
 
 export default function CoordinatorEventsIndex({
@@ -44,17 +44,19 @@ export default function CoordinatorEventsIndex({
 }) {
     return (
         <>
-            <Head title="Mijn events" />
+            <Head title="Mijn evenementen" />
 
             <div className="flex flex-1 flex-col gap-6 p-4 md:p-6">
                 <div className="flex flex-col gap-4 rounded-3xl border border-sidebar-border/70 bg-linear-to-br from-background via-background to-muted/40 p-6">
                     <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
                         <Heading
-                            title="Mijn events"
-                            description="Maak events aan als concept en publiceer ze publiek of via een unieke crew-link."
+                            title="Mijn evenementen"
+                            description="Maak evenementen aan als concept en publiceer ze publiek of via een unieke crewlink."
                         />
                         <Button asChild>
-                            <Link href="/app/events/create">Nieuw event</Link>
+                            <Link href="/app/events/create">
+                                Nieuw evenement
+                            </Link>
                         </Button>
                     </div>
                 </div>
@@ -63,17 +65,17 @@ export default function CoordinatorEventsIndex({
                     {events.length === 0 ? (
                         <Card className="border-dashed">
                             <CardHeader>
-                                <CardTitle>Nog geen events</CardTitle>
+                                <CardTitle>Nog geen evenementen</CardTitle>
                                 <CardDescription>
-                                    Start met een concept en beslis later of je
-                                    publiek wil publiceren of alleen met crew
-                                    members wil delen.
+                                    Start met een concept en bepaal later of je
+                                    publiek publiceert of alleen met je crew
+                                    deelt.
                                 </CardDescription>
                             </CardHeader>
                             <CardFooter>
                                 <Button asChild>
                                     <Link href="/app/events/create">
-                                        Eerste event aanmaken
+                                        Evenement aanmaken
                                     </Link>
                                 </Button>
                             </CardFooter>
@@ -112,8 +114,8 @@ export default function CoordinatorEventsIndex({
                                     )}
                                     {!event.public_url && !event.invite_url && (
                                         <p>
-                                            Dit event staat nog als concept en
-                                            is nergens zichtbaar.
+                                            Dit evenement staat nog als concept
+                                            en is nergens zichtbaar.
                                         </p>
                                     )}
                                 </CardContent>
@@ -125,7 +127,7 @@ export default function CoordinatorEventsIndex({
                                     </Button>
                                     <Button asChild variant="secondary">
                                         <Link href={event.dashboard_url}>
-                                            Live dashboard
+                                            Dashboard
                                         </Link>
                                     </Button>
                                 </CardFooter>
@@ -141,7 +143,7 @@ export default function CoordinatorEventsIndex({
 CoordinatorEventsIndex.layout = {
     breadcrumbs: [
         {
-            title: 'Mijn events',
+            title: 'Mijn evenementen',
             href: '/app/events',
         },
     ],
