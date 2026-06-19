@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\EventStatus;
-use App\EventVisibility;
+use App\Enums\EventStatus;
+use App\Enums\EventVisibility;
 use App\Models\Event;
 use Illuminate\Http\Request;
 use Inertia\Inertia;

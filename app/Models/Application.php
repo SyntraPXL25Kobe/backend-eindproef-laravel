@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\ApplicationStatus;
+use App\Enums\ApplicationStatus;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;

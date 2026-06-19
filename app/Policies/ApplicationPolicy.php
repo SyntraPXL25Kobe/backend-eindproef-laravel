@@ -2,12 +2,12 @@
 
 namespace App\Policies;
 
-use App\ApplicationStatus;
+use App\Enums\ApplicationStatus;
 use App\Enums\Permission;
+use App\Enums\ShiftStatus;
 use App\Models\Application;
 use App\Models\Shift;
 use App\Models\User;
-use App\ShiftStatus;
 
 class ApplicationPolicy
 {

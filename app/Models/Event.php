@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use App\EventStatus;
-use App\EventVisibility;
+use App\Enums\EventStatus;
+use App\Enums\EventVisibility;
 use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;

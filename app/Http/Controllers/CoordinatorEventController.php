@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\ApplicationStatus;
-use App\EventStatus;
-use App\EventVisibility;
+use App\Enums\ApplicationStatus;
+use App\Enums\EventStatus;
+use App\Enums\EventVisibility;
+use App\Enums\ShiftStatus;
 use App\Http\Requests\CoordinatorEvents\PublishCoordinatorEventRequest;
 use App\Http\Requests\CoordinatorEvents\StoreCoordinatorEventRequest;
 use App\Http\Requests\CoordinatorEvents\UpdateCoordinatorEventRequest;
 use App\Models\Application;
 use App\Models\Event;
 use App\Models\Skill;
-use App\ShiftStatus;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
