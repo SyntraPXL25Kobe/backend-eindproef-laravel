@@ -1,16 +1,19 @@
 <?php
 
 use App\Models\Application;
+use App\Models\Assignment;
 use App\Models\CoordinatorProfile;
 use App\Models\Event;
 use App\Models\Shift;
 use App\Models\User;
 use App\Models\Zone;
 use Database\Seeders\PermissionsSeeder;
+use Illuminate\Support\Carbon;
 use Inertia\Testing\AssertableInertia as Assert;
 
 beforeEach(function () {
     $this->seed(PermissionsSeeder::class);
+    Carbon::setTestNow();
 });
 
 function crewMember(): User
@@ -22,6 +25,8 @@ function crewMember(): User
 }
 
 it('shows crew shifts chronologically with application statuses', function () {
+    Carbon::setTestNow('2026-08-20 10:00:00');
+
     $crew = crewMember();
 
     $coordinator = User::factory()->create([
@@ -68,10 +73,17 @@ it('shows crew shifts chronologically with application statuses', function () {
         'status' => 'open',
     ]);
 
-    Application::query()->create([
+    $approvedApplication = Application::query()->create([
         'shift_id' => $laterShift->id,
         'user_id' => $crew->id,
         'status' => 'approved',
+    ]);
+
+    Assignment::query()->create([
+        'application_id' => $approvedApplication->id,
+        'shift_id' => $laterShift->id,
+        'user_id' => $crew->id,
+        'confirmed_at' => now(),
     ]);
 
     Application::query()->create([
@@ -90,5 +102,11 @@ it('shows crew shifts chronologically with application statuses', function () {
             ->where('applications.0.shift.title', 'Early shift')
             ->where('applications.0.status', 'pending')
             ->where('applications.1.shift.title', 'Late shift')
-            ->where('applications.1.status', 'approved'));
+            ->where('applications.1.status', 'approved')
+            ->where('applications.1.check_in.is_available_today', true)
+            ->where('applications.1.check_in.no_show', false)
+            ->where(
+                'applications.1.check_in.qr_svg_src',
+                fn ($value) => is_string($value) && str_contains($value, 'data:image'),
+            ));
 });
