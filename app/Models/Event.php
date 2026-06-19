@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Carbon\CarbonInterface;
 use Illuminate\Support\Str;
 
 #[Fillable([
@@ -79,6 +80,23 @@ class Event extends Model
         $this->published_at = now();
         $this->ensureInvitationToken();
         $this->save();
+    }
+
+    public function isHappeningOn(CarbonInterface $moment): bool
+    {
+        if (! $this->start_date || ! $this->end_date) {
+            return false;
+        }
+
+        return $moment->betweenIncluded(
+            $this->start_date->copy()->startOfDay(),
+            $this->end_date->copy()->endOfDay(),
+        );
+    }
+
+    public function isHappeningToday(): bool
+    {
+        return $this->isHappeningOn(now());
     }
 
     public function coordinatorProfile(): BelongsTo

@@ -8,6 +8,12 @@ use App\Models\User;
 
 class AssignmentPolicy
 {
+    public function viewCheckInQr(User $user, Assignment $assignment): bool
+    {
+        return $user->can(Permission::ViewOwnSchedule->value)
+            && $assignment->user_id === $user->id;
+    }
+
     public function manageCheckIn(User $user, Assignment $assignment): bool
     {
         return $user->can(Permission::ManageCheckIns->value)
