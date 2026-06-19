@@ -1,6 +1,9 @@
-import { useEffect, useState } from 'react';
 import type { IDetectedBarcode, IScannerError } from '@yudiel/react-qr-scanner';
 import { Scanner as QrScanner } from '@yudiel/react-qr-scanner';
+import { useState } from 'react';
+import type { EventDashboardScanFeedback } from '@/components/event-dashboard/types';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
     Dialog,
     DialogClose,
@@ -9,9 +12,6 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
-import type { EventDashboardScanFeedback } from '@/components/event-dashboard/types';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { formatDateTimeNl } from '@/lib/format-date-time';
 
 type QrScannerDialogProps = {
@@ -37,12 +37,6 @@ export function QrScannerDialog({
     const scanErrorMessage =
         feedback?.status === 'error' ? feedback.message : null;
 
-    useEffect(() => {
-        if (!open) {
-            setScannerError(null);
-        }
-    }, [open]);
-
     const handleDetectedCodes = (codes: IDetectedBarcode[]) => {
         const value = codes[0]?.rawValue?.trim();
 
@@ -55,8 +49,21 @@ export function QrScannerDialog({
         setScannerError(error.message);
     };
 
+    const handleOpenChange = (nextOpen: boolean) => {
+        if (!nextOpen) {
+            setScannerError(null);
+        }
+
+        onOpenChange(nextOpen);
+    };
+
+    const handleClearFeedback = () => {
+        setScannerError(null);
+        onClearFeedback();
+    };
+
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
+        <Dialog open={open} onOpenChange={handleOpenChange}>
             <DialogContent className="inset-0 flex h-dvh max-h-none min-h-dvh w-dvw max-w-none translate-x-0 translate-y-0 flex-col gap-0 rounded-none border-0 p-0 shadow-none sm:max-w-none [&>button.absolute]:hidden">
                 <DialogHeader>
                     <DialogTitle className="sr-only">
@@ -127,7 +134,7 @@ export function QrScannerDialog({
 
                             <button
                                 type="button"
-                                onClick={onClearFeedback}
+                                onClick={handleClearFeedback}
                                 className="w-full rounded-2xl border border-white/40 bg-white/18 px-4 py-5 text-center text-base font-semibold text-white active:scale-[0.99]"
                             >
                                 Tik hier voor volgende scan
@@ -197,7 +204,7 @@ export function QrScannerDialog({
 
                             <button
                                 type="button"
-                                onClick={onClearFeedback}
+                                onClick={handleClearFeedback}
                                 className="w-full rounded-2xl border border-white/40 bg-white/18 px-4 py-5 text-center text-base font-semibold text-white active:scale-[0.99]"
                             >
                                 Tik hier om opnieuw te scannen

@@ -1,8 +1,8 @@
-import { ColumnDef } from '@tanstack/react-table';
+import type { ColumnDef } from '@tanstack/react-table';
+import type { EventDashboardAssignment } from '@/components/event-dashboard/types';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { DataTable } from '@/components/ui/data-table';
-import type { EventDashboardAssignment } from '@/components/event-dashboard/types';
 import { formatDateTimeNl } from '@/lib/format-date-time';
 
 export function EventDashboardAttendanceList({
@@ -72,9 +72,11 @@ export function EventDashboardAttendanceList({
                         </Badge>
                     );
                 }
+
                 if (row.original.no_show) {
                     return <Badge variant="destructive">No-show</Badge>;
                 }
+
                 return <Badge variant="outline">Wacht op check-in</Badge>;
             },
         },
