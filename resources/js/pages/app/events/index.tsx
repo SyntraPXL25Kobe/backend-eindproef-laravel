@@ -21,6 +21,7 @@ type EventListItem = {
     publication_visibility: string;
     published_at: string | null;
     edit_url: string;
+    dashboard_url: string;
     public_url: string | null;
     invite_url: string | null;
 };
@@ -116,10 +117,15 @@ export default function CoordinatorEventsIndex({
                                         </p>
                                     )}
                                 </CardContent>
-                                <CardFooter>
+                                <CardFooter className="flex flex-wrap gap-2">
                                     <Button asChild variant="outline">
                                         <Link href={event.edit_url}>
                                             Beheren
+                                        </Link>
+                                    </Button>
+                                    <Button asChild variant="secondary">
+                                        <Link href={event.dashboard_url}>
+                                            Live dashboard
                                         </Link>
                                     </Button>
                                 </CardFooter>

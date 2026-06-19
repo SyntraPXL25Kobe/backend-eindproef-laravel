@@ -2,12 +2,12 @@ import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useMemo, useState } from 'react';
 import { CrewShiftApplicationCard } from '@/components/crew-shifts/application-card';
 import { ApplicationStatusFilters } from '@/components/crew-shifts/application-status-filters';
+import { CheckInQrDialog } from '@/components/crew-shifts/check-in-qr-dialog';
 import {
-    statusLabel
-    
-    
+    statusLabel,
+    type ApplicationFilter,
+    type CrewApplication,
 } from '@/components/crew-shifts/types';
-import type {ApplicationFilter, CrewApplication} from '@/components/crew-shifts/types';
 import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
 import {
@@ -30,6 +30,9 @@ export default function CrewShiftsIndex() {
     const [activeApplicationId, setActiveApplicationId] = useState<
         number | null
     >(null);
+    const [qrApplication, setQrApplication] = useState<CrewApplication | null>(
+        null,
+    );
 
     const filteredApplications = useMemo(() => {
         const normalizedQuery = searchQuery.trim().toLowerCase();
@@ -122,6 +125,7 @@ export default function CrewShiftsIndex() {
                                     key={application.id}
                                     application={application}
                                     activeApplicationId={activeApplicationId}
+                                    onShowQr={setQrApplication}
                                     onCancel={(applicationId) => {
                                         setActiveApplicationId(applicationId);
                                         router.delete(
@@ -141,6 +145,16 @@ export default function CrewShiftsIndex() {
                     )}
                 </div>
             </div>
+
+            <CheckInQrDialog
+                application={qrApplication}
+                open={qrApplication !== null}
+                onOpenChange={(open) => {
+                    if (!open) {
+                        setQrApplication(null);
+                    }
+                }}
+            />
         </>
     );
 }

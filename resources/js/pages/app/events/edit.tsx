@@ -34,6 +34,7 @@ type EventDetail = {
     publication_visibility: string;
     max_crew_members: number | null;
     cover_image_url: string | null;
+    dashboard_url: string;
     public_url: string | null;
     invite_url: string | null;
     zones: Array<{
@@ -265,6 +266,12 @@ export default function EditCoordinatorEvent({
                                         </Link>
                                     </Button>
                                 )}
+
+                                <Button asChild variant="secondary">
+                                    <Link href={event.dashboard_url}>
+                                        Open live dashboard
+                                    </Link>
+                                </Button>
                             </CardFooter>
                         </Card>
 
