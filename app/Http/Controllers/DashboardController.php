@@ -20,6 +20,7 @@ class DashboardController extends Controller
     public function __invoke(Request $request): Response
     {
         $search = trim((string) $request->string('search'));
+        $isCoordinator = $request->user()?->can('create', Event::class) ?? false;
 
         $publicEvents = Event::query()
             ->with('coordinatorProfile')
@@ -53,7 +54,7 @@ class DashboardController extends Controller
             ]);
 
         return Inertia::render('dashboard', [
-            'publicEvents' => $request->user()?->hasRole('coordinator')
+            'publicEvents' => $isCoordinator
                 ? []
                 : $publicEvents,
             'filters' => [
