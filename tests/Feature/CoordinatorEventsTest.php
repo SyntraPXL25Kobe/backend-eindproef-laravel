@@ -15,6 +15,7 @@ use App\Notifications\ShiftApplicationRejectedNotification;
 use Database\Seeders\PermissionsSeeder;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Support\Facades\Notification;
+use Inertia\Testing\AssertableInertia as Assert;
 
 const APPLICATION_ID_COLUMN = 'application_id';
 
@@ -485,4 +486,56 @@ it('prevents approving when shift capacity is already reached', function () {
 
     expect($pendingApplication->fresh()->status)->toBe(ApplicationStatus::Pending);
     expect(Assignment::query()->where(APPLICATION_ID_COLUMN, $pendingApplication->id)->exists())->toBeFalse();
+});
+
+it('shows crew skills to coordinators on the event edit page', function () {
+    $coordinator = coordinatorUser();
+    $crew = User::factory()->create();
+    $crew->syncRoles(['crew']);
+
+    $skillA = Skill::query()->create(['name' => 'EHBO']);
+    $skillB = Skill::query()->create(['name' => 'Barervaring']);
+    $crew->skills()->sync([$skillA->id, $skillB->id]);
+
+    $event = Event::query()->create([
+        'coordinator_profile_id' => $coordinator->coordinatorProfile->id,
+        'title' => 'Crew skills event',
+        'location' => 'Antwerpen',
+        'start_date' => '2026-12-01',
+        'end_date' => '2026-12-02',
+        'status' => 'draft',
+        'publication_visibility' => 'public',
+    ]);
+
+    $zone = Zone::query()->create([
+        'event_id' => $event->id,
+        'name' => 'Main zone',
+    ]);
+
+    $shift = Shift::query()->create([
+        'zone_id' => $zone->id,
+        'title' => 'Avondshift',
+        'starts_at' => '2026-12-01 17:00:00',
+        'ends_at' => '2026-12-01 22:00:00',
+        'capacity' => 4,
+        'status' => 'open',
+    ]);
+
+    Application::query()->create([
+        'shift_id' => $shift->id,
+        'user_id' => $crew->id,
+        'status' => 'approved',
+        'reviewed_by' => $coordinator->id,
+        'reviewed_at' => now(),
+    ]);
+
+    $this->actingAs($coordinator)
+        ->get(route('coordinator.events.edit', ['event' => $event->id]))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('app/events/edit')
+            ->where('applications.0.user.skills.0', 'EHBO')
+            ->where('applications.0.user.skills.1', 'Barervaring')
+            ->where('crewMembers.0.skills.0', 'EHBO')
+            ->where('crewMembers.0.skills.1', 'Barervaring'));
 });

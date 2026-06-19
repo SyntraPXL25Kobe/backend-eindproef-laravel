@@ -80,6 +80,7 @@ type EventApplication = {
         name: string;
         email: string;
         phone: string | null;
+        skills: string[];
     };
     zone: {
         id: number;
@@ -100,6 +101,7 @@ type CrewMember = {
     name: string;
     email: string;
     phone: string | null;
+    skills: string[];
     approved_shifts_count: number;
     shifts: Array<{
         application_id: number;

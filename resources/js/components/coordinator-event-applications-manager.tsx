@@ -26,6 +26,7 @@ type EventApplication = {
         name: string;
         email: string;
         phone: string | null;
+        skills: string[];
     };
     zone: {
         id: number;
@@ -114,6 +115,16 @@ function ApplicationReviewCard({
                         </p>
                     )}
                 </div>
+
+                {application.user.skills.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                        {application.user.skills.map((skill) => (
+                            <Badge key={skill} variant="secondary">
+                                {skill}
+                            </Badge>
+                        ))}
+                    </div>
+                )}
             </CardHeader>
 
             <CardContent className="space-y-4">
