@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\CoordinatorApplicationReviewController;
+use App\Http\Controllers\CoordinatorAssignmentAttendanceController;
 use App\Http\Controllers\CoordinatorEventController;
+use App\Http\Controllers\CoordinatorEventDashboardController;
 use App\Http\Controllers\CoordinatorShiftController;
 use App\Http\Controllers\CoordinatorZoneController;
 use App\Http\Controllers\CrewShiftController;
@@ -28,6 +30,10 @@ Route::middleware(['auth', 'verified'])->prefix('app')->group(function () {
         ->name('shift-applications.destroy');
     Route::patch('/applications/{application}/review', [CoordinatorApplicationReviewController::class, 'update'])
         ->name('coordinator.applications.review');
+    Route::post('/assignments/{assignment}/check-in', [CoordinatorAssignmentAttendanceController::class, 'checkIn'])
+        ->name('coordinator.assignments.check-in');
+    Route::patch('/assignments/{assignment}/no-show', [CoordinatorAssignmentAttendanceController::class, 'updateNoShow'])
+        ->name('coordinator.assignments.no-show');
 
     Route::prefix('events')
         ->name('coordinator.events.')
@@ -36,6 +42,8 @@ Route::middleware(['auth', 'verified'])->prefix('app')->group(function () {
             Route::get('/create', [CoordinatorEventController::class, 'create'])->name('create');
             Route::post('/', [CoordinatorEventController::class, 'store'])->name('store');
             Route::get('/{event}/edit', [CoordinatorEventController::class, 'edit'])->name('edit');
+            Route::get('/{event}/dashboard', [CoordinatorEventDashboardController::class, 'show'])->name('dashboard');
+            Route::post('/{event}/check-ins/scan', [CoordinatorAssignmentAttendanceController::class, 'scan'])->name('check-ins.scan');
             Route::match(['put', 'patch'], '/{event}', [CoordinatorEventController::class, 'update'])->name('update');
             Route::post('/{event}/publish', [CoordinatorEventController::class, 'publish'])->name('publish');
             Route::post('/{event}/zones', [CoordinatorZoneController::class, 'store'])->name('zones.store');

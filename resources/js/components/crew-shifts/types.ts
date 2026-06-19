@@ -1,12 +1,20 @@
 export type ApplicationStatus = 'pending' | 'approved' | 'rejected';
 
 export type CrewApplication = {
+    assignment_id: number | null;
     id: number;
     status: ApplicationStatus;
     motivation: string | null;
     created_at: string | null;
     reviewed_at: string | null;
     can_cancel: boolean;
+    check_in: {
+        is_available_today: boolean;
+        checked_in_at: string | null;
+        no_show: boolean;
+        no_show_reason: string | null;
+        qr_svg_src: string | null;
+    } | null;
     shift: {
         id: number | null;
         title: string | null;

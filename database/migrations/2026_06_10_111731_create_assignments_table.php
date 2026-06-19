@@ -24,6 +24,7 @@ return new class extends Migration
                 ->constrained('users')
                 ->cascadeOnDelete();
             $table->timestamp('confirmed_at')->nullable();
+            $table->uuid('check_in_token')->unique();
             $table->timestamp('check_in_at')->nullable();
             $table->timestamp('check_out_at')->nullable();
             $table->boolean('no_show')->default(false);

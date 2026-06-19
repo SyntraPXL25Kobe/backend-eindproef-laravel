@@ -16,11 +16,15 @@ export function CrewShiftApplicationCard({
     application,
     activeApplicationId,
     onCancel,
+    onShowQr,
 }: {
     application: CrewApplication;
     activeApplicationId: number | null;
     onCancel: (applicationId: number) => void;
+    onShowQr: (application: CrewApplication) => void;
 }) {
+    const checkIn = application.check_in;
+
     return (
         <Card className="h-full border-border/70 bg-card/95">
             <CardHeader>
@@ -81,6 +85,45 @@ export function CrewShiftApplicationCard({
                     </p>
                 </div>
 
+                {checkIn && (
+                    <div className="rounded-lg border border-border/70 bg-muted/30 p-3 text-muted-foreground">
+                        <p className="mb-1 font-medium text-foreground">
+                            Event check-in
+                        </p>
+
+                        {checkIn.checked_in_at && (
+                            <p>
+                                Ingecheckt op{' '}
+                                {formatDateTimeNl(checkIn.checked_in_at)}.
+                            </p>
+                        )}
+
+                        {!checkIn.checked_in_at && checkIn.no_show && (
+                            <p>
+                                Gemarkeerd als no-show
+                                {checkIn.no_show_reason
+                                    ? `: ${checkIn.no_show_reason}`
+                                    : '.'}
+                            </p>
+                        )}
+
+                        {!checkIn.checked_in_at &&
+                            !checkIn.no_show &&
+                            !checkIn.is_available_today && (
+                                <p>
+                                    Je QR-code verschijnt automatisch op de dag
+                                    van het event.
+                                </p>
+                            )}
+
+                        {!checkIn.checked_in_at &&
+                            !checkIn.no_show &&
+                            checkIn.is_available_today && (
+                                <p>Je kan vandaag inchecken met je QR-code.</p>
+                            )}
+                    </div>
+                )}
+
                 <div className="flex flex-wrap gap-2 pt-1">
                     {application.shift.event_show_url && (
                         <Button asChild variant="outline">
@@ -89,6 +132,18 @@ export function CrewShiftApplicationCard({
                             </Link>
                         </Button>
                     )}
+
+                    {checkIn?.qr_svg_src &&
+                        !checkIn.checked_in_at &&
+                        !checkIn.no_show && (
+                            <Button
+                                type="button"
+                                variant="secondary"
+                                onClick={() => onShowQr(application)}
+                            >
+                                Toon check-in QR
+                            </Button>
+                        )}
 
                     {application.can_cancel && (
                         <Button

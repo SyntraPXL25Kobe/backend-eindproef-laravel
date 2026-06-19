@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 
 #[Fillable([
     'zone_id',
@@ -51,8 +50,8 @@ class Shift extends Model
         return $this->hasMany(Application::class);
     }
 
-    public function assignment(): HasOne
+    public function assignments(): HasMany
     {
-        return $this->hasOne(Assignment::class);
+        return $this->hasMany(Assignment::class);
     }
 }

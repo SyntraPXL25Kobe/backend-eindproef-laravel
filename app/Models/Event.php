@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\EventStatus;
 use App\EventVisibility;
+use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -79,6 +80,23 @@ class Event extends Model
         $this->published_at = now();
         $this->ensureInvitationToken();
         $this->save();
+    }
+
+    public function isHappeningOn(CarbonInterface $moment): bool
+    {
+        if (! $this->start_date || ! $this->end_date) {
+            return false;
+        }
+
+        return $moment->betweenIncluded(
+            $this->start_date->copy()->startOfDay(),
+            $this->end_date->copy()->endOfDay(),
+        );
+    }
+
+    public function isHappeningToday(): bool
+    {
+        return $this->isHappeningOn(now());
     }
 
     public function coordinatorProfile(): BelongsTo

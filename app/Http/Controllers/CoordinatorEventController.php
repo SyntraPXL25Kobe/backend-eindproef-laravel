@@ -136,6 +136,7 @@ class CoordinatorEventController extends Controller
             'publication_visibility' => $event->publication_visibility->value,
             'published_at' => $event->published_at?->toIso8601String(),
             'edit_url' => route('coordinator.events.edit', ['event' => $event->getKey()]),
+            'dashboard_url' => route('coordinator.events.dashboard', ['event' => $event->getKey()]),
             'public_url' => $event->isPublished() && $event->publication_visibility === EventVisibility::Public
                 ? route('events.public.show', ['event' => $event->getKey()])
                 : null,

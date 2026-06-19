@@ -13,6 +13,7 @@ use App\Models\Zone;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class DatabaseSeeder extends Seeder
 {
@@ -155,6 +156,7 @@ class DatabaseSeeder extends Seeder
                 'shift_id' => $morningShift->id,
                 'user_id' => $crewUser->id,
                 'confirmed_at' => now(),
+                'check_in_token' => (string) Str::uuid(),
                 'no_show' => false,
             ]
         );

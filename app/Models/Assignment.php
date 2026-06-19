@@ -5,12 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Str;
 
 #[Fillable([
     'application_id',
     'shift_id',
     'user_id',
     'confirmed_at',
+    'check_in_token',
     'check_in_at',
     'check_out_at',
     'no_show',
@@ -19,6 +21,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 ])]
 class Assignment extends Model
 {
+    protected static function booted(): void
+    {
+        static::creating(function (Assignment $assignment): void {
+            $assignment->check_in_token ??= (string) Str::uuid();
+        });
+    }
+
     /**
      * Get the attributes that should be cast.
      *
@@ -53,5 +62,10 @@ class Assignment extends Model
     public function noShowMarker(): BelongsTo
     {
         return $this->belongsTo(User::class, 'no_show_marked_by');
+    }
+
+    public function isCheckedIn(): bool
+    {
+        return $this->check_in_at !== null;
     }
 }
