@@ -171,7 +171,6 @@ class PublicEventController extends Controller
                 ApplicationStatus::Pending,
                 ApplicationStatus::Approved,
                 ApplicationStatus::Rejected,
-                ApplicationStatus::Cancelled,
             ])
             ->get()
             ->keyBy('shift_id');

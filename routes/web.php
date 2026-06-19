@@ -4,6 +4,7 @@ use App\Http\Controllers\CoordinatorApplicationReviewController;
 use App\Http\Controllers\CoordinatorEventController;
 use App\Http\Controllers\CoordinatorShiftController;
 use App\Http\Controllers\CoordinatorZoneController;
+use App\Http\Controllers\CrewShiftController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PublicEventController;
 use App\Http\Controllers\ShiftApplicationController;
@@ -19,6 +20,7 @@ Route::get('/events/{event}', [PublicEventController::class, 'show'])
 
 Route::middleware(['auth', 'verified'])->prefix('app')->group(function () {
     Route::get('/', DashboardController::class)->name('dashboard');
+    Route::get('/my-shifts', CrewShiftController::class)->name('crew.shifts.index');
 
     Route::post('/shifts/{shift}/applications', [ShiftApplicationController::class, 'store'])
         ->name('shift-applications.store');
