@@ -25,6 +25,7 @@ type CrewMember = {
     name: string;
     email: string;
     phone: string | null;
+    skills: string[];
     approved_shifts_count: number;
     shifts: CrewShift[];
 };
@@ -47,6 +48,9 @@ export default function CoordinatorEventCrewOverview({ crewMembers }: Props) {
             (crewMember) =>
                 crewMember.name.toLowerCase().includes(q) ||
                 crewMember.email.toLowerCase().includes(q) ||
+                crewMember.skills.some((skill) =>
+                    skill.toLowerCase().includes(q),
+                ) ||
                 crewMember.shifts.some(
                     (shift) =>
                         shift.title.toLowerCase().includes(q) ||
@@ -109,6 +113,19 @@ export default function CoordinatorEventCrewOverview({ crewMembers }: Props) {
                                 </div>
                             </CardHeader>
                             <CardContent>
+                                {crewMember.skills.length > 0 && (
+                                    <div className="mb-3 flex flex-wrap gap-2">
+                                        {crewMember.skills.map((skill) => (
+                                            <Badge
+                                                key={`${crewMember.id}-${skill}`}
+                                                variant="secondary"
+                                            >
+                                                {skill}
+                                            </Badge>
+                                        ))}
+                                    </div>
+                                )}
+
                                 <div className="grid gap-2">
                                     {crewMember.shifts.map((shift) => (
                                         <div

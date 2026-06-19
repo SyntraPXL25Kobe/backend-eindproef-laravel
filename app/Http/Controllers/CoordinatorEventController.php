@@ -218,6 +218,7 @@ class CoordinatorEventController extends Controller
             ->whereHas('shift.zone', fn ($query) => $query->where('event_id', $event->id))
             ->with([
                 'user:id,name,email,phone',
+                'user.skills:id,name',
                 'shift.zone:id,event_id,name',
             ])
             ->latest()
@@ -248,6 +249,10 @@ class CoordinatorEventController extends Controller
                     'name' => $application->user->name,
                     'email' => $application->user->email,
                     'phone' => $application->user->phone,
+                    'skills' => $application->user->skills
+                        ->pluck('name')
+                        ->values()
+                        ->all(),
                 ],
                 'zone' => [
                     'id' => $application->shift->zone->id,
@@ -297,6 +302,10 @@ class CoordinatorEventController extends Controller
                     'name' => $user->name,
                     'email' => $user->email,
                     'phone' => $user->phone,
+                    'skills' => $user->skills
+                        ->pluck('name')
+                        ->values()
+                        ->all(),
                     'approved_shifts_count' => $shifts->count(),
                     'shifts' => $shifts,
                 ];
