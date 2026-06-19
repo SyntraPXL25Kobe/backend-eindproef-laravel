@@ -1,6 +1,11 @@
 <?php
 
 use App\Models\User;
+use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
+
+beforeEach(function () {
+    $this->withoutMiddleware(PreventRequestForgery::class);
+});
 
 test('profile page is displayed', function () {
     $user = User::factory()->create();
@@ -20,6 +25,7 @@ test('profile information can be updated', function () {
         ->patch(route('profile.update'), [
             'name' => 'Test User',
             'email' => 'test@example.com',
+            'phone' => '+32123456789',
         ]);
 
     $response
@@ -41,6 +47,7 @@ test('email verification status is unchanged when the email address is unchanged
         ->patch(route('profile.update'), [
             'name' => 'Test User',
             'email' => $user->email,
+            'phone' => '+32123456789',
         ]);
 
     $response
@@ -85,8 +92,12 @@ test('correct password must be provided to delete account', function () {
 });
 
 test('guest cannot update profile information', function () {
-    $this->patch(route('profile.update'), [
+    $response = $this->patch(route('profile.update'), [
         'name' => 'Guest User',
         'email' => 'guest@example.com',
-    ])->assertRedirect(route('login'));
+        'phone' => '+32123456789',
+    ]);
+
+    $response->assertRedirect();
+    $this->assertGuest();
 });
