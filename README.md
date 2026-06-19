@@ -1,4 +1,4 @@
-# Local Event Crew Planner
+# Local Event Crew PLNR
 
 Een full-stack webapplicatie voor kleine events, festivals en lokale organisaties om vrijwilligers, shifts en no-shows overzichtelijk te beheren.
 
