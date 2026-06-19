@@ -22,6 +22,10 @@ return new class extends Migration
             $table->date('start_date');
             $table->date('end_date');
             $table->enum('status', ['draft', 'published', 'archived'])->default('draft');
+            $table->enum('publication_visibility', ['public', 'invite_only'])
+                ->default('public');
+            $table->uuid('invite_token')->nullable()->unique();
+            $table->timestamp('published_at')->nullable();
             $table->integer('max_crew_members')->nullable();
             $table->string('cover_image_url', 255)->nullable();
             $table->timestamps();
