@@ -52,6 +52,22 @@ function crewMemberStatusBadge(crewMember: EventDashboardCrewMember) {
     return <Badge variant="outline">Wacht op check-in</Badge>;
 }
 
+function shiftStatusBadge(assignment: EventDashboardAssignment) {
+    if (assignment.check_in_at !== null && assignment.check_out_at === null) {
+        return <Badge className="bg-emerald-600 text-white">Actief</Badge>;
+    }
+
+    if (assignment.check_out_at !== null) {
+        return <Badge className="bg-sky-600 text-white">Afgerond</Badge>;
+    }
+
+    if (assignment.no_show) {
+        return <Badge variant="destructive">No-show</Badge>;
+    }
+
+    return <Badge variant="outline">Gepland</Badge>;
+}
+
 export function EventDashboardCrewMemberDialog({
     crewMember,
     open,
@@ -90,28 +106,87 @@ export function EventDashboardCrewMemberDialog({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-4xl">
+            <DialogContent className="max-h-[90vh] max-w-5xl overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle>
                         {crewMember ? crewMember.name : 'Crew member'}
                     </DialogTitle>
                     <DialogDescription>
-                        Overzicht van shiften en no-show status per shift.
+                        Eventstatus, historiek en no-show beheer per shift.
                     </DialogDescription>
                 </DialogHeader>
 
                 {crewMember ? (
                     <div className="space-y-4">
-                        <div className="rounded-xl border border-border/70 bg-muted/20 p-3 text-sm text-muted-foreground">
-                            <div className="mb-2">
-                                {crewMemberStatusBadge(crewMember)}
+                        <div className="grid gap-3 rounded-xl border border-border/70 bg-muted/20 p-4 md:grid-cols-2">
+                            <div className="space-y-2 text-sm text-muted-foreground">
+                                <p className="text-xs font-medium tracking-wide text-muted-foreground/80 uppercase">
+                                    Contact
+                                </p>
+                                <p>{crewMember.email}</p>
+                                <p>
+                                    {crewMember.phone || 'Geen telefoonnummer'}
+                                </p>
                             </div>
-                            <p>{crewMember.email}</p>
-                            <p>{crewMember.phone || 'Geen telefoonnummer'}</p>
+
+                            <div className="space-y-2 text-sm">
+                                <p className="text-xs font-medium tracking-wide text-muted-foreground/80 uppercase">
+                                    Eventstatus
+                                </p>
+                                {crewMemberStatusBadge(crewMember)}
+                                <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+                                    <Badge variant="outline">
+                                        {crewMember.assignments.length} shift
+                                        {crewMember.assignments.length === 1
+                                            ? ''
+                                            : 's'}
+                                    </Badge>
+                                    <Badge variant="outline">
+                                        {crewMember.attendance_history.length}{' '}
+                                        historiekitems
+                                    </Badge>
+                                </div>
+                            </div>
                         </div>
 
+                        {primaryAssignmentId && canManageCheckIn && (
+                            <div className="rounded-xl border border-border/70 p-3">
+                                <p className="mb-2 text-sm font-medium">
+                                    Snelle actie
+                                </p>
+                                <div className="flex flex-wrap gap-2">
+                                    {!hasOpenCheckIn ? (
+                                        <Button
+                                            type="button"
+                                            disabled={crewActionBusy}
+                                            onClick={() =>
+                                                onCheckIn(primaryAssignmentId)
+                                            }
+                                        >
+                                            {crewActionBusy
+                                                ? 'Verwerken...'
+                                                : 'Crew member inchecken'}
+                                        </Button>
+                                    ) : (
+                                        <Button
+                                            type="button"
+                                            variant="default"
+                                            disabled={crewActionBusy}
+                                            onClick={() =>
+                                                onCheckOut(primaryAssignmentId)
+                                            }
+                                        >
+                                            {crewActionBusy
+                                                ? 'Verwerken...'
+                                                : 'Crew member uitchecken'}
+                                        </Button>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+
                         <div className="rounded-xl border border-border/70 p-3">
-                            <p className="mb-2 text-sm font-medium">
+                            <p className="mb-3 text-sm font-medium">
                                 Check-in/check-out historiek
                             </p>
 
@@ -121,9 +196,9 @@ export function EventDashboardCrewMemberDialog({
                                         (entry, index) => (
                                             <div
                                                 key={`${entry.performed_at}-${index}`}
-                                                className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border/60 p-2 text-sm"
+                                                className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border/60 bg-muted/20 p-2 text-sm"
                                             >
-                                                <span className="font-medium">
+                                                <span className="font-medium text-foreground">
                                                     {historyActionLabel(
                                                         entry.action,
                                                     )}
@@ -147,38 +222,8 @@ export function EventDashboardCrewMemberDialog({
                             )}
                         </div>
 
-                        {primaryAssignmentId && canManageCheckIn && (
-                            <div className="flex flex-wrap gap-2">
-                                {!hasOpenCheckIn ? (
-                                    <Button
-                                        type="button"
-                                        disabled={crewActionBusy}
-                                        onClick={() =>
-                                            onCheckIn(primaryAssignmentId)
-                                        }
-                                    >
-                                        {crewActionBusy
-                                            ? 'Verwerken...'
-                                            : 'Crew member inchecken'}
-                                    </Button>
-                                ) : (
-                                    <Button
-                                        type="button"
-                                        variant="default"
-                                        disabled={crewActionBusy}
-                                        onClick={() =>
-                                            onCheckOut(primaryAssignmentId)
-                                        }
-                                    >
-                                        {crewActionBusy
-                                            ? 'Verwerken...'
-                                            : 'Crew member uitchecken'}
-                                    </Button>
-                                )}
-                            </div>
-                        )}
-
                         <div className="space-y-3">
+                            <p className="text-sm font-medium">Shiften</p>
                             {crewMember.assignments.map((assignment) => {
                                 const isBusy =
                                     activeAssignmentId === assignment.id;
@@ -186,9 +231,9 @@ export function EventDashboardCrewMemberDialog({
                                 return (
                                     <div
                                         key={assignment.id}
-                                        className="rounded-xl border border-border/70 p-3"
+                                        className="rounded-xl border border-border/70 bg-card p-3"
                                     >
-                                        <div className="mb-3">
+                                        <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
                                             <div>
                                                 <p className="font-medium">
                                                     {assignment.shift.title}
@@ -209,6 +254,7 @@ export function EventDashboardCrewMemberDialog({
                                                     )}
                                                 </p>
                                             </div>
+                                            {shiftStatusBadge(assignment)}
                                         </div>
 
                                         {assignment.no_show &&
