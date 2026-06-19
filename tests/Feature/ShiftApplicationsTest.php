@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Models\Zone;
 use Database\Seeders\PermissionsSeeder;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
+use Inertia\Testing\AssertableInertia as Assert;
 
 const USER_ID_COLUMN = 'user_id';
 
@@ -95,6 +96,10 @@ it('allows a crew member to apply for multiple shifts across different zones', f
 
     $this->get(route('events.public.show', ['event' => $event->id]))
         ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('events/show')
+            ->where('event.zones.0.shifts.0.starts_at', '2026-08-10T08:00')
+            ->where('event.zones.0.shifts.0.ends_at', '2026-08-10T12:00'))
         ->assertSee('Onthaal')
         ->assertSee('Bar')
         ->assertSee('Onthaal ochtend')
